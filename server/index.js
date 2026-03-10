@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 
 const UserModel = require("./model/User");
+const RequestModel = require("./model/Request"); // <-- ADDED THIS IMPORT
 
 dotenv.config();
 
@@ -93,6 +94,51 @@ app.post("/login", async (req, res) => {
 
     res.status(500).json({
       message: "Server error",
+    });
+  }
+});
+
+/* ---------------- Aid Request API ---------------- */
+
+app.post("/api/requests", async (req, res) => {
+  try {
+    const { fullName, phoneNumber, district, peopleAffected, aidTypes, additionalDetails } = req.body;
+
+    // 1. Check for duplicate pending requests with the same phone number
+    const existingPending = await RequestModel.findOne({ 
+      phoneNumber, 
+      status: "pending" 
+    });
+
+    if (existingPending) {
+      // Sending a 409 status and duplicate flag triggers the error modal in your React code
+      return res.status(409).json({ 
+        message: "This number has already requested",
+        duplicate: true 
+      });
+    }
+
+    // 2. Save the new aid request to the database
+    const newRequest = new RequestModel({
+      fullName,
+      phoneNumber,
+      district,
+      peopleAffected,
+      aidTypes,
+      additionalDetails
+    });
+
+    await newRequest.save();
+
+    res.status(201).json({ 
+      message: "Request submitted successfully",
+      duplicate: false
+    });
+
+  } catch (error) {
+    console.log("Error submitting request:", error);
+    res.status(500).json({
+      message: "Server error while submitting request",
     });
   }
 });

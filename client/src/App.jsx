@@ -14,6 +14,9 @@ import Logout from "./Components/Logout";
 import Navbar from "./Components/Navbar";
 import NavbarPrivate from "./Components/NavbarPrivate";
 
+// Import the new AidRequestForm component
+import AidRequestForm from "./Components/AidRequestForm";
+
 // import Admin from "./Components/Admin";
 // import Volunteer from "./Components/Volunteer";
 // import RequestAid from "./Components/RequestAid";
@@ -74,6 +77,10 @@ function App() {
             </RequireAuth>
           }
         />
+        
+        {/* --- ADDED AID REQUEST FORM ROUTE --- */}
+        <Route path="/request-aid" element={<AidRequestForm />} />
+
         {/* <Route path="/admin" element={<Admin />} />
         <Route path="/volunteer" element={<Volunteer />} />
         <Route path="/request-aid" element={<RequestAid />} />
