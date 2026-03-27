@@ -8,8 +8,10 @@
 
 import React from "react";
 import "./Home.css";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
   return (
     <div className="home-wrapper">
       <div className="home-container">
@@ -30,7 +32,7 @@ const Home = () => {
           </p>
 
           <div className="home-actions">
-            <button className="btn-request">Request Aid</button>
+            <button className="btn-request" onClick={() => navigate("/request-aid")}>Request Aid</button>
             <button className="btn-donate">Donate</button>
           </div>
         </div>
