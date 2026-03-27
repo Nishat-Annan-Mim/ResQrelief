@@ -35,7 +35,7 @@ const VolunteerZoneSelect = () => {
     const fetchVolunteer = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:1636/volunteer/profile/${user.email}`,
+          `http://localhost:3001/volunteer/profile/${user.email}`,
         );
 
         if (response.data.preferredZone) {
@@ -58,7 +58,7 @@ const VolunteerZoneSelect = () => {
     }
 
     try {
-      await axios.put(`http://localhost:1636/volunteer/zone/${user.email}`, {
+      await axios.put(`http://localhost:3001/volunteer/zone/${user.email}`, {
         preferredZone: selectedZone,
       });
 

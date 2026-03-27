@@ -12,7 +12,7 @@ const VolunteerDirectory = () => {
     const fetchVolunteers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:1636/volunteers/grouped-by-zone"
+          "http://localhost:3001/volunteers/grouped-by-zone",
         );
         setGroupedVolunteers(response.data);
       } catch (error) {
@@ -83,8 +83,9 @@ const VolunteerDirectory = () => {
         </div>
       ) : (
         zoneNames.map((zone) => {
-          const filteredVolunteers = groupedVolunteers[zone].filter((volunteer) =>
-            volunteer.fullName.toLowerCase().includes(search.toLowerCase())
+          const filteredVolunteers = groupedVolunteers[zone].filter(
+            (volunteer) =>
+              volunteer.fullName.toLowerCase().includes(search.toLowerCase()),
           );
 
           if (filteredVolunteers.length === 0) {

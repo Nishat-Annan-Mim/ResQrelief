@@ -22,7 +22,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:1636/login", formData);
+      const res = await axios.post("http://localhost:3001/login", formData);
 
       console.log("Login success:", res.data);
 

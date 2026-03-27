@@ -15,7 +15,7 @@ const VolunteerDashboard = () => {
     const fetchVolunteer = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:1636/volunteer/profile/${user.email}`,
+          `http://localhost:3001/volunteer/profile/${user.email}`,
         );
         setVolunteer(response.data);
       } catch (error) {
@@ -40,7 +40,7 @@ const VolunteerDashboard = () => {
 
   const saveEdit = async () => {
     try {
-      await axios.put(`http://localhost:1636/volunteer/update/${user.email}`, {
+      await axios.put(`http://localhost:3001/volunteer/update/${user.email}`, {
         [editingField]: editValue,
       });
 

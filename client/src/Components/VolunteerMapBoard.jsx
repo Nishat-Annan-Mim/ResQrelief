@@ -137,9 +137,9 @@ const VolunteerMapBoard = () => {
   const loadBoard = useCallback(async () => {
     try {
       const [profileRes, volunteerRes, requestRes] = await Promise.all([
-        axios.get(`http://localhost:1636/volunteer/profile/${user.email}`),
-        axios.get("http://localhost:1636/volunteer/locations"),
-        axios.get("http://localhost:1636/aid-requests"),
+        axios.get(`http://localhost:3001/volunteer/profile/${user.email}`),
+        axios.get("http://localhost:3001/volunteer/locations"),
+        axios.get("http://localhost:3001/aid-requests"),
       ]);
 
       const profile = profileRes.data;
@@ -159,7 +159,7 @@ const VolunteerMapBoard = () => {
 
       try {
         const nearbyRes = await axios.get(
-          `http://localhost:1636/aid-requests/nearby/${user.email}`,
+          `http://localhost:3001/aid-requests/nearby/${user.email}`,
         );
         setNearbyRequests(nearbyRes.data);
       } catch (error) {
@@ -237,7 +237,7 @@ const VolunteerMapBoard = () => {
           const address = await reverseGeocodeWithNominatim(lat, lng);
 
           await axios.put(
-            `http://localhost:1636/volunteer/location/${user.email}`,
+            `http://localhost:3001/volunteer/location/${user.email}`,
             {
               lat,
               lng,
@@ -270,7 +270,7 @@ const VolunteerMapBoard = () => {
   const removeMyLocation = async () => {
     try {
       await axios.delete(
-        `http://localhost:1636/volunteer/location/${user.email}`,
+        `http://localhost:3001/volunteer/location/${user.email}`,
       );
       setSelectedMarker(null);
       clearRoute();
@@ -320,7 +320,7 @@ const VolunteerMapBoard = () => {
     }
 
     try {
-      await axios.post("http://localhost:1636/aid-requests", {
+      await axios.post("http://localhost:3001/aid-requests", {
         createdByVolunteerId: volunteerProfile._id,
         createdByVolunteerName: volunteerProfile.fullName,
         createdByVolunteerEmail: volunteerProfile.email,
@@ -352,7 +352,7 @@ const VolunteerMapBoard = () => {
   const acceptRequest = async (requestId) => {
     try {
       await axios.put(
-        `http://localhost:1636/aid-requests/${requestId}/accept`,
+        `http://localhost:3001/aid-requests/${requestId}/accept`,
         {
           helperVolunteerId: volunteerProfile._id,
           helperVolunteerName: volunteerProfile.fullName,
@@ -371,7 +371,7 @@ const VolunteerMapBoard = () => {
   const markHelped = async (requestId) => {
     try {
       await axios.put(
-        `http://localhost:1636/aid-requests/${requestId}/helped`,
+        `http://localhost:3001/aid-requests/${requestId}/helped`,
         {
           helperVolunteerEmail: volunteerProfile.email,
         },
@@ -387,7 +387,7 @@ const VolunteerMapBoard = () => {
 
   const deleteRequest = async (requestId) => {
     try {
-      await axios.delete(`http://localhost:1636/aid-requests/${requestId}`, {
+      await axios.delete(`http://localhost:3001/aid-requests/${requestId}`, {
         data: { requesterEmail: volunteerProfile.email },
       });
 
