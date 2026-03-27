@@ -1,0 +1,78 @@
+.inv-page {
+  background: #f3efe7;
+  min-height: 100vh;
+  padding: 40px;
+}
+
+.inv-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* SUMMARY CARDS */
+.inv-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.inv-summary div {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* CARD */
+.inv-card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+}
+
+/* FORM */
+.inv-add-section {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.inv-add-section input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.inv-add-section button {
+  background: #2b7cff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+/* TABLE */
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inv-table th {
+  background: #f2f2f2;
+}
+
+.inv-table th,
+.inv-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.inv-table button {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}

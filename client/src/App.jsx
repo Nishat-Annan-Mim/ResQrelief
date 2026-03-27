@@ -27,6 +27,7 @@ import VolunteerMapBoard from "./Components/VolunteerMapBoard";
 import AidRequestForm from "./Components/AidRequestForm";
 import Donate from "./Components/Donate";
 import Transparency from "./Components/Transparency";
+import Inventory from "./Components/Inventory";
 
 function RequireAuth({ children }) {
   const loggedIn = localStorage.getItem("isLoggedIn") === "true";
@@ -185,6 +186,14 @@ function App() {
           element={
             <RequireAuth>
               <Transparency />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <RequireAuth>
+              <Inventory />
             </RequireAuth>
           }
         />

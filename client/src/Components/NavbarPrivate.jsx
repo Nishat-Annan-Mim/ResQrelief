@@ -48,6 +48,13 @@ const NavbarPrivate = () => {
               Transparency
             </Link>
           </li>
+
+          <li>
+            <Link to="/inventory" className="nav-item">
+             Inventory
+            </Link>
+          </li>
+          
           <li>
             <Link to="/logout" className="nav-item logout-btn">
               Logout

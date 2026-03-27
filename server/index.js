@@ -10,6 +10,7 @@ const UserModel = require("./model/User");
 const VolunteerModel = require("./model/Volunteer");
 const AidRequestModel = require("./model/AidRequest");
 const RequestModel = require("./model/Request");
+const inventoryRoutes = require("./routes/inventoryRoutes");
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use("/api", inventoryRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
