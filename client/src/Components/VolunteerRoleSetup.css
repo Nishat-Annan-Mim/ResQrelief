@@ -1,0 +1,158 @@
+.role-page {
+    min-height: 100vh;
+    background: #eceae3;
+    padding: 24px 14px 60px;
+}
+
+.role-top-card {
+    max-width: 1180px;
+    margin: 0 auto 20px;
+    background: #f4f4f1;
+    border: 3px solid #1d1d1d;
+    border-radius: 16px;
+    padding: 22px 18px 10px;
+}
+
+.role-top-card h1 {
+    text-align: center;
+    font-size: 34px;
+    margin: 0 0 20px;
+}
+
+.role-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.role-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    border: 4px solid transparent;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.role-card h3 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.role-card-active {
+    border-color: #2f86eb;
+}
+
+.selected-role-text {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.role-bottom-grid {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 16px;
+}
+
+.skills-box,
+.availability-box {
+    background: #f4f4f1;
+    border: 3px solid #1d1d1d;
+    border-radius: 16px;
+    padding: 18px 20px 20px;
+}
+
+.skills-box h2,
+.availability-box h2 {
+    margin: 0 0 20px;
+    font-size: 24px;
+}
+
+.skills-box textarea {
+    width: 100%;
+    min-height: 250px;
+    resize: vertical;
+    padding: 18px;
+    font-size: 18px;
+    border: 2px solid #bcbcbc;
+    outline: none;
+}
+
+.availability-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.availability-row label,
+.preferred-time-wrap label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.availability-row input,
+.preferred-time-wrap select {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    border: 2px solid #cfcfcf;
+    outline: none;
+    background: #f1f1f1;
+}
+
+.preferred-time-wrap {
+    margin-top: 24px;
+}
+
+.role-submit-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.role-submit-wrap button {
+    border: none;
+    background: #5a9abe;
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    border-radius: 24px;
+    padding: 16px 34px;
+    cursor: pointer;
+}
+
+.role-submit-wrap button:hover {
+    background: #4788ad;
+}
+
+@media (max-width: 992px) {
+    .role-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .role-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .role-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .availability-row {
+        grid-template-columns: 1fr;
+    }
+}

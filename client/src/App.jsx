@@ -6,6 +6,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+
 import Home from "./Components/Home";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
@@ -17,21 +18,27 @@ import NavbarPrivate from "./Components/NavbarPrivate";
 // Import the new AidRequestForm component
 import AidRequestForm from "./Components/AidRequestForm";
 
-// import Admin from "./Components/Admin";
-// import Volunteer from "./Components/Volunteer";
-// import RequestAid from "./Components/RequestAid";
-// import Donate from "./Components/Donate";
-// import Transparency from "./Components/Transparency";
+import Admin from "./Components/Admin";
+import Volunteer from "./Components/Volunteer";
+import VolunteerRegister from "./Components/VolunteerRegister";
+import VolunteerOnboarding from "./Components/VolunteerOnboarding";
+import VolunteerZoneSelect from "./Components/VolunteerZoneSelect";
+import VolunteerRoleSetup from "./Components/VolunteerRoleSetup";
+import VolunteerDashboard from "./Components/VolunteerDashboard";
+import VolunteerDirectory from "./Components/VolunteerDirectory";
+import VolunteerMapBoard from "./Components/VolunteerMapBoard";
+import RequestAid from "./Components/RequestAid";
+import Donate from "./Components/Donate";
+import Transparency from "./Components/Transparency";
 
-// wrapper that redirects to login when not authenticated
 function RequireAuth({ children }) {
   const loggedIn = localStorage.getItem("isLoggedIn") === "true";
   return loggedIn ? children : <Navigate to="/login" replace />;
 }
 
-// watches navigation and storage events so App state reflects login flag
 function AuthWatcher({ setLogged }) {
   const { pathname } = useLocation();
+
   useEffect(() => {
     setLogged(localStorage.getItem("isLoggedIn") === "true");
   }, [pathname, setLogged]);
@@ -40,6 +47,7 @@ function AuthWatcher({ setLogged }) {
     const handler = () => {
       setLogged(localStorage.getItem("isLoggedIn") === "true");
     };
+
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
   }, [setLogged]);
@@ -59,7 +67,6 @@ function App() {
       <AuthWatcher setLogged={setLogged} />
 
       <Routes>
-        {/* Public routes */}
         <Route path="/" element={<Signup />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
@@ -68,12 +75,118 @@ function App() {
           element={<Logout onLogout={() => setLogged(false)} />}
         />
 
-        {/* Private routes */}
         <Route
           path="/home"
           element={
             <RequireAuth>
               <Home />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth>
+              <Admin />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/volunteer"
+          element={
+            <RequireAuth>
+              <Volunteer />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/volunteer-register"
+          element={
+            <RequireAuth>
+              <VolunteerRegister />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/volunteer-onboarding"
+          element={
+            <RequireAuth>
+              <VolunteerOnboarding />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/volunteer-zone-select"
+          element={
+            <RequireAuth>
+              <VolunteerZoneSelect />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/volunteer-role-setup"
+          element={
+            <RequireAuth>
+              <VolunteerRoleSetup />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/volunteer-dashboard"
+          element={
+            <RequireAuth>
+              <VolunteerDashboard />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/volunteer-directory"
+          element={
+            <RequireAuth>
+              <VolunteerDirectory />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/volunteer-map-board"
+          element={
+            <RequireAuth>
+              <VolunteerMapBoard />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/request-aid"
+          element={
+            <RequireAuth>
+              <RequestAid />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/donate"
+          element={
+            <RequireAuth>
+              <Donate />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/transparency"
+          element={
+            <RequireAuth>
+              <Transparency />
             </RequireAuth>
           }
         />
