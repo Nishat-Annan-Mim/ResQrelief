@@ -22,14 +22,18 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:3001/login", formData);
+      const res = await axios.post("http://localhost:1636/login", formData);
 
       console.log("Login success:", res.data);
 
-      alert("Login successful");
       localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      alert("Login successful");
       navigate("/home");
     } catch (error) {
+      console.log("Login error:", error);
+
       if (error.response) {
         alert(error.response.data.message);
       } else {

@@ -7,6 +7,7 @@ const Logout = ({ onLogout }) => {
   useEffect(() => {
     // clear the login flag
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("user");
     if (typeof onLogout === "function") onLogout();
     // then redirect to login page
     navigate("/login");

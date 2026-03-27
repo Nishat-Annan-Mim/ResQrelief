@@ -1,0 +1,176 @@
+.volunteer-dashboard-page {
+    min-height: 100vh;
+    background: #eceae3;
+    padding: 40px 30px 80px;
+}
+
+.volunteer-dashboard-card {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: white;
+    border: 3px solid #d4cec2;
+    border-radius: 18px;
+    padding: 40px 30px;
+    text-align: center;
+}
+
+.volunteer-dashboard-card h1 {
+    font-size: 30px;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.volunteer-dashboard-card p {
+    font-size: 20px;
+    line-height: 1.5;
+}
+
+.volunteer-info-card,
+.volunteer-skills-card {
+    max-width: 900px;
+    margin: 24px auto;
+    background: #fff;
+    padding: 28px 30px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.volunteer-info-card h2,
+.volunteer-skills-card h2 {
+    margin-bottom: 18px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+    font-size: 18px;
+}
+
+.info-label {
+    font-weight: 700;
+    min-width: 180px;
+}
+
+.info-value {
+    font-size: 18px;
+}
+
+.mini-edit-btn {
+    border: none;
+    background: #5392b5;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mini-edit-btn:hover {
+    background: #407e9f;
+}
+
+.edit-inline-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.edit-inline-box input {
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid #cfcfcf;
+    border-radius: 8px;
+    min-width: 260px;
+    outline: none;
+}
+
+.save-btn,
+.cancel-btn {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.save-btn {
+    background: #4caf50;
+    color: white;
+}
+
+.save-btn:hover {
+    background: #3e9442;
+}
+
+.cancel-btn {
+    background: #d9534f;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #bf4340;
+}
+
+.volunteer-skills-card p {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.dashboard-stats {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 30px auto;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    width: 200px;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card h3 {
+    margin: 0;
+    font-size: 22px;
+    color: #5392b5;
+}
+
+.stat-card p {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #555;
+}
+
+.dashboard-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.dashboard-buttons button {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    border: none;
+    border-radius: 24px;
+    background: #5392b5;
+    color: white;
+    font-size: 21px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.dashboard-buttons button:hover {
+    background: #407e9f;
+}
