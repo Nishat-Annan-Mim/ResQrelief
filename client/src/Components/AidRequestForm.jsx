@@ -11,18 +11,36 @@ const AID_OPTIONS = [
   { value: "Other", label: "Other", emoji: "✏️" },
 ];
 
+
+const BANGLADESH_DISTRICTS = [
+  "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogura",
+  "Brahmanbaria", "Chandpur", "Chattogram", "Chuadanga", "Cox's Bazar",
+  "Cumilla", "Dhaka", "Dinajpur", "Faridpur", "Feni", "Gaibandha",
+  "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore", "Jhalokathi",
+  "Jhenaidah", "Joypurhat", "Khagrachhari", "Khulna", "Kishoreganj",
+  "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur",
+  "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj",
+  "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi",
+  "Natore", "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh",
+  "Patuakhali", "Pirojpur", "Rajbari", "Rajshahi", "Rangamati",
+  "Rangpur", "Satkhira", "Shariatpur", "Sherpur", "Sirajganj", "Sunamganj",
+  "Sylhet", "Tangail", "Thakurgaon"
+];
+
 const AidRequestForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
     district: "",
+    fullAddress: "",       
     peopleAffected: "",
     selectedAidTypes: [],
     additionalDetails: "",
   });
 
   const [submitted, setSubmitted] = useState(false);
-  const [modal, setModal] = useState(null); // { message: string }
+  const [modal, setModal] = useState(null);
+  const [otherText, setOtherText] = useState("");
 
   const toggleAidType = (value) => {
     setFormData((prev) => ({
@@ -56,9 +74,11 @@ const AidRequestForm = () => {
         fullName: formData.fullName,
         phoneNumber: formData.phoneNumber,
         district: formData.district,
+        fullAddress: formData.fullAddress,     
         peopleAffected: formData.peopleAffected,
         aidTypes: formData.selectedAidTypes,
         additionalDetails: formData.additionalDetails,
+        otherDetails: otherText,
       });
 
       if (response.data.duplicate) {
@@ -81,10 +101,12 @@ const AidRequestForm = () => {
       fullName: "",
       phoneNumber: "",
       district: "",
+      fullAddress: "",       
       peopleAffected: "",
       selectedAidTypes: [],
       additionalDetails: "",
     });
+    setOtherText("");
     setSubmitted(false);
   };
 
@@ -138,6 +160,19 @@ const AidRequestForm = () => {
           ))}
         </div>
 
+        {formData.selectedAidTypes.includes("Other") && (
+          <div className="arf-field" style={{ marginBottom: "20px" }}>
+            <label>Please specify what you need</label>
+            <input
+              type="text"
+              value={otherText}
+              onChange={(e) => setOtherText(e.target.value)}
+              placeholder="Describe what you need..."
+              required
+            />
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="arf-row">
             <div className="arf-field">
@@ -163,16 +198,21 @@ const AidRequestForm = () => {
             </div>
           </div>
 
+          {/* ✅ NEW — District dropdown + People affected */}
           <div className="arf-row">
             <div className="arf-field">
               <label>District</label>
-              <input
-                type="text"
+              <select
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="" disabled>Select your district</option>
+                {BANGLADESH_DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
             </div>
             <div className="arf-field">
               <label>Approximate people affected</label>
@@ -185,6 +225,19 @@ const AidRequestForm = () => {
                 required
               />
             </div>
+          </div>
+
+          {/* ✅ NEW — Full address field */}
+          <div className="arf-field arf-full" style={{ marginBottom: "20px" }}>
+            <label>Full Address</label>
+            <input
+              type="text"
+              name="fullAddress"
+              value={formData.fullAddress}
+              onChange={handleChange}
+              placeholder="House / Road / Area details..."
+              required
+            />
           </div>
 
           <div className="arf-field arf-full">

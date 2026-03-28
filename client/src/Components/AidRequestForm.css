@@ -266,6 +266,24 @@
   background: #4a7d93;
 }
 
+.arf-field select {
+  padding: 11px 13px;
+  border: 1.5px solid #d0ccc4;
+  border-radius: 7px;
+  background: #faf9f7;
+  font-size: 15px;
+  color: #111;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.arf-field select:focus {
+  outline: none;
+  border-color: #888;
+  background: #ffffff;
+}
+
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 600px) {
   .arf-aid-grid {
