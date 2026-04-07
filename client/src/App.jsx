@@ -7,6 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
+
 import Home from "./Components/Home";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
@@ -16,6 +17,8 @@ import Navbar from "./Components/Navbar";
 import NavbarPrivate from "./Components/NavbarPrivate";
 import NavbarAdmin from "./Components/NavbarAdmin";       // ✅ NEW
 import AdminLogin from "./Components/AdminLogin";         // ✅ NEW
+import AdminRequests from "./Components/AdminRequests";
+import AdminRequestDetail from "./Components/AdminRequestDetail";
 import AdminHome from "./Components/AdminHome"; 
 import Admin from "./Components/Admin";
 import Volunteer from "./Components/Volunteer";
@@ -208,6 +211,10 @@ function App() {
         />
         <Route path="/admin-home" element={<RequireAdmin><AdminHome /></RequireAdmin>} />
         <Route path="/inventory" element={<RequireAdmin><Inventory /></RequireAdmin>} /> 
+        <Route path="/admin-home" element={<RequireAdmin><AdminHome /></RequireAdmin>} />
+        <Route path="/inventory" element={<RequireAdmin><Inventory /></RequireAdmin>} />
+        <Route path="/admin-requests" element={<RequireAdmin><AdminRequests /></RequireAdmin>} />
+        <Route path="/admin-requests/:id" element={<RequireAdmin><AdminRequestDetail /></RequireAdmin>} />
       </Routes>
     </BrowserRouter>
   );

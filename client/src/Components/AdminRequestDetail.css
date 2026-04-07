@@ -1,0 +1,189 @@
+/* AdminRequestDetail.css — add this new file to your Components folder */
+
+/* Done screen */
+.ard-done-screen {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.ard-done-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  max-width: 480px;
+  width: 100%;
+}
+.ard-done-msg {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 28px;
+  color: #1a1a2e;
+  line-height: 1.5;
+}
+
+/* Overlay modal */
+.ard-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.ard-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px 32px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.ard-modal h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #1a1a2e;
+}
+.ard-modal p {
+  color: #555;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+.ard-modal code {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.ard-modal-btns {
+  display: flex;
+  gap: 12px;
+}
+.ard-modal-btns button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.ard-modal-btns button:hover { opacity: 0.85; }
+.btn-cancel {
+  background: #f0f0f0;
+  color: #555;
+}
+
+/* Volunteer panel */
+.ard-vol-panel {
+  border: 2px solid #e8f4e8;
+}
+.ard-vol-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.ard-vol-panel-header h3 { margin: 0; }
+.ard-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #888;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.ard-close-btn:hover { background: #f0f0f0; }
+
+.ard-vol-subtitle {
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.ard-vol-search {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.ard-vol-search:focus { border-color: #16a34a; }
+
+.ard-vol-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.ard-vol-card {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid #eee;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.ard-vol-card:hover { border-color: #16a34a; background: #f6fff6; }
+.ard-vol-selected {
+  border-color: #16a34a !important;
+  background: #f0fdf4 !important;
+}
+.ard-vol-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1a1a2e;
+  margin-bottom: 3px;
+}
+.ard-vol-meta {
+  font-size: 13px;
+  color: #666;
+}
+.ard-vol-time {
+  font-size: 12px;
+  color: #16a34a;
+  margin-top: 4px;
+}
+
+.ard-selected-badge {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border-radius: 8px;
+  border: 1.5px solid #16a34a;
+  font-size: 14px;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ard-clear-btn {
+  background: none;
+  border: none;
+  color: #c0392b;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0 6px;
+}
+
+.ard-assigned-card {
+  border: 2px solid #d1fae5;
+  background: #f0fdf4;
+}
+.ard-assigned-card h3 { color: #16a34a; }
+
+/* Existing btn-verify / btn-fraud — ensure they're in AdminHome.css already */

@@ -1,0 +1,152 @@
+/* Reuse existing Inventory.css styles + add these */
+@import "./Inventory.css";
+
+/* Priority Labels */
+.priority-label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.priority-high  { color: #c0392b; }
+.priority-medium { color: #d97706; }
+.priority-low   { color: #16a34a; }
+
+/* Detail Page */
+.detail-page {
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #f3efe7;
+  min-height: 100vh;
+}
+
+.detail-title {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 30px;
+  color: #111;
+}
+
+.detail-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.detail-left  { flex: 1.2; }
+.detail-right { flex: 0.8; display: flex; flex-direction: column; }
+
+.detail-card {
+  background: #e8e3db;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.detail-card h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detail-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #d0ccc4;
+  font-size: 15px;
+  color: #444;
+}
+
+.detail-table td:first-child {
+  color: #888;
+  width: 45%;
+}
+
+/* Verify / Fraud Buttons */
+.btn-verify {
+  flex: 1;
+  padding: 16px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-verify:hover { background: #15803d; }
+
+.btn-fraud {
+  flex: 1;
+  padding: 16px;
+  background: #c0392b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-fraud:hover { background: #a93226; }
+
+/* Request Portal Tabs */
+.ar-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.ar-tab {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  background: #fff;
+  color: #555;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ar-tab:hover {
+  border-color: #1a1a2e;
+  color: #1a1a2e;
+}
+.ar-tab-active {
+  background: #1a1a2e;
+  border-color: #1a1a2e;
+  color: #fff;
+}
+ 
+/* Ensure btn-verify and btn-fraud exist */
+.btn-verify {
+  padding: 11px 20px;
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-verify:hover { opacity: 0.85; }
+ 
+.btn-fraud {
+  padding: 11px 20px;
+  background: #c0392b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-fraud:hover { opacity: 0.85; }
+ 

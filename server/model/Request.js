@@ -6,9 +6,15 @@ const requestSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: true },
   district: { type: String, required: true },
   peopleAffected: { type: Number, required: true },
-  aidTypes: { type: [String], required: true }, // Array of strings (e.g., ["Food", "Water"])
+  aidTypes: { type: [String], required: true }, 
   additionalDetails: { type: String },
-  status: { type: String, default: "pending" } // Used to check if a request is already pending verification
+  status: { type: String, default: "pending" }, 
+  // ✅ NEW: Added priority field to save to database
+  priority: { 
+    type: String, 
+    enum: ["HIGH", "MEDIUM", "LOW"], 
+    default: "MEDIUM" 
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Request", requestSchema);

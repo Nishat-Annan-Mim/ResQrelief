@@ -135,8 +135,8 @@
 .admin-bottom-half {
   flex: 1; 
   min-height: 350px;
-  background: transparent;
-  border: 2px dashed #dcd7ce; /* A subtle dashed border so you know where your blank canvas is */
+  background: #f9f8f7;
+  border: 2px #dcd7ce; /* A subtle dashed border so you know where your blank canvas is */
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -216,6 +216,6 @@
   display: inline-block;
 }
 
-.status-ok { background: #88d4aa; }
-.status-low { background: #c6a574; }
-.status-error { background: #d68585; }
+.status-ok { background: #55da91; }
+.status-low { background: #caa060; }
+.status-error { background: #d54444; }

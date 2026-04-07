@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./Inventory.css"; 
+import "./AdminHome.css";
 
 const AdminHome = () => {
   const [topItems, setTopItems] = useState([]);
+  const [topRequests, setTopRequests] = useState([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Load top 5 inventory
     axios.get("http://localhost:3001/api/inventory").then((res) => {
-      setTopItems(res.data.slice(0, 5)); 
+      setTopItems(res.data.slice(0, 5));
     });
+
+    // Load AI prioritized requests
+    axios.get("http://localhost:3001/api/requests/ai-prioritized").then((res) => {
+      setTopRequests(res.data.slice(0, 5));
+      setLoadingRequests(false);
+    }).catch(() => setLoadingRequests(false));
   }, []);
 
   const getStatusClass = (status) => {
@@ -19,23 +28,35 @@ const AdminHome = () => {
     return "status-error";
   };
 
+  const getPriorityClass = (priority) => {
+    if (priority === "HIGH") return "priority-high";
+    if (priority === "MEDIUM") return "priority-medium";
+    return "priority-low";
+  };
+
+  const timeAgo = (dateString) => {
+    const diff = Math.floor((Date.now() - new Date(dateString)) / 60000);
+    if (diff < 60) return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return `${Math.floor(diff / 1440)}d ago`;
+  };
+
   return (
     <div className="admin-dashboard-container">
-      
-      {/* LEFT SIDEBAR (Based on your image) */}
+
+      {/* SIDEBAR */}
       <aside className="admin-sidebar">
         <ul className="sidebar-nav">
           <li className="sidebar-item active">Dashboard</li>
-          <li className="sidebar-item">LiveMap</li>
-          <li className="sidebar-item">Alerts</li>
+          <li className="sidebar-item" onClick={() => navigate("/admin-requests")}>Requests</li>
           <li className="sidebar-item" onClick={() => navigate("/inventory")}>Inventory</li>
         </ul>
       </aside>
 
-      {/* RIGHT MAIN CONTENT */}
+      {/* MAIN CONTENT */}
       <main className="admin-main-content">
-        
-        {/* TOP HALF: Top 5 Inventory */}
+
+        {/* TOP HALF — Inventory */}
         <div className="admin-top-half">
           <div className="inv-card" style={{ height: "100%" }}>
             <div className="admin-header">
@@ -44,7 +65,6 @@ const AdminHome = () => {
                 Show All →
               </button>
             </div>
-
             <table className="inv-table">
               <thead>
                 <tr>
@@ -72,11 +92,51 @@ const AdminHome = () => {
           </div>
         </div>
 
-        {/* BOTTOM HALF: Blank for later use */}
-        <div className="admin-bottom-half">
-           <p style={{ color: "#aaa", fontWeight: "600" }}>
-              [Reserved for future modules...]
-           </p>
+        {/* BOTTOM HALF — AI Prioritized Requests */}
+        <div className="admin-bottom-half" style={{ display: "block", padding: "25px" }}>
+          <div className="admin-header">
+            <h2>🤖 AI-Prioritized Requests (Top 5)</h2>
+            <button onClick={() => navigate("/admin-requests")} className="btn-admin">
+              Show All →
+            </button>
+          </div>
+
+          {loadingRequests ? (
+            <p style={{ color: "#aaa" }}>Analyzing requests with AI...</p>
+          ) : (
+            <table className="inv-table">
+              <thead>
+                <tr>
+                  <th>Location</th>
+                  <th>Aid Type</th>
+                  <th>Priority</th>
+                  <th>People</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topRequests.map((req) => (
+                  <tr
+                    key={req._id}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/admin-requests/${req._id}`)}
+                  >
+                    <td>{req.district}</td>
+                    <td>{req.aidTypes?.join(" + ") || "—"}</td>
+                    <td>
+                      <span className={`priority-label ${getPriorityClass(req.priority)}`}>
+                        {req.priority}
+                      </span>
+                    </td>
+                    <td>{req.peopleAffected}</td>
+                    <td style={{ textTransform: "capitalize" }}>{req.status}</td>
+                    <td>{timeAgo(req.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
       </main>

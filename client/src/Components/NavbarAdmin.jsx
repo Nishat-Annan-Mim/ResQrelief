@@ -13,7 +13,6 @@ const NavbarAdmin = () => {
 
         <ul className="nav-links">
           <li><Link to="/admin-home" className="nav-item">Dashboard</Link></li>
-          <li><Link to="/admin" className="nav-item">Verify Requests</Link></li>
           <li><Link to="/inventory" className="nav-item">Inventory</Link></li>
           <li><Link to="/logout" className="nav-item logout-btn">Logout</Link></li>
         </ul>

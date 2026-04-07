@@ -6,15 +6,20 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 
+
 const UserModel = require("./model/User");
 const VolunteerModel = require("./model/Volunteer");
 const AidRequestModel = require("./model/AidRequest");
 const RequestModel = require("./model/Request");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 
-dotenv.config();
 
+
+
+dotenv.config();
+// Replace GoogleGenerativeAI import with:
 const app = express();
+const BannedModel = require("./model/Banned");
 
 app.use(express.json());
 app.use(cors());
@@ -645,54 +650,207 @@ app.delete("/aid-requests/:requestId", async (req, res) => {
   }
 });
 
+// ============================================================
+// ADD THESE ROUTES TO YOUR index.js (replace or supplement existing ones)
+// ============================================================
+
+// ── GET volunteers by district (for admin assign panel) ──────
+app.get("/api/volunteers/by-district/:district", async (req, res) => {
+  try {
+    const { district } = req.params;
+    const volunteers = await VolunteerModel.find({
+      profileCompleted: true,
+      preferredZone: { $regex: new RegExp(district, "i") },
+      isBanned: { $ne: true },
+    }).select("fullName email phone volunteerRole preferredZone preferredTime availableFrom availableUntil");
+    res.status(200).json(volunteers);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ── GET all volunteers (for admin, no district filter) ───────
+app.get("/api/volunteers/all", async (req, res) => {
+  try {
+    const volunteers = await VolunteerModel.find({
+      profileCompleted: true,
+      isBanned: { $ne: true },
+    }).select("fullName email phone volunteerRole preferredZone preferredTime");
+    res.status(200).json(volunteers);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ── VERIFY request + optionally assign a volunteer ───────────
+// REPLACE your existing PUT /api/requests/:id/verify with this:
+app.put("/api/requests/:id/verify", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { assignedVolunteer } = req.body; // optional { name, email, phone }
+
+    const update = {
+      status: "verified",
+      ...(assignedVolunteer && { assignedVolunteer }),
+    };
+
+    const updated = await RequestModel.findByIdAndUpdate(id, update, { new: true });
+    if (!updated) return res.status(404).json({ message: "Request not found" });
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ── FRAUD: ban phone+email, delete request ───────────────────
+// REPLACE your existing DELETE /api/requests/:id with this:
+app.delete("/api/requests/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const request = await RequestModel.findById(id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+
+    // Ban the phone number and email
+    await BannedModel.findOneAndUpdate(
+      { $or: [{ phone: request.phoneNumber }, { email: request.fullName }] },
+      {
+        phone: request.phoneNumber,
+        email: request.fullName, // store submitter name too for reference
+        bannedAt: new Date(),
+        reason: "fraud",
+      },
+      { upsert: true, new: true }
+    );
+
+    // Also ban the volunteer account if one exists with this phone
+    await VolunteerModel.findOneAndUpdate(
+      { phone: request.phoneNumber },
+      { isBanned: true }
+    );
+    await UserModel.findOneAndUpdate(
+      { email: request.phoneNumber }, // in case email matches
+      { isBanned: true }
+    );
+
+    await RequestModel.findByIdAndDelete(id);
+    res.status(200).json({ message: "Request marked as fraud, submitter banned" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ── GET requests filtered by status ─────────────────────────
+app.get("/api/requests/by-status/:status", async (req, res) => {
+  try {
+    const { status } = req.params; // "verified" | "pending" | "fraud"
+    const requests = await RequestModel.find({ status }).sort({ createdAt: -1 });
+    res.status(200).json(requests);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ── GET banned list ──────────────────────────────────────────
+app.get("/api/banned", async (req, res) => {
+  try {
+    const banned = await BannedModel.find().sort({ bannedAt: -1 });
+    res.status(200).json(banned);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ── CHECK if phone is banned (use in AidRequestForm before submit) ──
+app.get("/api/banned/check/:phone", async (req, res) => {
+  try {
+    const { phone } = req.params;
+    const banned = await BannedModel.findOne({ phone });
+    res.status(200).json({ isBanned: !!banned });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 /* ---------------- Aid Request API ---------------- */
 
 app.post("/api/requests", async (req, res) => {
   try {
-    const {
-      fullName,
-      phoneNumber,
-      district,
-      peopleAffected,
-      aidTypes,
-      additionalDetails,
-    } = req.body;
+    const requestData = req.body;
+    let assignedPriority = "MEDIUM"; // Default fallback
 
-    // 1. Check for duplicate pending requests with the same phone number
-    const existingPending = await RequestModel.findOne({
-      phoneNumber,
-      status: "pending",
-    });
+    try {
+      const prompt = `
+You are a disaster relief AI. Classify this aid request as HIGH, MEDIUM, or LOW priority.
+Only reply with exactly one word: HIGH, MEDIUM, or LOW.
 
-    if (existingPending) {
-      // Sending a 409 status and duplicate flag triggers the error modal in your React code
-      return res.status(409).json({
-        message: "This number has already requested",
-        duplicate: true,
-      });
+RULES:
+- If peopleAffected is > 100, it MUST be HIGH.
+- If words like "immediate", "medical", "dying", or "rescue" are in the description, it MUST be HIGH.
+
+Aid Types: ${requestData.aidTypes?.join(", ") || "Unknown"}
+People Affected: ${requestData.peopleAffected || 0}
+District: ${requestData.district || "Unknown"}
+Description: ${requestData.additionalDetails || "No description"}
+      `;
+
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+    "Content-Type": "application/json"
+    
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-oss-120b:free", // ← changed again
+    messages: [
+      { role: "user", content: prompt }
+    ]
+  })
+});
+
+const data = await response.json();
+console.log("FULL AI RESPONSE:", data);
+
+// ✅ HANDLE ERROR RESPONSE
+if (data.error) {
+  throw new Error(data.error.message);
+}
+
+// ✅ SAFE ACCESS
+let text = data?.choices?.[0]?.message?.content;
+
+if (!text) {
+  throw new Error("No AI text returned");
+}
+      // 👇 THIS TELLS US WHAT THE AI SAID 👇
+      console.log("🤖 AI Raw Answer:", text); 
+
+      const match = text.match(/(HIGH|MEDIUM|LOW)/i);
+      if (match) {
+        assignedPriority = match[1].toUpperCase();
+      }
+      
+      // 👇 THIS TELLS US WHAT SAVED TO MONGODB 👇
+      console.log("✅ Final Saved Priority:", assignedPriority); 
+
+    } catch (aiError) {
+      // 👇 THIS TELLS US IF THE API KEY FAILED 👇
+      console.error("❌ AI Priority Generation Failed:", aiError.message);
     }
 
-    // 2. Save the new aid request to the database
     const newRequest = new RequestModel({
-      fullName,
-      phoneNumber,
-      district,
-      peopleAffected,
-      aidTypes,
-      additionalDetails,
+      ...requestData,
+      priority: assignedPriority
     });
 
     await newRequest.save();
+    res.status(201).json({ message: "Request submitted successfully", request: newRequest });
 
-    res.status(201).json({
-      message: "Request submitted successfully",
-      duplicate: false,
-    });
   } catch (error) {
-    console.log("Error submitting request:", error);
-    res.status(500).json({
-      message: "Server error while submitting request",
-    });
+    console.error("Error creating request:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 // TEMPORARY - run once to create admin, then delete this route
@@ -708,6 +866,32 @@ app.post("/create-admin", async (req, res) => {
   res.json({ message: "Admin created" });
 });
 
+/* ---------------- AI Prioritize Requests ---------------- */
+
+app.get("/api/requests/ai-prioritized", async (req, res) => {
+  try {
+    const rawRequests = await RequestModel.find().lean().sort({ createdAt: -1 });
+
+    // ✅ FIX: Actually apply "MEDIUM" to older items in the array so the UI shows it
+    const requests = rawRequests.map((req) => ({
+      ...req,
+      priority: req.priority || "MEDIUM" 
+    }));
+
+    const order = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+    
+    requests.sort((a, b) => {
+      const priorityA = order[a.priority]; 
+      const priorityB = order[b.priority];
+      return priorityA - priorityB;
+    });
+
+    res.status(200).json(requests);
+  } catch (error) {
+    console.error("Error fetching requests:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 /* ---------------- Server ---------------- */
 
