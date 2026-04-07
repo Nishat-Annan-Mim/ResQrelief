@@ -84,8 +84,14 @@ function App() {
       <AuthWatcher setLogged={setLogged} setRole={setRole} />
 
       <Routes>
-        <Route path="/" element={<Signup />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/"
+          element={logged ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/signup"
+          element={logged ? <Navigate to="/home" replace /> : <Signup />}
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/admin-login" element={<AdminLogin setLogged={setLogged} setRole={setRole} />} />
         <Route
