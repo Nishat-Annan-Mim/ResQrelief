@@ -130,7 +130,20 @@ const AdminHome = () => {
                       </span>
                     </td>
                     <td>{req.peopleAffected}</td>
-                    <td style={{ textTransform: "capitalize" }}>{req.status}</td>
+                    <td
+                      style={{
+                        textTransform: "capitalize", // capitalize first letter
+                        fontWeight: 600,             // make it bold
+                        color:
+                          req.status === "pending"
+                            ? "#c0392b"    // red for pending
+                            : req.status === "verified"
+                            ? "#16a34a"    // green for verified
+                            : "#888",      // gray for other statuses
+                      }}
+                    >
+                      {req.status}
+                    </td>
                     <td>{timeAgo(req.createdAt)}</td>
                   </tr>
                 ))}

@@ -219,3 +219,9 @@
 .status-ok { background: #55da91; }
 .status-low { background: #caa060; }
 .status-error { background: #d54444; }
+
+/* --- REQUEST STATUS PILLS --- */
+.req-pending { background: #f39c12; }   /* Orange for pending */
+.req-verified { background: #3498db; }  /* Blue for verified */
+.req-fulfilled { background: #2ecc71; } /* Green for fulfilled */
+.req-rejected { background: #e74c3c; }  /* Red for rejected */
