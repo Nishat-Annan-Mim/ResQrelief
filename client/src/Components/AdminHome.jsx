@@ -120,7 +120,7 @@ const AdminHome = () => {
                   <tr
                     key={req._id}
                     style={{ cursor: "pointer" }}
-                    onClick={() => navigate(`/admin-requests/${req._id}`)}
+                    onClick={() => navigate(`/admin-requests/${req._id}`, { state: { req } })}
                   >
                     <td>{req.district}</td>
                     <td>{req.aidTypes?.join(" + ") || "—"}</td>
