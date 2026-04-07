@@ -107,6 +107,7 @@ app.post("/login", async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -694,6 +695,19 @@ app.post("/api/requests", async (req, res) => {
     });
   }
 });
+// TEMPORARY - run once to create admin, then delete this route
+app.post("/create-admin", async (req, res) => {
+  const hashed = await bcrypt.hash("Admin123@321", 10);
+  const admin = new UserModel({
+    name: "Admin",
+    email: "admin1@resqrelief.com",
+    password: hashed,
+    role: "admin",
+  });
+  await admin.save();
+  res.json({ message: "Admin created" });
+});
+
 
 /* ---------------- Server ---------------- */
 

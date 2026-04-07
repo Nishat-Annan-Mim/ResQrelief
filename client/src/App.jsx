@@ -14,7 +14,9 @@ import Logout from "./Components/Logout";
 
 import Navbar from "./Components/Navbar";
 import NavbarPrivate from "./Components/NavbarPrivate";
-
+import NavbarAdmin from "./Components/NavbarAdmin";       // ✅ NEW
+import AdminLogin from "./Components/AdminLogin";         // ✅ NEW
+import AdminHome from "./Components/AdminHome"; 
 import Admin from "./Components/Admin";
 import Volunteer from "./Components/Volunteer";
 import VolunteerRegister from "./Components/VolunteerRegister";
@@ -34,21 +36,28 @@ function RequireAuth({ children }) {
   return loggedIn ? children : <Navigate to="/login" replace />;
 }
 
-function AuthWatcher({ setLogged }) {
+function RequireAdmin({ children }) {
+  const role = localStorage.getItem("role");
+  return role === "admin" ? children : <Navigate to="/login" replace />;
+}
+
+function AuthWatcher({ setLogged, setRole }) {
   const { pathname } = useLocation();
 
   useEffect(() => {
     setLogged(localStorage.getItem("isLoggedIn") === "true");
-  }, [pathname, setLogged]);
+    setRole(localStorage.getItem("role") || "user");
+  }, [pathname, setLogged, setRole]);
 
   useEffect(() => {
     const handler = () => {
       setLogged(localStorage.getItem("isLoggedIn") === "true");
+      setRole(localStorage.getItem("role") || "user");
     };
 
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
-  }, [setLogged]);
+  }, [setLogged, setRole]);
 
   return null;
 }
@@ -57,17 +66,25 @@ function App() {
   const [logged, setLogged] = useState(
     localStorage.getItem("isLoggedIn") === "true",
   );
+  const [role, setRole] = useState(localStorage.getItem("role") || "user");
+  
+  const renderNavbar = () => {
+    if (!logged) return <Navbar />;
+    if (role === "admin") return <NavbarAdmin />;
+    return <NavbarPrivate />;
+  };
 
   return (
     <BrowserRouter>
-      {logged ? <NavbarPrivate /> : <Navbar />}
+      {renderNavbar()}
 
-      <AuthWatcher setLogged={setLogged} />
+      <AuthWatcher setLogged={setLogged} setRole={setRole} />
 
       <Routes>
         <Route path="/" element={<Signup />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/admin-login" element={<AdminLogin setLogged={setLogged} setRole={setRole} />} />
         <Route
           path="/logout"
           element={<Logout onLogout={() => setLogged(false)} />}
@@ -189,14 +206,8 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route
-          path="/inventory"
-          element={
-            <RequireAuth>
-              <Inventory />
-            </RequireAuth>
-          }
-        />
+        <Route path="/admin-home" element={<RequireAdmin><AdminHome /></RequireAdmin>} />
+        <Route path="/inventory" element={<RequireAdmin><Inventory /></RequireAdmin>} /> 
       </Routes>
     </BrowserRouter>
   );

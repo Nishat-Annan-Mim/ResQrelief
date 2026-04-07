@@ -8,6 +8,7 @@ const Logout = ({ onLogout }) => {
     // clear the login flag
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
     if (typeof onLogout === "function") onLogout();
     // then redirect to login page
     navigate("/login");
