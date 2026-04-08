@@ -22,6 +22,11 @@ const AdminRequestDetail = () => {
 
   // confirm modals
   const [confirmModal, setConfirmModal] = useState(null); // { type: "verify"|"fraud" }
+  // AI states
+const [aiResources, setAiResources] = useState(null);
+const [aiVolMatch, setAiVolMatch] = useState(null);
+const [loadingAiRes, setLoadingAiRes] = useState(false);
+const [loadingAiVol, setLoadingAiVol] = useState(false);
 
   useEffect(() => {
     if (!req) {
@@ -78,6 +83,39 @@ const AdminRequestDetail = () => {
     setDoneMessage("🚫 Request marked as fraud. Submitter has been banned.");
     setDone(true);
   };
+  const handleAiResourceAllocation = async () => {
+  setLoadingAiRes(true);
+  try {
+    const res = await axios.post("http://localhost:3001/api/ai/resource-allocation", {
+      aidTypes: req.aidTypes,
+      peopleAffected: req.peopleAffected,
+      district: req.district,
+      description: req.additionalDetails,
+    });
+    setAiResources(res.data);
+  } catch {
+    alert("AI resource allocation failed. Try again.");
+  } finally {
+    setLoadingAiRes(false);
+  }
+};
+
+const handleAiVolunteerMatch = async () => {
+  setLoadingAiVol(true);
+  try {
+    const res = await axios.post("http://localhost:3001/api/ai/volunteer-match", {
+      aidTypes: req.aidTypes,
+      peopleAffected: req.peopleAffected,
+      district: req.district,
+      description: req.additionalDetails,
+    });
+    setAiVolMatch(res.data);
+  } catch {
+    alert("AI volunteer matching failed. Try again.");
+  } finally {
+    setLoadingAiVol(false);
+  }
+};
 
   const filteredVols = volunteers.filter((v) =>
     `${v.fullName} ${v.volunteerRole} ${v.preferredZone}`
@@ -298,6 +336,104 @@ const AdminRequestDetail = () => {
               </div>
             </>
           )}
+               {/* ── Feature 3: AI Resource Allocation ── */}
+<div className="detail-card" style={{ marginTop: "20px" }}>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <h3>AI Resource Allocation</h3>
+    <button
+      className="btn-admin"
+      onClick={handleAiResourceAllocation}
+      disabled={loadingAiRes}
+    >
+      {loadingAiRes ? "Analyzing..." : "🤖 Recommend Resources"}
+    </button>
+  </div>
+
+  {aiResources && (
+    <div style={{ marginTop: "16px" }}>
+      <p style={{ color: "#555", fontStyle: "italic", marginBottom: "12px" }}>
+        {aiResources.summary}
+      </p>
+      <table className="detail-table">
+        <thead>
+          <tr>
+            <th style={{ color: "#888", fontSize: "13px" }}>Item</th>
+            <th style={{ color: "#888", fontSize: "13px" }}>Qty to Send</th>
+            <th style={{ color: "#888", fontSize: "13px" }}>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          {aiResources.recommendations.map((r, i) => (
+            <tr key={i}>
+              <td><strong>{r.item}</strong></td>
+              <td>{r.quantity} units</td>
+              <td style={{ color: "#555", fontSize: "13px" }}>{r.reason}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
+
+{/* ── Feature 4: AI Skill-Based Volunteer Match ── */}
+<div className="detail-card" style={{ marginTop: "20px" }}>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <h3>AI Volunteer Match</h3>
+    <button
+      className="btn-admin"
+      onClick={handleAiVolunteerMatch}
+      disabled={loadingAiVol}
+    >
+      {loadingAiVol ? "Matching..." : "🤖 Find Best Match"}
+    </button>
+  </div>
+
+  {aiVolMatch && (
+    <div style={{ marginTop: "16px" }}>
+      <p style={{ color: "#555", fontStyle: "italic", marginBottom: "12px" }}>
+        {aiVolMatch.summary}
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {aiVolMatch.matches.map((match, i) => (
+          <div key={i} style={{
+            background: "#f7f4ee",
+            borderRadius: "8px",
+            padding: "12px 16px",
+            border: "1px solid #ddd8ce",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}>
+            <div>
+              <p style={{ fontWeight: "700", margin: 0 }}>
+                #{i + 1} {match.name}
+              </p>
+              <p style={{ color: "#666", fontSize: "13px", margin: "4px 0 0" }}>
+                {match.reason}
+              </p>
+            </div>
+            <div style={{
+              background: match.matchScore >= 85 ? "#16a34a" : match.matchScore >= 60 ? "#d97706" : "#888",
+              color: "#fff",
+              borderRadius: "999px",
+              padding: "4px 12px",
+              fontWeight: "700",
+              fontSize: "13px",
+              whiteSpace: "nowrap",
+            }}>
+              {match.matchScore}% match
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p style={{ color: "#aaa", fontSize: "12px", marginTop: "10px" }}>
+        💡 Tip: Use "Assign Volunteer" above to manually confirm the assignment.
+      </p>
+    </div>
+  )}
+</div>
 
           <div className="detail-card" style={{ marginTop: "16px" }}>
             <button

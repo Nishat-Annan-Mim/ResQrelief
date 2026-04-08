@@ -19,6 +19,9 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post("http://localhost:3001/login", formData);
+      sessionStorage.setItem("isLoggedIn", "true");
+      sessionStorage.setItem("user", JSON.stringify(res.data.user));
+      sessionStorage.setItem("role", res.data.user.role);
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("role", res.data.user.role);

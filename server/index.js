@@ -16,6 +16,7 @@ const inventoryRoutes = require("./routes/inventoryRoutes");
 
 
 
+
 dotenv.config();
 // Replace GoogleGenerativeAI import with:
 const app = express();
@@ -689,15 +690,19 @@ app.put("/api/requests/:id/verify", async (req, res) => {
     const { id } = req.params;
     const { assignedVolunteer } = req.body; // optional { name, email, phone }
 
+    console.time(`verify-${id}`);
     const update = {
       status: "verified",
       ...(assignedVolunteer && { assignedVolunteer }),
     };
 
     const updated = await RequestModel.findByIdAndUpdate(id, update, { new: true });
+    console.timeEnd(`verify-${id}`);
+    
     if (!updated) return res.status(404).json({ message: "Request not found" });
     res.status(200).json(updated);
   } catch (error) {
+    console.error("Verify error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -707,6 +712,7 @@ app.put("/api/requests/:id/verify", async (req, res) => {
 app.delete("/api/requests/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    console.time(`fraud-${id}`);
 
     const request = await RequestModel.findById(id);
     if (!request) return res.status(404).json({ message: "Request not found" });
@@ -734,6 +740,8 @@ app.delete("/api/requests/:id", async (req, res) => {
     );
 
     await RequestModel.findByIdAndDelete(id);
+    console.timeEnd(`fraud-${id}`);
+    
     res.status(200).json({ message: "Request marked as fraud, submitter banned" });
   } catch (error) {
     console.error(error);
@@ -892,6 +900,156 @@ app.get("/api/requests/ai-prioritized", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+/* ---------------- AI Resource Allocation ---------------- */
+
+/* ---------------- AI Resource Allocation ---------------- */
+
+app.post("/api/ai/resource-allocation", async (req, res) => {
+  try {
+    // 🚨 SAFETY CHECK: Ensure the API key is actually loaded
+    if (!process.env.OPENROUTER_API_KEY) {
+      console.error("❌ FATAL: OPENROUTER_API_KEY is undefined in resource-allocation!");
+      return res.status(500).json({ message: "Server configuration error: Missing API Key" });
+    }
+
+    const { aidTypes, peopleAffected, district, description } = req.body;
+
+    const inventory = await require("./model/Inventory").find();
+    const inventorySummary = inventory.map(item =>
+      `${item.itemName} (${item.category}): ${item.quantity} units, Status: ${item.status}`
+    ).join("\n");
+
+    const prompt = `
+You are a disaster relief resource allocation AI.
+
+A request has come in:
+- Location: ${district}
+- Aid Types Needed: ${aidTypes?.join(", ")}
+- People Affected: ${peopleAffected}
+- Description: ${description || "No description"}
+
+Current inventory available:
+${inventorySummary}
+
+Based on the request and available inventory, recommend what resources to allocate.
+Reply in this exact JSON format only, no extra text:
+{
+  "recommendations": [
+    { "item": "Item Name", "quantity": 50, "reason": "Why this item is needed" }
+  ],
+  "summary": "One sentence overall allocation summary"
+}
+    `;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000", // OpenRouter requires this for free models
+        "X-Title": "ResQrelief"                   // OpenRouter requires this for free models
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-120b:free",
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.error) throw new Error(data.error.message);
+
+    let text = data?.choices?.[0]?.message?.content;
+    if (!text) throw new Error("No AI text returned");
+
+    text = text.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(text);
+
+    res.status(200).json(parsed);
+  } catch (error) {
+    console.error("❌ AI resource allocation failed:", error.message);
+    res.status(500).json({ message: "AI resource allocation failed" });
+  }
+});
+
+/* ---------------- AI Skill-Based Volunteer Matching ---------------- */
+
+/* ---------------- AI Skill-Based Volunteer Matching ---------------- */
+
+app.post("/api/ai/volunteer-match", async (req, res) => {
+  try {
+    // 🚨 SAFETY CHECK: Ensure the API key is actually loaded
+    if (!process.env.OPENROUTER_API_KEY) {
+      console.error("❌ FATAL: OPENROUTER_API_KEY is undefined in volunteer-match!");
+      return res.status(500).json({ message: "Server configuration error: Missing API Key" });
+    }
+
+    const { aidTypes, peopleAffected, district, description } = req.body;
+
+    const volunteers = await VolunteerModel.find({ profileCompleted: true });
+    const volunteerSummary = volunteers.map(v =>
+      `Name: ${v.fullName}, Role: ${v.volunteerRole}, Skills: ${v.skillsExperience || "None"}, Zone: ${v.preferredZone}, Availability: ${v.preferredTime || "Flexible"}`
+    ).join("\n");
+
+    const prompt = `
+You are a disaster relief volunteer matching AI.
+
+A request has come in:
+- Location: ${district}
+- Aid Types Needed: ${aidTypes?.join(", ")}
+- People Affected: ${peopleAffected}
+- Description: ${description || "No description"}
+
+Available volunteers:
+${volunteerSummary}
+
+Match the TOP 3 best volunteers for this request based on their skills, role, and proximity.
+Reply in this exact JSON format only, no extra text:
+{
+  "matches": [
+    {
+      "name": "Volunteer Name",
+      "reason": "Why this volunteer is the best match",
+      "matchScore": 95
+    }
+  ],
+  "summary": "One sentence about why these volunteers were selected"
+}
+    `;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000", // OpenRouter requires this for free models
+        "X-Title": "ResQrelief"                   // OpenRouter requires this for free models
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-120b:free",
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.error) throw new Error(data.error.message);
+
+    let text = data?.choices?.[0]?.message?.content;
+    if (!text) throw new Error("No AI text returned");
+
+    text = text.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(text);
+
+    res.status(200).json(parsed);
+  } catch (error) {
+    console.error("❌ AI volunteer matching failed:", error.message);
+    res.status(500).json({ message: "AI volunteer matching failed" });
+  }
+});
+
+
 
 /* ---------------- Server ---------------- */
 

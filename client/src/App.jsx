@@ -33,14 +33,15 @@ import AidRequestForm from "./Components/AidRequestForm";
 import Donate from "./Components/Donate";
 import Transparency from "./Components/Transparency";
 import Inventory from "./Components/Inventory";
+import Landing from "./Components/Landing";
 
 function RequireAuth({ children }) {
-  const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const loggedIn = sessionStorage.getItem("isLoggedIn") === "true";
   return loggedIn ? children : <Navigate to="/login" replace />;
 }
 
 function RequireAdmin({ children }) {
-  const role = localStorage.getItem("role");
+  const role = sessionStorage.getItem("role");
   return role === "admin" ? children : <Navigate to="/login" replace />;
 }
 
@@ -48,14 +49,14 @@ function AuthWatcher({ setLogged, setRole }) {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    setLogged(localStorage.getItem("isLoggedIn") === "true");
-    setRole(localStorage.getItem("role") || "user");
+    setLogged(sessionStorage.getItem("isLoggedIn") === "true");
+    setRole(sessionStorage.getItem("role") || "user");
   }, [pathname, setLogged, setRole]);
 
   useEffect(() => {
     const handler = () => {
-      setLogged(localStorage.getItem("isLoggedIn") === "true");
-      setRole(localStorage.getItem("role") || "user");
+      setLogged(sessionStorage.getItem("isLoggedIn") === "true");
+      setRole(sessionStorage.getItem("role") || "user");
     };
 
     window.addEventListener("storage", handler);
@@ -67,9 +68,9 @@ function AuthWatcher({ setLogged, setRole }) {
 
 function App() {
   const [logged, setLogged] = useState(
-    localStorage.getItem("isLoggedIn") === "true",
+    sessionStorage.getItem("isLoggedIn") === "true",
   );
-  const [role, setRole] = useState(localStorage.getItem("role") || "user");
+  const [role, setRole] = useState(sessionStorage.getItem("role") || "user");
   
   const renderNavbar = () => {
     if (!logged) return <Navbar />;
@@ -85,9 +86,10 @@ function App() {
 
       <Routes>
         <Route
-          path="/"
-          element={logged ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />}
+    path="/"
+    element={logged ? <Navigate to="/home" replace /> : <Landing />}
         />
+
         <Route
           path="/signup"
           element={logged ? <Navigate to="/home" replace /> : <Signup />}

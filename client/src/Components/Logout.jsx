@@ -6,6 +6,9 @@ const Logout = ({ onLogout }) => {
 
   useEffect(() => {
     // clear the login flag
+    sessionStorage.removeItem("isLoggedIn");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("role");
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("user");
     localStorage.removeItem("role");

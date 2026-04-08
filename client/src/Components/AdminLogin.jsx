@@ -21,6 +21,9 @@ const AdminLogin = ({ setLogged, setRole }) => {
         return;
       }
 
+      sessionStorage.setItem("isLoggedIn", "true");
+      sessionStorage.setItem("user", JSON.stringify(res.data.user));
+      sessionStorage.setItem("role", "admin"); 
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("role", "admin"); 
