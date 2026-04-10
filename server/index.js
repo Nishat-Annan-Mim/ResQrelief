@@ -1,10 +1,11 @@
-
+const dotenv = require("dotenv");
+dotenv.config(); // ← MUST be first, before any other require
 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const dotenv = require("dotenv");
+// const dotenv = require("dotenv");
 
 
 const UserModel = require("./model/User");
@@ -12,19 +13,42 @@ const VolunteerModel = require("./model/Volunteer");
 const AidRequestModel = require("./model/AidRequest");
 const RequestModel = require("./model/Request");
 const inventoryRoutes = require("./routes/inventoryRoutes");
+const alertRoutes = require("./routes/alertRoutes");
 
 
 
 
 
-dotenv.config();
+// dotenv.config();
 // Replace GoogleGenerativeAI import with:
 const app = express();
 const BannedModel = require("./model/Banned");
 
+
+const http = require("http");
+const { Server } = require("socket.io");
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: { origin: "*" },
+});
+
+global.io = io;
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("join", (email) => {
+    socket.join(email);
+  });
+});
+
+
 app.use(express.json());
 app.use(cors());
 app.use("/api", inventoryRoutes);
+app.use("/api", alertRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -1053,6 +1077,6 @@ Reply in this exact JSON format only, no extra text:
 
 /* ---------------- Server ---------------- */
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
 });

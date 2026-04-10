@@ -2,14 +2,31 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./VolunteerDashboard.css";
+import NotificationListener from "./NotificationListener";
 
 const VolunteerDashboard = () => {
   const navigate = useNavigate();
   const [volunteer, setVolunteer] = useState(null);
   const [editingField, setEditingField] = useState("");
   const [editValue, setEditValue] = useState("");
+  const [notifications, setNotifications] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+  const fetchNotifications = async () => {
+    try {
+      const res = await axios.get("http://localhost:3001/api/alerts");
+      const volunteerAlerts = res.data.filter(a =>
+        a.audience.includes("volunteers")
+      );
+      setNotifications(volunteerAlerts);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  fetchNotifications();
+  }, []);
 
   useEffect(() => {
     const fetchVolunteer = async () => {
@@ -64,6 +81,22 @@ const VolunteerDashboard = () => {
 
   return (
     <div className="volunteer-dashboard-page">
+      <NotificationListener />
+      {notifications.length > 0 && (
+        <div className="volunteer-notifications-card">
+          <h2>🚨 Emergency Alerts</h2>
+          {notifications.map((n, i) => (
+            <div key={i} className="notification-item">
+              <div className="notif-title">{n.alertTitle}</div>
+              <div className="notif-message">{n.message}</div>
+              <div className="notif-date">
+                {new Date(n.dateSent).toLocaleString()}
+              </div>
+            </div>
+            ))}
+          </div>
+          )}
+
       <div className="volunteer-dashboard-card">
         <h1>Volunteer Dashboard</h1>
         <p>

@@ -34,6 +34,7 @@ import Donate from "./Components/Donate";
 import Transparency from "./Components/Transparency";
 import Inventory from "./Components/Inventory";
 import Landing from "./Components/Landing";
+import AdminAlerts from "./Components/AdminAlerts";
 
 function RequireAuth({ children }) {
   const loggedIn = sessionStorage.getItem("isLoggedIn") === "true";
@@ -223,6 +224,7 @@ function App() {
         <Route path="/inventory" element={<RequireAdmin><Inventory /></RequireAdmin>} />
         <Route path="/admin-requests" element={<RequireAdmin><AdminRequests /></RequireAdmin>} />
         <Route path="/admin-requests/:id" element={<RequireAdmin><AdminRequestDetail /></RequireAdmin>} />
+        <Route path="/admin-alerts" element={<RequireAdmin><AdminAlerts /></RequireAdmin>} />
       </Routes>
     </BrowserRouter>
   );

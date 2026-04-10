@@ -1,0 +1,89 @@
+.alert-page {
+  background: #f3efe7;
+  padding: 30px;
+  min-height: 100vh;
+}
+
+.main-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.alert-wrapper {
+  display: flex;
+  gap: 30px;
+}
+
+/* LEFT FORM */
+.alert-form {
+  background: #e8e4dc;
+  padding: 25px;
+  border-radius: 10px;
+  width: 40%;
+}
+
+.alert-form h2 {
+  margin-bottom: 15px;
+}
+
+.alert-form label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+.alert-form input,
+.alert-form textarea {
+  width: 100%;
+  margin-top: 5px;
+  padding: 10px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+.alert-form textarea {
+  height: 80px;
+}
+
+.checkbox-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.send-btn {
+  margin-top: 20px;
+  background: #5f8ea3;
+  color: white;
+  padding: 12px;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+/* RIGHT PANEL */
+.alert-history {
+  background: #e8e4dc;
+  padding: 20px;
+  border-radius: 10px;
+  width: 60%;
+}
+
+.alert-history table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.alert-history th,
+.alert-history td {
+  border: 1px solid #999;
+  padding: 10px;
+  text-align: left;
+}
+
+.alert-history th {
+  background: #ddd;
+}

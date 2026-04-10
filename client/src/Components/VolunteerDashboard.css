@@ -174,3 +174,43 @@
 .dashboard-buttons button:hover {
     background: #407e9f;
 }
+
+.volunteer-notifications-card {
+  max-width: 900px;
+  margin: 24px auto;
+  background: #fff3f3;
+  padding: 28px 30px;
+  border-radius: 16px;
+  border-left: 5px solid #c0392b;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.volunteer-notifications-card h2 {
+  margin-bottom: 16px;
+  color: #c0392b;
+}
+
+.notification-item {
+  border-bottom: 1px solid #f0c0c0;
+  padding: 12px 0;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notif-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.notif-message {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.notif-date {
+  font-size: 13px;
+  color: #888;
+}

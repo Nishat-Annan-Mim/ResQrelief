@@ -22,6 +22,7 @@ const Login = () => {
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("user", JSON.stringify(res.data.user));
       sessionStorage.setItem("role", res.data.user.role);
+      sessionStorage.setItem("email", res.data.user.email); // ✅ ADD THIS
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("role", res.data.user.role);
