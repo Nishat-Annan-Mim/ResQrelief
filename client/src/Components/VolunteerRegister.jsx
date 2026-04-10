@@ -701,15 +701,16 @@ const VolunteerRegister = () => {
           `http://localhost:3001/volunteer/check/${user.email}`,
         );
         if (res.data.isVolunteer) {
-          // Already registered — don't show the form
+          // Already registered — navigate to the onboarding page
           navigate("/volunteer-onboarding");
         }
       } catch (err) {
         console.log(err);
+        setMessage("Error checking for existing volunteer.");
       }
     };
     checkExisting();
-  }, []);
+  }, [user?.email, navigate]);
 
   // Fetch valid NID numbers from the backend when the component is mounted
   useEffect(() => {
@@ -819,19 +820,16 @@ const VolunteerRegister = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/volunteer/register",
+        "http://localhost:3001/volunteer/register", // Backend registration route
         {
-          userId: user?.id, // ✅ IMPORTANT FIX
+          userId: user?.id, // Include the user ID
           fullName: formData.fullName,
           email: formData.email,
           dateOfBirth: formData.dateOfBirth,
           phone: formData.phone,
           address: formData.address,
           gender: formData.gender,
-
-          // ✅ combine phone + relation into ONE string
           emergencyContact: `${formData.emergencyContact} (${formData.emergencyContactRelation})`,
-
           nidNumber: formData.nidNumber,
           volunteerPassword: formData.volunteerPassword,
           status: "pending",

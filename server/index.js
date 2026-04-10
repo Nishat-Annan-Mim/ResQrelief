@@ -225,14 +225,19 @@ app.post("/volunteer/register", async (req, res) => {
       volunteerPassword,
     } = req.body;
 
-    // Check if the email and NID are both unique separately
-    const existingVolunteer = await VolunteerModel.findOne({
-      $or: [{ email }, { nidNumber }],
-    });
-
-    if (existingVolunteer) {
+    // First, check if the email exists
+    const existingVolunteerByEmail = await VolunteerModel.findOne({ email });
+    if (existingVolunteerByEmail) {
       return res.status(400).json({
-        message: "Volunteer already exists with this email or NID",
+        message: "Volunteer already exists with this email",
+      });
+    }
+
+    // Then check if the NID exists
+    const existingVolunteerByNID = await VolunteerModel.findOne({ nidNumber });
+    if (existingVolunteerByNID) {
+      return res.status(400).json({
+        message: "Volunteer already exists with this NID",
       });
     }
 
