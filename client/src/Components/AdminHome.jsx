@@ -50,6 +50,7 @@ const AdminHome = () => {
       <aside className="admin-sidebar">
         <ul className="sidebar-nav">
           <li className="sidebar-item active">Dashboard</li>
+
           <li
             className="sidebar-item"
             onClick={() => navigate("/admin-requests")}
@@ -65,9 +66,12 @@ const AdminHome = () => {
           >
             Volunteers
           </li>
-          <li className="sidebar-item" onClick={() => navigate("/admin-requests")}>Requests</li>
-          <li className="sidebar-item" onClick={() => navigate("/inventory")}>Inventory</li>
-          <li className="sidebar-item" onClick={() => navigate("/admin-alerts")}>Alerts</li>
+          <li
+            className="sidebar-item"
+            onClick={() => navigate("/admin-alerts")}
+          >
+            Alerts
+          </li>
         </ul>
       </aside>
 

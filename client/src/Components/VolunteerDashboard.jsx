@@ -277,18 +277,18 @@ const VolunteerDashboard = () => {
   const needPassword = localStorage.getItem("needVolunteerPassword"); // Check if password prompt is needed
 
   useEffect(() => {
-  const fetchNotifications = async () => {
-    try {
-      const res = await axios.get("http://localhost:3001/api/alerts");
-      const volunteerAlerts = res.data.filter(a =>
-        a.audience.includes("volunteers")
-      );
-      setNotifications(volunteerAlerts);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  fetchNotifications();
+    const fetchNotifications = async () => {
+      try {
+        const res = await axios.get("http://localhost:3001/api/alerts");
+        const volunteerAlerts = res.data.filter((a) =>
+          a.audience.includes("volunteers"),
+        );
+        setNotifications(volunteerAlerts);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchNotifications();
   }, []);
 
   useEffect(() => {
@@ -402,29 +402,21 @@ const VolunteerDashboard = () => {
               </>
             )}
           </div>
-      <NotificationListener />
-      {notifications.length > 0 && (
-        <div className="volunteer-notifications-card">
-          <h2>🚨 Emergency Alerts</h2>
-          {notifications.map((n, i) => (
-            <div key={i} className="notification-item">
-              <div className="notif-title">{n.alertTitle}</div>
-              <div className="notif-message">{n.message}</div>
-              <div className="notif-date">
-                {new Date(n.dateSent).toLocaleString()}
-              </div>
+          <NotificationListener />
+          {notifications.length > 0 && (
+            <div className="volunteer-notifications-card">
+              <h2>🚨 Emergency Alerts</h2>
+              {notifications.map((n, i) => (
+                <div key={i} className="notification-item">
+                  <div className="notif-title">{n.alertTitle}</div>
+                  <div className="notif-message">{n.message}</div>
+                  <div className="notif-date">
+                    {new Date(n.dateSent).toLocaleString()}
+                  </div>
+                </div>
+              ))}
             </div>
-            ))}
-          </div>
           )}
-
-      <div className="volunteer-dashboard-card">
-        <h1>Volunteer Dashboard</h1>
-        <p>
-          Welcome back, {volunteer.fullName}. Your volunteer profile is active
-          and ready.
-        </p>
-      </div>
 
           <div className="volunteer-info-card">
             <h2>Volunteer Information</h2>

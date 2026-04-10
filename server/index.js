@@ -5,9 +5,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const dotenv = require("dotenv");
-// const dotenv = require("dotenv");
 
+// const dotenv = require("dotenv");
 
 const UserModel = require("./model/User");
 const VolunteerModel = require("./model/Volunteer");
@@ -16,15 +15,10 @@ const RequestModel = require("./model/Request");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const alertRoutes = require("./routes/alertRoutes");
 
-
-
-
-
 // dotenv.config();
 // Replace GoogleGenerativeAI import with:
 const app = express();
 const BannedModel = require("./model/Banned");
-
 
 const http = require("http");
 const { Server } = require("socket.io");
@@ -44,7 +38,6 @@ io.on("connection", (socket) => {
     socket.join(email);
   });
 });
-
 
 app.use(express.json());
 app.use(cors());

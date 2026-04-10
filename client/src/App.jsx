@@ -276,6 +276,14 @@ function App() {
             </RequireAdmin>
           }
         />
+        <Route
+          path="/admin-alerts"
+          element={
+            <RequireAdmin>
+              <AdminAlerts />
+            </RequireAdmin>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
