@@ -8,7 +8,6 @@ import {
   useJsApiLoader,
 } from "@react-google-maps/api";
 import "./VolunteerMapBoard.css";
-
 const defaultCenter = { lat: 23.8103, lng: 90.4125 };
 
 const requestTypes = [
@@ -49,6 +48,8 @@ const VolunteerMapBoard = () => {
     distance: "",
     duration: "",
   });
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [showVolunteerList, setShowVolunteerList] = useState(false);
 
   const [requestForm, setRequestForm] = useState({
     requestType: "",
@@ -254,6 +255,13 @@ const VolunteerMapBoard = () => {
             position: { lat, lng },
           });
 
+          setRequestForm((prev) => ({
+            ...prev,
+            latitude: lat,
+            longitude: lng,
+            address: address || `Lat: ${lat}, Lng: ${lng}`,
+          }));
+
           await loadBoard();
           alert("Your location is now visible on the map");
         } catch (error) {
@@ -368,6 +376,26 @@ const VolunteerMapBoard = () => {
     }
   };
 
+  const cancelRequest = async (requestId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel this request? It will go back to needing help.",
+    );
+    if (!confirmed) return;
+
+    try {
+      await axios.put(
+        `http://localhost:3001/aid-requests/${requestId}/cancel`,
+        {
+          cancellerEmail: volunteerProfile.email,
+        },
+      );
+      await loadBoard();
+      alert("Request cancelled successfully");
+    } catch (error) {
+      console.log(error);
+      alert("Could not cancel request");
+    }
+  };
   const markHelped = async (requestId) => {
     try {
       await axios.put(
@@ -406,7 +434,7 @@ const VolunteerMapBoard = () => {
   const statusLabel = (status) => {
     if (status === "need") return "NEED";
     if (status === "helping") return "COMING FOR HELP";
-    return "ALREADY HELPED";
+    return "Already helped";
   };
 
   const statusClass = (status) => {
@@ -449,6 +477,13 @@ const VolunteerMapBoard = () => {
       "Nearby requests are already completed. Showing farther open requests too.";
   }
 
+  const activeNearbyRequests = displayedNearbyRequests.filter(
+    (r) => r.status !== "helped",
+  );
+  const completedNearbyRequests = displayedNearbyRequests.filter(
+    (r) => r.status === "helped",
+  );
+
   if (!isLoaded) {
     return <div className="map-board-page">Loading map...</div>;
   }
@@ -464,10 +499,66 @@ const VolunteerMapBoard = () => {
       </div>
 
       <div className="map-board-stats">
-        <div className="map-stat-card">
+        <div
+          className="map-stat-card"
+          style={{ cursor: "pointer" }}
+          onClick={() => setShowVolunteerList((prev) => !prev)}
+        >
           <h3>{sharedVolunteers.length}</h3>
           <p>Shared Volunteer Locations</p>
+          <span
+            style={{
+              display: "inline-block",
+              marginTop: "4px",
+              padding: "2px 12px",
+              borderRadius: "20px",
+              fontSize: "12px",
+              fontWeight: "600",
+              background: showVolunteerList ? "#e8f5e9" : "#e8f0fe",
+              color: showVolunteerList ? "#2e7d32" : "#1a73e8",
+              border: showVolunteerList
+                ? "1px solid #a5d6a7"
+                : "1px solid #a8c7fa",
+            }}
+          >
+            {showVolunteerList ? "▲ Hide" : "▼ See who"}
+          </span>
         </div>
+
+        {showVolunteerList && (
+          <div className="volunteer-list-dropdown">
+            {sharedVolunteers.length === 0 ? (
+              <p className="volunteer-list-empty">
+                No volunteers sharing location right now.
+              </p>
+            ) : (
+              sharedVolunteers.map((vol) => {
+                const isMe = vol.email === user?.email;
+                return (
+                  <div
+                    key={vol._id || vol.email}
+                    className={`volunteer-list-item ${isMe ? "volunteer-list-item-me" : ""}`}
+                  >
+                    <div className="volunteer-list-name">
+                      {isMe
+                        ? "📍 You (shared your location)"
+                        : `🔵 ${vol.fullName}`}
+                    </div>
+                    <div className="volunteer-list-address">
+                      {vol.currentAddress ||
+                        `Lat: ${vol.currentLatitude}, Lng: ${vol.currentLongitude}`}
+                    </div>
+                    {vol.volunteerRole && (
+                      <div className="volunteer-list-role">
+                        {vol.volunteerRole} • {vol.preferredZone || "No zone"}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
         <div className="map-stat-card">
           <h3>{requestStats.need}</h3>
           <p>Open Requests</p>
@@ -727,6 +818,7 @@ const VolunteerMapBoard = () => {
           </div>
         )}
 
+        {/* ── Active Requests Table ── */}
         <div className="table-wrapper">
           <table className="nearby-table">
             <thead>
@@ -741,12 +833,12 @@ const VolunteerMapBoard = () => {
               </tr>
             </thead>
             <tbody>
-              {displayedNearbyRequests.length === 0 ? (
+              {activeNearbyRequests.length === 0 ? (
                 <tr>
-                  <td colSpan="7">No nearby requests available right now.</td>
+                  <td colSpan="7">No active nearby requests right now.</td>
                 </tr>
               ) : (
-                displayedNearbyRequests.map((request) => (
+                activeNearbyRequests.map((request) => (
                   <tr key={request._id}>
                     <td>{requestNumberMap[request._id] || "-"}</td>
                     <td>{request.requestType}</td>
@@ -756,42 +848,37 @@ const VolunteerMapBoard = () => {
                     <td>{statusLabel(request.status)}</td>
                     <td>
                       {request.status === "need" ? (
+                        <button
+                          className="table-action-btn"
+                          onClick={() => acceptRequest(request._id)}
+                        >
+                          Help This
+                        </button>
+                      ) : request.status === "helping" ? (
                         <div
                           style={{
                             display: "flex",
-                            gap: "8px",
-                            flexWrap: "wrap",
+                            flexDirection: "column",
+                            gap: "6px",
                           }}
                         >
-                          <button
-                            hidden
-                            className="table-action-btn"
-                            onClick={() =>
-                              calculateRoute(
-                                Number(request.latitude),
-                                Number(request.longitude),
-                              )
-                            }
-                          >
-                            Route
-                          </button>
-                          <button
-                            className="table-action-btn"
-                            onClick={() => acceptRequest(request._id)}
-                          >
-                            Help This
-                          </button>
-                        </div>
-                      ) : request.status === "helping" ? (
-                        <span className="table-status-text">
+                          <span className="table-status-text">
+                            {request.helperVolunteerEmail ===
+                            volunteerProfile?.email
+                              ? "You accepted this"
+                              : "Volunteer coming"}
+                          </span>
                           {request.helperVolunteerEmail ===
-                          volunteerProfile?.email
-                            ? "You accepted this"
-                            : "Volunteer coming"}
-                        </span>
-                      ) : (
-                        <span className="table-status-text">Completed</span>
-                      )}
+                            volunteerProfile?.email && (
+                            <button
+                              className="table-cancel-btn"
+                              onClick={() => cancelRequest(request._id)}
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
+                      ) : null}
                     </td>
                   </tr>
                 ))
@@ -799,6 +886,48 @@ const VolunteerMapBoard = () => {
             </tbody>
           </table>
         </div>
+
+        {/* ── Completed Requests Box ── */}
+        {completedNearbyRequests.length > 0 && (
+          <div className="completed-requests-box">
+            <button
+              className="completed-toggle-btn"
+              onClick={() => setShowCompleted((prev) => !prev)}
+            >
+              ✅ Completed Nearby Requests ({completedNearbyRequests.length})
+              {showCompleted ? " ▲" : " ▼"}
+            </button>
+
+            {showCompleted && (
+              <div className="table-wrapper" style={{ marginTop: "12px" }}>
+                <table className="nearby-table completed-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Type</th>
+                      <th>Severity</th>
+                      <th>Address</th>
+                      <th>Distance</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {completedNearbyRequests.map((request) => (
+                      <tr key={request._id}>
+                        <td>{requestNumberMap[request._id] || "-"}</td>
+                        <td>{request.requestType}</td>
+                        <td>{getSeverityLabel(request.severity)}</td>
+                        <td>{request.address || "No address"}</td>
+                        <td>{request.distanceKm} km</td>
+                        <td>✅ Helped</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="all-requests-section">
@@ -900,12 +1029,26 @@ const VolunteerMapBoard = () => {
                   {request.status === "helping" &&
                     request.helperVolunteerEmail ===
                       volunteerProfile?.email && (
-                      <button
-                        className="helped-btn"
-                        onClick={() => markHelped(request._id)}
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          flexWrap: "wrap",
+                        }}
                       >
-                        Mark as Helped
-                      </button>
+                        <button
+                          className="helped-btn"
+                          onClick={() => markHelped(request._id)}
+                        >
+                          Mark as Helped
+                        </button>
+                        <button
+                          className="cancel-request-btn"
+                          onClick={() => cancelRequest(request._id)}
+                        >
+                          Cancel Help
+                        </button>
+                      </div>
                     )}
                 </div>
               </div>

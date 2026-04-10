@@ -5,6 +5,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const dotenv = require("dotenv");
 // const dotenv = require("dotenv");
 
 
@@ -191,18 +192,23 @@ app.post("/volunteer/register", async (req, res) => {
       volunteerPassword,
     } = req.body;
 
-    const existingVolunteer = await VolunteerModel.findOne({
-      $or: [{ email }, { nidNumber }],
-    });
-
-    if (existingVolunteer) {
+    // First, check if the email exists
+    const existingVolunteerByEmail = await VolunteerModel.findOne({ email });
+    if (existingVolunteerByEmail) {
       return res.status(400).json({
-        message: "Volunteer already exists with this email or NID",
+        message: "Volunteer already exists with this email",
+      });
+    }
+
+    // Then check if the NID exists
+    const existingVolunteerByNID = await VolunteerModel.findOne({ nidNumber });
+    if (existingVolunteerByNID) {
+      return res.status(400).json({
+        message: "Volunteer already exists with this NID",
       });
     }
 
     const user = await UserModel.findById(userId);
-
     if (!user) {
       return res.status(404).json({
         message: "User not found",
@@ -226,6 +232,7 @@ app.post("/volunteer/register", async (req, res) => {
       nidNumber,
       volunteerPassword: hashedVolunteerPassword,
       profileCompleted: false,
+      status: "pending",
     });
 
     await newVolunteer.save();
@@ -239,7 +246,6 @@ app.post("/volunteer/register", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 /* ---------------- Volunteer Profile ---------------- */
 
 app.get("/volunteer/profile/:email", async (req, res) => {
@@ -687,25 +693,27 @@ app.get("/api/volunteers/by-district/:district", async (req, res) => {
       profileCompleted: true,
       preferredZone: { $regex: new RegExp(district, "i") },
       isBanned: { $ne: true },
-    }).select("fullName email phone volunteerRole preferredZone preferredTime availableFrom availableUntil");
+    }).select(
+      "fullName email phone volunteerRole preferredZone preferredTime availableFrom availableUntil",
+    );
     res.status(200).json(volunteers);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ── GET all volunteers (for admin, no district filter) ───────
-app.get("/api/volunteers/all", async (req, res) => {
-  try {
-    const volunteers = await VolunteerModel.find({
-      profileCompleted: true,
-      isBanned: { $ne: true },
-    }).select("fullName email phone volunteerRole preferredZone preferredTime");
-    res.status(200).json(volunteers);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// // ── GET all volunteers (for admin, no district filter) ───────
+// app.get("/api/volunteers/all", async (req, res) => {
+//   try {
+//     const volunteers = await VolunteerModel.find({
+//       profileCompleted: true,
+//       isBanned: { $ne: true },
+//     }).select("fullName email phone volunteerRole preferredZone preferredTime");
+//     res.status(200).json(volunteers);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
 
 // ── VERIFY request + optionally assign a volunteer ───────────
 // REPLACE your existing PUT /api/requests/:id/verify with this:
@@ -720,9 +728,11 @@ app.put("/api/requests/:id/verify", async (req, res) => {
       ...(assignedVolunteer && { assignedVolunteer }),
     };
 
-    const updated = await RequestModel.findByIdAndUpdate(id, update, { new: true });
+    const updated = await RequestModel.findByIdAndUpdate(id, update, {
+      returnDocument: "after",
+    });
     console.timeEnd(`verify-${id}`);
-    
+
     if (!updated) return res.status(404).json({ message: "Request not found" });
     res.status(200).json(updated);
   } catch (error) {
@@ -750,23 +760,25 @@ app.delete("/api/requests/:id", async (req, res) => {
         bannedAt: new Date(),
         reason: "fraud",
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
 
     // Also ban the volunteer account if one exists with this phone
     await VolunteerModel.findOneAndUpdate(
       { phone: request.phoneNumber },
-      { isBanned: true }
+      { isBanned: true },
     );
     await UserModel.findOneAndUpdate(
       { email: request.phoneNumber }, // in case email matches
-      { isBanned: true }
+      { isBanned: true },
     );
 
     await RequestModel.findByIdAndDelete(id);
     console.timeEnd(`fraud-${id}`);
-    
-    res.status(200).json({ message: "Request marked as fraud, submitter banned" });
+
+    res
+      .status(200)
+      .json({ message: "Request marked as fraud, submitter banned" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -777,7 +789,9 @@ app.delete("/api/requests/:id", async (req, res) => {
 app.get("/api/requests/by-status/:status", async (req, res) => {
   try {
     const { status } = req.params; // "verified" | "pending" | "fraud"
-    const requests = await RequestModel.find({ status }).sort({ createdAt: -1 });
+    const requests = await RequestModel.find({ status }).sort({
+      createdAt: -1,
+    });
     res.status(200).json(requests);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -827,46 +841,45 @@ District: ${requestData.district || "Unknown"}
 Description: ${requestData.additionalDetails || "No description"}
       `;
 
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-    "Content-Type": "application/json"
-    
-  },
-  body: JSON.stringify({
-    model: "openai/gpt-oss-120b:free", // ← changed again
-    messages: [
-      { role: "user", content: prompt }
-    ]
-  })
-});
+      const response = await fetch(
+        "https://openrouter.ai/api/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "openai/gpt-oss-120b:free", // ← changed again
+            messages: [{ role: "user", content: prompt }],
+          }),
+        },
+      );
 
-const data = await response.json();
-console.log("FULL AI RESPONSE:", data);
+      const data = await response.json();
+      console.log("FULL AI RESPONSE:", data);
 
-// ✅ HANDLE ERROR RESPONSE
-if (data.error) {
-  throw new Error(data.error.message);
-}
+      // ✅ HANDLE ERROR RESPONSE
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
 
-// ✅ SAFE ACCESS
-let text = data?.choices?.[0]?.message?.content;
+      // ✅ SAFE ACCESS
+      let text = data?.choices?.[0]?.message?.content;
 
-if (!text) {
-  throw new Error("No AI text returned");
-}
+      if (!text) {
+        throw new Error("No AI text returned");
+      }
       // 👇 THIS TELLS US WHAT THE AI SAID 👇
-      console.log("🤖 AI Raw Answer:", text); 
+      console.log("🤖 AI Raw Answer:", text);
 
       const match = text.match(/(HIGH|MEDIUM|LOW)/i);
       if (match) {
         assignedPriority = match[1].toUpperCase();
       }
-      
-      // 👇 THIS TELLS US WHAT SAVED TO MONGODB 👇
-      console.log("✅ Final Saved Priority:", assignedPriority); 
 
+      // 👇 THIS TELLS US WHAT SAVED TO MONGODB 👇
+      console.log("✅ Final Saved Priority:", assignedPriority);
     } catch (aiError) {
       // 👇 THIS TELLS US IF THE API KEY FAILED 👇
       console.error("❌ AI Priority Generation Failed:", aiError.message);
@@ -874,12 +887,13 @@ if (!text) {
 
     const newRequest = new RequestModel({
       ...requestData,
-      priority: assignedPriority
+      priority: assignedPriority,
     });
 
     await newRequest.save();
-    res.status(201).json({ message: "Request submitted successfully", request: newRequest });
-
+    res
+      .status(201)
+      .json({ message: "Request submitted successfully", request: newRequest });
   } catch (error) {
     console.error("Error creating request:", error);
     res.status(500).json({ message: "Server error" });
@@ -902,18 +916,20 @@ app.post("/create-admin", async (req, res) => {
 
 app.get("/api/requests/ai-prioritized", async (req, res) => {
   try {
-    const rawRequests = await RequestModel.find().lean().sort({ createdAt: -1 });
+    const rawRequests = await RequestModel.find()
+      .lean()
+      .sort({ createdAt: -1 });
 
     // ✅ FIX: Actually apply "MEDIUM" to older items in the array so the UI shows it
     const requests = rawRequests.map((req) => ({
       ...req,
-      priority: req.priority || "MEDIUM" 
+      priority: req.priority || "MEDIUM",
     }));
 
     const order = { HIGH: 0, MEDIUM: 1, LOW: 2 };
-    
+
     requests.sort((a, b) => {
-      const priorityA = order[a.priority]; 
+      const priorityA = order[a.priority];
       const priorityB = order[b.priority];
       return priorityA - priorityB;
     });
@@ -933,16 +949,23 @@ app.post("/api/ai/resource-allocation", async (req, res) => {
   try {
     // 🚨 SAFETY CHECK: Ensure the API key is actually loaded
     if (!process.env.OPENROUTER_API_KEY) {
-      console.error("❌ FATAL: OPENROUTER_API_KEY is undefined in resource-allocation!");
-      return res.status(500).json({ message: "Server configuration error: Missing API Key" });
+      console.error(
+        "❌ FATAL: OPENROUTER_API_KEY is undefined in resource-allocation!",
+      );
+      return res
+        .status(500)
+        .json({ message: "Server configuration error: Missing API Key" });
     }
 
     const { aidTypes, peopleAffected, district, description } = req.body;
 
     const inventory = await require("./model/Inventory").find();
-    const inventorySummary = inventory.map(item =>
-      `${item.itemName} (${item.category}): ${item.quantity} units, Status: ${item.status}`
-    ).join("\n");
+    const inventorySummary = inventory
+      .map(
+        (item) =>
+          `${item.itemName} (${item.category}): ${item.quantity} units, Status: ${item.status}`,
+      )
+      .join("\n");
 
     const prompt = `
 You are a disaster relief resource allocation AI.
@@ -966,19 +989,22 @@ Reply in this exact JSON format only, no extra text:
 }
     `;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000", // OpenRouter requires this for free models
-        "X-Title": "ResQrelief"                   // OpenRouter requires this for free models
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "http://localhost:3000", // OpenRouter requires this for free models
+          "X-Title": "ResQrelief", // OpenRouter requires this for free models
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-120b:free",
+          messages: [{ role: "user", content: prompt }],
+        }),
       },
-      body: JSON.stringify({
-        model: "openai/gpt-oss-120b:free",
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
+    );
 
     const data = await response.json();
 
@@ -1005,16 +1031,23 @@ app.post("/api/ai/volunteer-match", async (req, res) => {
   try {
     // 🚨 SAFETY CHECK: Ensure the API key is actually loaded
     if (!process.env.OPENROUTER_API_KEY) {
-      console.error("❌ FATAL: OPENROUTER_API_KEY is undefined in volunteer-match!");
-      return res.status(500).json({ message: "Server configuration error: Missing API Key" });
+      console.error(
+        "❌ FATAL: OPENROUTER_API_KEY is undefined in volunteer-match!",
+      );
+      return res
+        .status(500)
+        .json({ message: "Server configuration error: Missing API Key" });
     }
 
     const { aidTypes, peopleAffected, district, description } = req.body;
 
     const volunteers = await VolunteerModel.find({ profileCompleted: true });
-    const volunteerSummary = volunteers.map(v =>
-      `Name: ${v.fullName}, Role: ${v.volunteerRole}, Skills: ${v.skillsExperience || "None"}, Zone: ${v.preferredZone}, Availability: ${v.preferredTime || "Flexible"}`
-    ).join("\n");
+    const volunteerSummary = volunteers
+      .map(
+        (v) =>
+          `Name: ${v.fullName}, Role: ${v.volunteerRole}, Skills: ${v.skillsExperience || "None"}, Zone: ${v.preferredZone}, Availability: ${v.preferredTime || "Flexible"}`,
+      )
+      .join("\n");
 
     const prompt = `
 You are a disaster relief volunteer matching AI.
@@ -1042,19 +1075,22 @@ Reply in this exact JSON format only, no extra text:
 }
     `;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000", // OpenRouter requires this for free models
-        "X-Title": "ResQrelief"                   // OpenRouter requires this for free models
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "http://localhost:3000", // OpenRouter requires this for free models
+          "X-Title": "ResQrelief", // OpenRouter requires this for free models
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-120b:free",
+          messages: [{ role: "user", content: prompt }],
+        }),
       },
-      body: JSON.stringify({
-        model: "openai/gpt-oss-120b:free",
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
+    );
 
     const data = await response.json();
 
@@ -1073,8 +1109,164 @@ Reply in this exact JSON format only, no extra text:
   }
 });
 
+/* ---------------- NID Management ---------------- */
+const fs = require("fs");
+const path = require("path");
 
+// Serve the NID numbers from the .txt file
+app.get("/valid-nids", (req, res) => {
+  const filePath = path.join(__dirname, "validNidNumbers.txt");
 
+  // Read the file and return the NIDs as an array
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      return res.status(500).json({ message: "Error reading NID file" });
+    }
+
+    // Split the file contents by new lines, trim each line, and filter out any empty lines
+    const nids = data
+      .split("\n") // Split by new line
+      .map((nid) => nid.trim()) // Remove any extra whitespace or carriage return
+      .filter((nid) => nid !== ""); // Filter out empty lines
+
+    res.json(nids);
+  });
+});
+
+/* ---------------- volunteerlogin ---------------- */
+app.post("/volunteer/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const volunteer = await VolunteerModel.findOne({ email });
+
+    if (!volunteer) {
+      return res.status(404).json({ message: "Volunteer not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, volunteer.volunteerPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    res.status(200).json({
+      message: "Login successful",
+      volunteer: {
+        id: volunteer._id,
+        name: volunteer.fullName,
+        email: volunteer.email,
+        profileCompleted: volunteer.profileCompleted,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- adminconfiemvolunteer ---------------- */
+
+app.put("/api/volunteer/confirm/:id", async (req, res) => {
+  try {
+    const volunteerId = req.params.id;
+
+    // Update the volunteer status to 'confirmed'
+    const updatedVolunteer = await VolunteerModel.findByIdAndUpdate(
+      volunteerId,
+      { status: "confirmed" },
+      { returnDocument: "after" },
+    );
+
+    if (!updatedVolunteer) {
+      return res.status(404).json({ message: "Volunteer not found" });
+    }
+
+    res.status(200).json({
+      message: "Volunteer confirmed successfully",
+      volunteer: updatedVolunteer,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Get All Volunteers (Admin) ---------------- */
+app.get("/api/volunteers/all", async (req, res) => {
+  try {
+    const volunteers = await VolunteerModel.find();
+    res.status(200).json(volunteers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Remove Volunteer (Admin) ---------------- */
+app.delete("/api/volunteer/remove/:id", async (req, res) => {
+  try {
+    const volunteerId = req.params.id;
+
+    const deleted = await VolunteerModel.findByIdAndDelete(volunteerId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Volunteer not found" });
+    }
+
+    res.status(200).json({ message: "Volunteer removed successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Cancel Aid Request from map (Helper Volunteer) ---------------- */
+/* ---------------- Cancel Aid Request from map (Helper Volunteer) ---------------- */
+app.put("/aid-requests/:id/cancel", async (req, res) => {
+  try {
+    const { cancellerEmail } = req.body;
+    const request = await AidRequestModel.findById(req.params.id);
+
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    if (request.helperVolunteerEmail !== cancellerEmail) {
+      return res.status(403).json({ message: "Not authorized to cancel" });
+    }
+
+    request.status = "need";
+    request.helperVolunteerId = null;
+    request.helperVolunteerName = null;
+    request.helperVolunteerEmail = null;
+    request.helperMessage = null;
+    await request.save();
+
+    res.json({ message: "Request cancelled successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Admin: Get All Aid Requests ---------------- */
+app.get("/api/admin/aid-requests", async (req, res) => {
+  try {
+    const requests = await AidRequestModel.find().sort({ createdAt: -1 });
+    res.status(200).json(requests);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Admin: Delete Any Aid Request ---------------- */
+app.delete("/api/admin/aid-requests/:id", async (req, res) => {
+  try {
+    const deleted = await AidRequestModel.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Request not found" });
+    res.status(200).json({ message: "Request deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 /* ---------------- Server ---------------- */
 
 server.listen(process.env.PORT, () => {

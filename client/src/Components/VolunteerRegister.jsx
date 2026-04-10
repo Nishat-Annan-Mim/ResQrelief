@@ -1,33 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./VolunteerRegister.css";
 
 const VolunteerRegister = () => {
   const navigate = useNavigate();
+
+  // Retrieve user data from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const [step, setStep] = useState(1);
-  const [message, setMessage] = useState("");
-
+  const [validNidNumbers, setValidNidNumbers] = useState([]);
   const [formData, setFormData] = useState({
-    fullName: user?.name || "",
-    email: user?.email || "",
+    fullName: user?.name || "", // Prefill fullName with localStorage value
+    email: user?.email || "", // Prefill email with localStorage value
     dateOfBirth: "",
     phone: "",
     address: "",
     gender: "",
-    emergencyContact: "",
+    emergencyContact: "", // Initially stores phone number
+    emergencyContactRelation: "", // Relation field after phone entry
     nidNumber: "",
     confirmNidNumber: "",
     volunteerPassword: "",
     confirmVolunteerPassword: "",
   });
 
+  const [step, setStep] = useState(1);
+  const [message, setMessage] = useState("");
+  const [showRelation, setShowRelation] = useState(false);
+
+  // Add this at the top of the useEffect in VolunteerRegister.jsx
+  useEffect(() => {
+    const checkExisting = async () => {
+      if (!user?.email) return;
+      try {
+        const res = await axios.get(
+          `http://localhost:3001/volunteer/check/${user.email}`,
+        );
+        if (res.data.isVolunteer) {
+          // Already registered — navigate to the onboarding page
+          navigate("/volunteer-onboarding");
+        }
+      } catch (err) {
+        console.log(err);
+        setMessage("Error checking for existing volunteer.");
+      }
+    };
+    checkExisting();
+  }, [user?.email, navigate]);
+
+  // Fetch valid NID numbers from the backend when the component is mounted
+  useEffect(() => {
+    const fetchValidNids = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/valid-nids");
+        setValidNidNumbers(response.data); // Store fetched NIDs
+        console.log("Fetched NID numbers:", response.data);
+      } catch (error) {
+        console.error("Error fetching NID numbers:", error);
+        setMessage("Failed to load NID numbers. Please try again later.");
+      }
+    };
+
+    fetchValidNids();
+  }, []);
+
+  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handlePhoneSubmit = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // ⚠️ important
+      setShowRelation(true);
+    }
+  };
+
+  // Step 1: Handle personal info form submission
   const handleStep1 = () => {
     const {
       fullName,
@@ -46,16 +96,18 @@ const VolunteerRegister = () => {
       !phone ||
       !address ||
       !gender ||
-      !emergencyContact
+      !emergencyContact ||
+      !formData.emergencyContactRelation
     ) {
       setMessage("Please fill up all personal information fields.");
       return;
     }
 
-    setMessage("");
-    setStep(2);
+    setMessage(""); // Clear any previous messages
+    setStep(2); // Proceed to Step 2 (NID verification)
   };
 
+  // Step 2: NID verification logic
   const handleStep2 = () => {
     const { nidNumber, confirmNidNumber } = formData;
 
@@ -73,12 +125,19 @@ const VolunteerRegister = () => {
       setMessage("NID must be 10 or 17 digits.");
       return;
     }
+    if (!validNidNumbers.map(String).includes(nidNumber)) {
+      setMessage("Invalid NID. Not found in database.");
+      return;
+    }
 
-    setMessage("");
-    setStep(3);
+    setMessage(""); // Clear any error message
+    setStep(3); // Proceed to Step 3 (Password setup)
   };
 
-  const handleFinalSubmit = async () => {
+  // Step 3: Final submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     const { volunteerPassword, confirmVolunteerPassword } = formData;
 
     if (!volunteerPassword || !confirmVolunteerPassword) {
@@ -98,25 +157,24 @@ const VolunteerRegister = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/volunteer/register",
+        "http://localhost:3001/volunteer/register", // Backend registration route
         {
-          userId: user.id,
+          userId: user?.id, // Include the user ID
           fullName: formData.fullName,
           email: formData.email,
           dateOfBirth: formData.dateOfBirth,
           phone: formData.phone,
           address: formData.address,
           gender: formData.gender,
-          emergencyContact: formData.emergencyContact,
+          emergencyContact: `${formData.emergencyContact} (${formData.emergencyContactRelation})`,
           nidNumber: formData.nidNumber,
           volunteerPassword: formData.volunteerPassword,
+          status: "pending",
         },
       );
-
       alert(response.data.message);
       navigate("/volunteer-onboarding");
     } catch (error) {
-      console.log(error);
       setMessage(error.response?.data?.message || "Registration failed");
     }
   };
@@ -150,6 +208,7 @@ const VolunteerRegister = () => {
 
       {message && <div className="form-message">{message}</div>}
 
+      {/* Step 1: Personal Info */}
       {step === 1 && (
         <div className="step-box">
           <div className="form-grid">
@@ -193,6 +252,7 @@ const VolunteerRegister = () => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
+                onKeyDown={handlePhoneSubmit} // Handle Enter key press
                 placeholder="+8801111111111"
               />
             </div>
@@ -222,6 +282,8 @@ const VolunteerRegister = () => {
               </select>
             </div>
 
+            {/* Dynamic emergency contact input */}
+            {/* Emergency contact phone number */}
             <div>
               <label>EMERGENCY CONTACT</label>
               <input
@@ -229,9 +291,23 @@ const VolunteerRegister = () => {
                 name="emergencyContact"
                 value={formData.emergencyContact}
                 onChange={handleChange}
-                placeholder="Contact name & number"
+                onKeyDown={handlePhoneSubmit}
+                placeholder="Emergency contact phone number"
               />
             </div>
+            {/* ✅ Show relation AFTER pressing Enter */}
+            {showRelation && (
+              <div>
+                <label>RELATION WITH CONTACT</label>
+                <input
+                  type="text"
+                  name="emergencyContactRelation"
+                  value={formData.emergencyContactRelation}
+                  onChange={handleChange}
+                  placeholder="e.g., Father, Friend"
+                />
+              </div>
+            )}
           </div>
 
           <button className="confirm-btn" onClick={handleStep1}>
@@ -240,6 +316,7 @@ const VolunteerRegister = () => {
         </div>
       )}
 
+      {/* Step 2: NID Verification */}
       {step === 2 && (
         <div className="step-box">
           <h2>Verify Your National ID</h2>
@@ -247,7 +324,6 @@ const VolunteerRegister = () => {
             Enter your NID number to confirm your identity. This is required to
             complete registration.
           </p>
-
           <div className="form-single">
             <label>NID NUMBER</label>
             <input
@@ -265,17 +341,16 @@ const VolunteerRegister = () => {
               onChange={handleChange}
             />
           </div>
-
           <button className="confirm-btn" onClick={handleStep2}>
             CONFIRM ▶
           </button>
         </div>
       )}
 
+      {/* Step 3: Password Setup */}
       {step === 3 && (
         <div className="step-box">
           <h2>SET PASSWORD</h2>
-
           <div className="form-grid">
             <div>
               <label>Password</label>
@@ -299,7 +374,7 @@ const VolunteerRegister = () => {
             </div>
           </div>
 
-          <button className="complete-btn" onClick={handleFinalSubmit}>
+          <button className="complete-btn" onClick={handleSubmit}>
             Complete Registration
           </button>
         </div>

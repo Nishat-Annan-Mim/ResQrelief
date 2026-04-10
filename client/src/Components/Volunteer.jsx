@@ -23,12 +23,16 @@ const Volunteer = () => {
         );
 
         if (response.data.isVolunteer) {
-          setIsVolunteer(true);
-
-          if (response.data.profileCompleted) {
-            navigate("/volunteer-dashboard");
+          // Check if we need to prompt for the password
+          const needPassword = localStorage.getItem("needVolunteerPassword");
+          if (needPassword === "true") {
+            navigate("/volunteer-dashboard-password"); // Navigate to password input screen
           } else {
-            navigate("/volunteer-onboarding");
+            if (response.data.profileCompleted) {
+              navigate("/volunteer-dashboard");
+            } else {
+              navigate("/volunteer-onboarding");
+            }
           }
         } else {
           setIsVolunteer(false);
@@ -36,7 +40,7 @@ const Volunteer = () => {
       } catch (error) {
         console.log(error);
       } finally {
-        setLoading(false);
+        setLoading(false); // ✅ runs no matter what — success, error, or early return
       }
     };
 
