@@ -4,34 +4,66 @@ import "./Adminvolunteers.css";
 
 const Adminvolunteers = () => {
   const [volunteers, setVolunteers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedVolunteer, setSelectedVolunteer] = useState(null);
 
-  useEffect(() => {
-    // Fetch volunteers with "pending" status
+  const fetchVolunteers = () => {
     axios
       .get("http://localhost:3001/api/volunteers/all")
       .then((response) => {
-        setVolunteers(
-          response.data.filter(
-            (volunteer) =>
-              volunteer.status === "pending" || volunteer.status == null,
+        setVolunteers(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchVolunteers();
+  }, []);
+
+  const confirmVolunteer = (volunteerId) => {
+    axios
+      .put(`http://localhost:3001/api/volunteer/confirm/${volunteerId}`)
+      .then(() => {
+        setVolunteers((prev) =>
+          prev.map((vol) =>
+            vol._id === volunteerId ? { ...vol, status: "confirmed" } : vol,
           ),
         );
       })
       .catch((error) => console.log(error));
-  }, []);
+  };
 
-  const confirmVolunteer = (volunteerId) => {
-    // Confirm volunteer's registration by updating their status
+  const removeVolunteer = (volunteerId, volunteerName) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to remove "${volunteerName}"? They will need to register again.`,
+    );
+
+    if (!confirmed) return;
+
     axios
-      .put(`http://localhost:3001/api/volunteer/confirm/${volunteerId}`)
+      .delete(`http://localhost:3001/api/volunteer/remove/${volunteerId}`)
       .then(() => {
-        setVolunteers(volunteers.filter((vol) => vol._id !== volunteerId)); // Remove confirmed volunteer from the list
+        setVolunteers((prev) => prev.filter((vol) => vol._id !== volunteerId));
       })
       .catch((error) => console.log(error));
   };
 
+  const openModal = (volunteer) => {
+    setSelectedVolunteer(volunteer);
+  };
+
+  const closeModal = () => {
+    setSelectedVolunteer(null);
+  };
+
+  if (loading) return <p>Loading volunteers...</p>;
+
   return (
-    <div>
+    <div className="table-wrapper">
       <h1>Volunteer Registration Confirmation</h1>
       <table>
         <thead>
@@ -49,16 +81,168 @@ const Adminvolunteers = () => {
               <td>{volunteer.fullName}</td>
               <td>{volunteer.email}</td>
               <td>{volunteer.phone}</td>
-              <td>{volunteer.status}</td>
-              <td>
-                <button onClick={() => confirmVolunteer(volunteer._id)}>
-                  Confirm
+              <td>{volunteer.status || "pending"}</td>
+              <td className="action-buttons">
+                {/* View Button — always visible */}
+                <button
+                  className="view-btn"
+                  onClick={() => openModal(volunteer)}
+                >
+                  View
+                </button>
+
+                {volunteer.status === "confirmed" ? (
+                  <span className="confirmed-badge">✔ Confirmed</span>
+                ) : (
+                  <button
+                    className="confirm-btn"
+                    onClick={() => confirmVolunteer(volunteer._id)}
+                  >
+                    Confirm
+                  </button>
+                )}
+                <button
+                  className="remove-btn"
+                  onClick={() =>
+                    removeVolunteer(volunteer._id, volunteer.fullName)
+                  }
+                >
+                  Remove
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* ── Modal Popup ── */}
+      {selectedVolunteer && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div
+            className="modal-box"
+            onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+          >
+            <div className="modal-header">
+              <h2>Volunteer Details</h2>
+              <button className="modal-close-btn" onClick={closeModal}>
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="modal-row">
+                <span className="modal-label">Full Name</span>
+                <span className="modal-value">
+                  {selectedVolunteer.fullName}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Email</span>
+                <span className="modal-value">{selectedVolunteer.email}</span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Phone</span>
+                <span className="modal-value">{selectedVolunteer.phone}</span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Date of Birth</span>
+                <span className="modal-value">
+                  {selectedVolunteer.dateOfBirth}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Gender</span>
+                <span className="modal-value">{selectedVolunteer.gender}</span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Address</span>
+                <span className="modal-value">{selectedVolunteer.address}</span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Emergency Contact</span>
+                <span className="modal-value">
+                  {selectedVolunteer.emergencyContact}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">NID Number</span>
+                <span className="modal-value">
+                  {selectedVolunteer.nidNumber}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Status</span>
+                <span
+                  className={`modal-value ${selectedVolunteer.status === "confirmed" ? "status-confirmed" : "status-pending"}`}
+                >
+                  {selectedVolunteer.status || "pending"}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Volunteer Role</span>
+                <span className="modal-value">
+                  {selectedVolunteer.volunteerRole || "Not set"}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Preferred Zone</span>
+                <span className="modal-value">
+                  {selectedVolunteer.preferredZone || "Not set"}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Skills & Experience</span>
+                <span className="modal-value">
+                  {selectedVolunteer.skillsExperience || "Not set"}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Available From</span>
+                <span className="modal-value">
+                  {selectedVolunteer.availableFrom || "Not set"}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Available Until</span>
+                <span className="modal-value">
+                  {selectedVolunteer.availableUntil || "Not set"}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Preferred Time</span>
+                <span className="modal-value">
+                  {selectedVolunteer.preferredTime || "Not set"}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Profile Completed</span>
+                <span className="modal-value">
+                  {selectedVolunteer.profileCompleted ? "Yes" : "No"}
+                </span>
+              </div>
+              <div className="modal-row">
+                <span className="modal-label">Registered On</span>
+                <span className="modal-value">
+                  {new Date(selectedVolunteer.createdAt).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    },
+                  )}
+                </span>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="modal-close-footer-btn" onClick={closeModal}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

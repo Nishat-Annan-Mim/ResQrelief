@@ -174,3 +174,24 @@
 .dashboard-buttons button:hover {
     background: #407e9f;
 }
+
+.admin-confirmation-banner {
+    padding: 14px 20px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 20px;
+    border-left: 5px solid;
+    text-align: center;
+}
+
+.banner-confirmed {
+    background-color: #ffffff;
+    color: #155724;
+    border-color: #28a745;
+}
+
+.banner-pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffc107;
+}

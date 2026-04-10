@@ -370,6 +370,21 @@ const VolunteerDashboard = () => {
               active and ready.
             </p>
           </div>
+          <div
+            className={`admin-confirmation-banner ${volunteer.status === "confirmed" ? "banner-confirmed" : "banner-pending"}`}
+          >
+            {volunteer.status === "confirmed" ? (
+              <>
+                ✅ <strong>Confirmed by Admin</strong> — Your volunteer
+                registration has been approved.
+              </>
+            ) : (
+              <>
+                ⏳ <strong>Not Confirmed by Admin Yet</strong> — Your
+                registration is under review.
+              </>
+            )}
+          </div>
 
           <div className="volunteer-info-card">
             <h2>Volunteer Information</h2>

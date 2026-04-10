@@ -145,71 +145,6 @@ app.get("/volunteer/check/:email", async (req, res) => {
 
 /* ---------------- Volunteer Registration ---------------- */
 
-// app.post("/volunteer/register", async (req, res) => {
-//   try {
-//     const {
-//       userId,
-//       fullName,
-//       email,
-//       dateOfBirth,
-//       phone,
-//       address,
-//       gender,
-//       emergencyContact,
-//       nidNumber,
-//       volunteerPassword,
-//     } = req.body;
-
-//     const existingVolunteer = await VolunteerModel.findOne({
-//       $or: [{ email }, { nidNumber }],
-//     });
-
-//     if (existingVolunteer) {
-//       return res.status(400).json({
-//         message: "Volunteer already exists with this email or NID",
-//       });
-//     }
-
-//     const user = await UserModel.findById(userId);
-
-//     if (!user) {
-//       return res.status(404).json({
-//         message: "User not found",
-//       });
-//     }
-
-//     let hashedVolunteerPassword = "";
-//     if (volunteerPassword) {
-//       hashedVolunteerPassword = await bcrypt.hash(volunteerPassword, 10);
-//     }
-
-//     const newVolunteer = new VolunteerModel({
-//       userId,
-//       fullName,
-//       email,
-//       dateOfBirth,
-//       phone,
-//       address,
-//       gender,
-//       emergencyContact,
-//       nidNumber,
-//       volunteerPassword: hashedVolunteerPassword,
-//       profileCompleted: false,
-//       status: "pending",
-//     });
-
-//     await newVolunteer.save();
-
-//     res.status(201).json({
-//       message: "Volunteer registered successfully",
-//       volunteer: newVolunteer,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
 app.post("/volunteer/register", async (req, res) => {
   try {
     const {
@@ -735,18 +670,18 @@ app.get("/api/volunteers/by-district/:district", async (req, res) => {
   }
 });
 
-// ── GET all volunteers (for admin, no district filter) ───────
-app.get("/api/volunteers/all", async (req, res) => {
-  try {
-    const volunteers = await VolunteerModel.find({
-      profileCompleted: true,
-      isBanned: { $ne: true },
-    }).select("fullName email phone volunteerRole preferredZone preferredTime");
-    res.status(200).json(volunteers);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// // ── GET all volunteers (for admin, no district filter) ───────
+// app.get("/api/volunteers/all", async (req, res) => {
+//   try {
+//     const volunteers = await VolunteerModel.find({
+//       profileCompleted: true,
+//       isBanned: { $ne: true },
+//     }).select("fullName email phone volunteerRole preferredZone preferredTime");
+//     res.status(200).json(volunteers);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
 
 // ── VERIFY request + optionally assign a volunteer ───────────
 // REPLACE your existing PUT /api/requests/:id/verify with this:
@@ -762,7 +697,7 @@ app.put("/api/requests/:id/verify", async (req, res) => {
     };
 
     const updated = await RequestModel.findByIdAndUpdate(id, update, {
-      new: true,
+      returnDocument: "after",
     });
     console.timeEnd(`verify-${id}`);
 
@@ -1207,7 +1142,7 @@ app.put("/api/volunteer/confirm/:id", async (req, res) => {
     const updatedVolunteer = await VolunteerModel.findByIdAndUpdate(
       volunteerId,
       { status: "confirmed" },
-      { new: true },
+      { returnDocument: "after" },
     );
 
     if (!updatedVolunteer) {
@@ -1229,6 +1164,24 @@ app.get("/api/volunteers/all", async (req, res) => {
   try {
     const volunteers = await VolunteerModel.find();
     res.status(200).json(volunteers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Remove Volunteer (Admin) ---------------- */
+app.delete("/api/volunteer/remove/:id", async (req, res) => {
+  try {
+    const volunteerId = req.params.id;
+
+    const deleted = await VolunteerModel.findByIdAndDelete(volunteerId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Volunteer not found" });
+    }
+
+    res.status(200).json({ message: "Volunteer removed successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
