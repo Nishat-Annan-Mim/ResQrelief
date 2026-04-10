@@ -55,6 +55,12 @@ const VolunteerSchema = new mongoose.Schema(
       default: "",
     },
 
+    status: {
+      type: String,
+      enum: ["pending", "confirmed"],
+      default: "pending",
+    },
+
     isVerified: {
       type: Boolean,
       default: true,

@@ -25,6 +25,7 @@ const Login = () => {
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("role", res.data.user.role);
+      localStorage.setItem("needVolunteerPassword", "true"); // For volunteers
       navigate("/home");
     } catch (error) {
       if (error.response) {

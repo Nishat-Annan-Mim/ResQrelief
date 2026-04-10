@@ -6,9 +6,18 @@
   font-weight: 700;
   font-size: 14px;
 }
-.priority-high  { color: #c0392b; }
-.priority-medium { color: #d97706; }
-.priority-low   { color: #16a34a; }
+
+.priority-high {
+  color: #c0392b;
+}
+
+.priority-medium {
+  color: #d97706;
+}
+
+.priority-low {
+  color: #16a34a;
+}
 
 /* Detail Page */
 .detail-page {
@@ -32,8 +41,15 @@
   align-items: flex-start;
 }
 
-.detail-left  { flex: 1.2; }
-.detail-right { flex: 0.8; display: flex; flex-direction: column; }
+.detail-left {
+  flex: 1.2;
+}
+
+.detail-right {
+  flex: 0.8;
+  display: flex;
+  flex-direction: column;
+}
 
 .detail-card {
   background: #e8e3db;
@@ -78,7 +94,9 @@
   transition: background 0.2s;
 }
 
-.btn-verify:hover { background: #15803d; }
+.btn-verify:hover {
+  background: #15803d;
+}
 
 .btn-fraud {
   flex: 1;
@@ -93,7 +111,9 @@
   transition: background 0.2s;
 }
 
-.btn-fraud:hover { background: #a93226; }
+.btn-fraud:hover {
+  background: #a93226;
+}
 
 /* Request Portal Tabs */
 .ar-tabs {
@@ -102,6 +122,7 @@
   margin-bottom: 24px;
   flex-wrap: wrap;
 }
+
 .ar-tab {
   padding: 9px 18px;
   border-radius: 8px;
@@ -113,16 +134,18 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .ar-tab:hover {
   border-color: #1a1a2e;
   color: #1a1a2e;
 }
+
 .ar-tab-active {
   background: #1a1a2e;
   border-color: #1a1a2e;
   color: #fff;
 }
- 
+
 /* Ensure btn-verify and btn-fraud exist */
 .btn-verify {
   padding: 11px 20px;
@@ -135,8 +158,11 @@
   cursor: pointer;
   transition: opacity 0.2s;
 }
-.btn-verify:hover { opacity: 0.85; }
- 
+
+.btn-verify:hover {
+  opacity: 0.85;
+}
+
 .btn-fraud {
   padding: 11px 20px;
   background: #c0392b;
@@ -148,5 +174,7 @@
   cursor: pointer;
   transition: opacity 0.2s;
 }
-.btn-fraud:hover { opacity: 0.85; }
- 
+
+.btn-fraud:hover {
+  opacity: 0.85;
+}

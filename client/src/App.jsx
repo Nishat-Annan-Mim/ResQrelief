@@ -7,7 +7,6 @@ import {
   useLocation,
 } from "react-router-dom";
 
-
 import Home from "./Components/Home";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
@@ -15,25 +14,28 @@ import Logout from "./Components/Logout";
 
 import Navbar from "./Components/Navbar";
 import NavbarPrivate from "./Components/NavbarPrivate";
-import NavbarAdmin from "./Components/NavbarAdmin";       // ✅ NEW
-import AdminLogin from "./Components/AdminLogin";         // ✅ NEW
+import NavbarAdmin from "./Components/NavbarAdmin"; // ✅ NEW
+import AdminLogin from "./Components/AdminLogin"; // ✅ NEW
 import AdminRequests from "./Components/AdminRequests";
 import AdminRequestDetail from "./Components/AdminRequestDetail";
-import AdminHome from "./Components/AdminHome"; 
+import AdminHome from "./Components/AdminHome";
 import Admin from "./Components/Admin";
 import Volunteer from "./Components/Volunteer";
 import VolunteerRegister from "./Components/VolunteerRegister";
 import VolunteerOnboarding from "./Components/VolunteerOnboarding";
+import ErrorBoundary from "./Components/ErrorBoundary";
 import VolunteerZoneSelect from "./Components/VolunteerZoneSelect";
 import VolunteerRoleSetup from "./Components/VolunteerRoleSetup";
 import VolunteerDashboard from "./Components/VolunteerDashboard";
 import VolunteerDirectory from "./Components/VolunteerDirectory";
 import VolunteerMapBoard from "./Components/VolunteerMapBoard";
+import VolunteerPassword from "./Components/VolunteerPassword";
 import AidRequestForm from "./Components/AidRequestForm";
 import Donate from "./Components/Donate";
 import Transparency from "./Components/Transparency";
 import Inventory from "./Components/Inventory";
 import Landing from "./Components/Landing";
+import Adminvolunteers from "./Components/Adminvolunteers";
 
 function RequireAuth({ children }) {
   const loggedIn = sessionStorage.getItem("isLoggedIn") === "true";
@@ -71,7 +73,7 @@ function App() {
     sessionStorage.getItem("isLoggedIn") === "true",
   );
   const [role, setRole] = useState(sessionStorage.getItem("role") || "user");
-  
+
   const renderNavbar = () => {
     if (!logged) return <Navbar />;
     if (role === "admin") return <NavbarAdmin />;
@@ -86,21 +88,22 @@ function App() {
 
       <Routes>
         <Route
-    path="/"
-    element={logged ? <Navigate to="/home" replace /> : <Landing />}
+          path="/"
+          element={logged ? <Navigate to="/home" replace /> : <Landing />}
         />
-
         <Route
           path="/signup"
           element={logged ? <Navigate to="/home" replace /> : <Signup />}
         />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin-login" element={<AdminLogin setLogged={setLogged} setRole={setRole} />} />
+        <Route
+          path="/admin-login"
+          element={<AdminLogin setLogged={setLogged} setRole={setRole} />}
+        />
         <Route
           path="/logout"
           element={<Logout onLogout={() => setLogged(false)} />}
         />
-
         <Route
           path="/home"
           element={
@@ -109,7 +112,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/admin"
           element={
@@ -118,7 +120,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/volunteer"
           element={
@@ -127,16 +128,25 @@ function App() {
             </RequireAuth>
           }
         />
-
+        // Inside App.jsx
+        <Route
+          path="/admin-volunteers"
+          element={
+            <RequireAdmin>
+              <Adminvolunteers />
+            </RequireAdmin>
+          }
+        />
         <Route
           path="/volunteer-register"
           element={
             <RequireAuth>
-              <VolunteerRegister />
+              <ErrorBoundary>
+                <VolunteerRegister />
+              </ErrorBoundary>
             </RequireAuth>
           }
         />
-
         <Route
           path="/volunteer-onboarding"
           element={
@@ -145,7 +155,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/volunteer-zone-select"
           element={
@@ -154,7 +163,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/volunteer-role-setup"
           element={
@@ -163,7 +171,14 @@ function App() {
             </RequireAuth>
           }
         />
-
+        <Route
+          path="/volunteer-dashboard-password"
+          element={
+            <RequireAuth>
+              <VolunteerPassword />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/volunteer-dashboard"
           element={
@@ -172,7 +187,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/volunteer-directory"
           element={
@@ -181,7 +195,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/volunteer-map-board"
           element={
@@ -190,7 +203,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/request-aid"
           element={
@@ -199,7 +211,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/donate"
           element={
@@ -208,7 +219,6 @@ function App() {
             </RequireAuth>
           }
         />
-
         <Route
           path="/transparency"
           element={
@@ -217,12 +227,54 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route path="/admin-home" element={<RequireAdmin><AdminHome /></RequireAdmin>} />
-        <Route path="/inventory" element={<RequireAdmin><Inventory /></RequireAdmin>} /> 
-        <Route path="/admin-home" element={<RequireAdmin><AdminHome /></RequireAdmin>} />
-        <Route path="/inventory" element={<RequireAdmin><Inventory /></RequireAdmin>} />
-        <Route path="/admin-requests" element={<RequireAdmin><AdminRequests /></RequireAdmin>} />
-        <Route path="/admin-requests/:id" element={<RequireAdmin><AdminRequestDetail /></RequireAdmin>} />
+        <Route
+          path="/admin-home"
+          element={
+            <RequireAdmin>
+              <AdminHome />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <RequireAdmin>
+              <Inventory />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin-home"
+          element={
+            <RequireAdmin>
+              <AdminHome />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <RequireAdmin>
+              <Inventory />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin-requests"
+          element={
+            <RequireAdmin>
+              <AdminRequests />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin-requests/:id"
+          element={
+            <RequireAdmin>
+              <AdminRequestDetail />
+            </RequireAdmin>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
