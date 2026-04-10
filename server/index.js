@@ -1187,6 +1187,54 @@ app.delete("/api/volunteer/remove/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+/* ---------------- Cancel Aid Request from map (Helper Volunteer) ---------------- */
+/* ---------------- Cancel Aid Request from map (Helper Volunteer) ---------------- */
+app.put("/aid-requests/:id/cancel", async (req, res) => {
+  try {
+    const { cancellerEmail } = req.body;
+    const request = await AidRequestModel.findById(req.params.id);
+
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    if (request.helperVolunteerEmail !== cancellerEmail) {
+      return res.status(403).json({ message: "Not authorized to cancel" });
+    }
+
+    request.status = "need";
+    request.helperVolunteerId = null;
+    request.helperVolunteerName = null;
+    request.helperVolunteerEmail = null;
+    request.helperMessage = null;
+    await request.save();
+
+    res.json({ message: "Request cancelled successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Admin: Get All Aid Requests ---------------- */
+app.get("/api/admin/aid-requests", async (req, res) => {
+  try {
+    const requests = await AidRequestModel.find().sort({ createdAt: -1 });
+    res.status(200).json(requests);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Admin: Delete Any Aid Request ---------------- */
+app.delete("/api/admin/aid-requests/:id", async (req, res) => {
+  try {
+    const deleted = await AidRequestModel.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Request not found" });
+    res.status(200).json({ message: "Request deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 /* ---------------- Server ---------------- */
 
 app.listen(process.env.PORT, () => {

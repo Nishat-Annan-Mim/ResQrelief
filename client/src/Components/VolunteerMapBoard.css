@@ -404,6 +404,38 @@
     text-align: center;
 }
 
+.table-cancel-btn {
+    background: #fff0f0;
+    color: #c0392b;
+    border: 1px solid #e74c3c;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.table-cancel-btn:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.cancel-request-btn {
+    background: #fff0f0;
+    color: #c0392b;
+    border: 1px solid #e74c3c;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancel-request-btn:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
 @media (max-width: 992px) {
     .map-layout {
         grid-template-columns: 1fr;

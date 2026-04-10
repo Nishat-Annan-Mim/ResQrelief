@@ -376,6 +376,26 @@ const VolunteerMapBoard = () => {
     }
   };
 
+  const cancelRequest = async (requestId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel this request? It will go back to needing help.",
+    );
+    if (!confirmed) return;
+
+    try {
+      await axios.put(
+        `http://localhost:3001/aid-requests/${requestId}/cancel`,
+        {
+          cancellerEmail: volunteerProfile.email,
+        },
+      );
+      await loadBoard();
+      alert("Request cancelled successfully");
+    } catch (error) {
+      console.log(error);
+      alert("Could not cancel request");
+    }
+  };
   const markHelped = async (requestId) => {
     try {
       await axios.put(
@@ -835,12 +855,29 @@ const VolunteerMapBoard = () => {
                           Help This
                         </button>
                       ) : request.status === "helping" ? (
-                        <span className="table-status-text">
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "6px",
+                          }}
+                        >
+                          <span className="table-status-text">
+                            {request.helperVolunteerEmail ===
+                            volunteerProfile?.email
+                              ? "You accepted this"
+                              : "Volunteer coming"}
+                          </span>
                           {request.helperVolunteerEmail ===
-                          volunteerProfile?.email
-                            ? "You accepted this"
-                            : "Volunteer coming"}
-                        </span>
+                            volunteerProfile?.email && (
+                            <button
+                              className="table-cancel-btn"
+                              onClick={() => cancelRequest(request._id)}
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
                       ) : null}
                     </td>
                   </tr>
@@ -992,12 +1029,26 @@ const VolunteerMapBoard = () => {
                   {request.status === "helping" &&
                     request.helperVolunteerEmail ===
                       volunteerProfile?.email && (
-                      <button
-                        className="helped-btn"
-                        onClick={() => markHelped(request._id)}
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          flexWrap: "wrap",
+                        }}
                       >
-                        Mark as Helped
-                      </button>
+                        <button
+                          className="helped-btn"
+                          onClick={() => markHelped(request._id)}
+                        >
+                          Mark as Helped
+                        </button>
+                        <button
+                          className="cancel-request-btn"
+                          onClick={() => cancelRequest(request._id)}
+                        >
+                          Cancel Help
+                        </button>
+                      </div>
                     )}
                 </div>
               </div>
