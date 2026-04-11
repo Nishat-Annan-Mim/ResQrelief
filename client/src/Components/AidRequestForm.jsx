@@ -87,13 +87,15 @@ const AidRequestForm = () => {
       }
 
       setSubmitted(true);
-    } catch (error) {
-      if (error.response?.status === 409) {
-        setModal({ message: "This number has already requested" });
-      } else {
-        setModal({ message: "Something went wrong. Please try again." });
-      }
-    }
+} catch (error) {
+  if (error.response?.status === 409) {
+    setModal({ message: "This number has already requested" });
+  } else if (error.response?.status === 403) {   // ✅ ADD THIS
+    setModal({ message: "This number has been banned due to a fraudulent request." });
+  } else {
+    setModal({ message: "Something went wrong. Please try again." });
+  }
+}
   };
 
   const handleReset = () => {

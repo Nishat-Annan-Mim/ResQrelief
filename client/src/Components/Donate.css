@@ -1,0 +1,294 @@
+/* ── Wrapper ── */
+.donate-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ── Home Page ── */
+.donate-home {
+  text-align: center;
+}
+
+.donate-hero {
+  margin-bottom: 2.5rem;
+}
+
+.donate-hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.donate-hero p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.donate-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 500px) {
+  .donate-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.donate-option-card {
+  background: #fff;
+  border: 2px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  text-align: center;
+}
+
+.donate-option-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: #e63946;
+}
+
+.option-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.donate-option-card h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+.donate-option-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+/* ── Form Page ── */
+.donate-form-page {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #e63946;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1.2rem;
+  display: block;
+}
+
+.donate-form-page h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.3rem;
+  margin-top: 0;
+}
+
+.form-subtitle {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+}
+
+/* ── Form Groups ── */
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  background: #fff;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #e63946;
+}
+
+/* ── Preset Amounts ── */
+.preset-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.preset-btn {
+  padding: 0.45rem 0.9rem;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #333;
+}
+
+.preset-btn:hover {
+  border-color: #e63946;
+  color: #e63946;
+}
+
+.preset-btn.active {
+  background: #e63946;
+  border-color: #e63946;
+  color: #fff;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  background: #e63946;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #c1121f;
+}
+
+.btn-primary:disabled {
+  background: #f4a0a5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #16213e;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1.05rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Error Message ── */
+.error-msg {
+  background: #fff0f0;
+  border: 1px solid #f4c0c0;
+  color: #c62f3b;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* ── SSL Note ── */
+.ssl-note {
+  text-align: center;
+  font-size: 0.78rem;
+  color: #aaa;
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+/* ── Success Page ── */
+.donate-success {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.donate-success h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.donate-success p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Quantity + Unit row ── */
+.qty-unit-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.qty-input {
+  flex: 2;
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.qty-input:focus {
+  outline: none;
+  border-color: #e63946;
+}
+
+.unit-select {
+  flex: 1;
+  padding: 0.65rem 0.5rem;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.unit-select:focus {
+  outline: none;
+  border-color: #e63946;
+}

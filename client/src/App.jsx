@@ -7,6 +7,9 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import PaymentSuccess from "./Components/PaymentSuccess";
+import PaymentFail from "./Components/PaymentFail";
+import PaymentCancel from "./Components/PaymentCancel";
 import Home from "./Components/Home";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
@@ -37,6 +40,7 @@ import Inventory from "./Components/Inventory";
 import Landing from "./Components/Landing";
 import Adminvolunteers from "./Components/Adminvolunteers";
 import AdminAlerts from "./Components/AdminAlerts";
+
 
 function RequireAuth({ children }) {
   const loggedIn = sessionStorage.getItem("isLoggedIn") === "true";
@@ -223,9 +227,9 @@ function App() {
         <Route
           path="/transparency"
           element={
-            <RequireAuth>
+            <RequireAdmin>
               <Transparency />
-            </RequireAuth>
+            </RequireAdmin>
           }
         />
         <Route
@@ -284,6 +288,9 @@ function App() {
             </RequireAdmin>
           }
         />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/fail" element={<PaymentFail />} />
+        <Route path="/payment/cancel" element={<PaymentCancel />} />
       </Routes>
     </BrowserRouter>
   );

@@ -42,15 +42,7 @@ const NavbarPrivate = () => {
               Donate
             </Link>
           </li>
-
-          <li>
-            <Link to="/transparency" className="nav-item">
-              Transparency
-            </Link>
-          </li>
-
-    
-          
+         
           <li>
             <Link to="/logout" className="nav-item logout-btn">
               Logout

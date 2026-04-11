@@ -14,6 +14,9 @@ const AidRequestModel = require("./model/AidRequest");
 const RequestModel = require("./model/Request");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const alertRoutes = require("./routes/alertRoutes");
+const donationRoutes = require("./routes/donationRoutes");
+const supplyDonationRoutes = require("./routes/supplyDonationRoutes");
+
 
 // dotenv.config();
 // Replace GoogleGenerativeAI import with:
@@ -40,7 +43,14 @@ io.on("connection", (socket) => {
 });
 
 app.use(express.json());
-app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(cors({
+  origin: (origin, callback) => callback(null, true),
+  credentials: true,
+}));
+
+//app.use(cors());
 app.use("/api", inventoryRoutes);
 app.use("/api", alertRoutes);
 
@@ -817,6 +827,14 @@ app.get("/api/banned/check/:phone", async (req, res) => {
 app.post("/api/requests", async (req, res) => {
   try {
     const requestData = req.body;
+     // ✅ ADD THIS — check if phone is banned FIRST
+    const isBanned = await BannedModel.findOne({ phone: requestData.phoneNumber });
+    if (isBanned) {
+      return res.status(403).json({
+        message: "This number has been banned due to a fraudulent request.",
+        banned: true,
+      });
+    }
     let assignedPriority = "MEDIUM"; // Default fallback
 
     try {
@@ -1260,8 +1278,25 @@ app.delete("/api/admin/aid-requests/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+/* ---------------- Donation Routes ---------------- */
+app.use("/", donationRoutes);
+app.use("/", supplyDonationRoutes);
+
+//const PORT = process.env.PORT || 3001;
+//app.listen(PORT, () => {
+ // console.log(`Server running on port ${PORT}`);
+//});
+
 /* ---------------- Server ---------------- */
 
-server.listen(process.env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
+//server.listen(process.env.PORT, () => {
+//  console.log(`Server running on port ${process.env.PORT}`);
+//});
+
+
+
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
