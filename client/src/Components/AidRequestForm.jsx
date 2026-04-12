@@ -95,6 +95,7 @@ const AidRequestForm = () => {
         otherDetails: otherText,
         latitude: coords.latitude,   // ← missing
         longitude: coords.longitude,
+        email: sessionStorage.getItem("email"), 
       });
 
       if (response.data.duplicate) {

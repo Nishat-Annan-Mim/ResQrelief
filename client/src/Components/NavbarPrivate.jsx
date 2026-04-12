@@ -20,12 +20,6 @@ const NavbarPrivate = () => {
           </li>
 
           <li>
-            <Link to="/admin" className="nav-item">
-              Admin
-            </Link>
-          </li>
-
-          <li>
             <Link to="/volunteer" className="nav-item">
               Volunteer
             </Link>

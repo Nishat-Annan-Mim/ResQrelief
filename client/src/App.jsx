@@ -41,6 +41,7 @@ import Landing from "./Components/Landing";
 import Adminvolunteers from "./Components/Adminvolunteers";
 import AdminAlerts from "./Components/AdminAlerts";
 import UserAlerts from "./Components/UserAlerts";
+import VolunteerAssignment from "./Components/VolunteerAssignment";
 
 
 function RequireAuth({ children }) {
@@ -293,6 +294,7 @@ function App() {
         <Route path="/payment/fail" element={<PaymentFail />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
         <Route path="/user-alerts" element={<RequireAuth><UserAlerts /></RequireAuth>} />
+        <Route path="/volunteer-assignment/:id" element={<VolunteerAssignment />} />
       </Routes>
     </BrowserRouter>
   );

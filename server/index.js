@@ -98,6 +98,8 @@ const DISTRICT_COORDS = {
   "Khagrachhari": { lat: 23.1193, lng: 91.9847 },
 };
 
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin1@resqrelief.com";
+
 global.io = io;
 
 io.on("connection", (socket) => {
@@ -792,50 +794,55 @@ app.put("/api/requests/:id/verify", async (req, res) => {
     const { id } = req.params;
     const { assignedVolunteer } = req.body;
 
+    // ── CHECK: volunteer cannot have more than 2 active assignments ──
+    if (assignedVolunteer?.email) {
+      const activeCount = await RequestModel.countDocuments({
+        "assignedVolunteer.email": assignedVolunteer.email,
+        status: { $in: ["verified", "in_progress", "volunteer_done"] },
+      });
+      if (activeCount >= 2) {
+        return res.status(409).json({
+          message: `${assignedVolunteer.name} already has 2 active assignments. Please choose a different volunteer.`,
+          limitReached: true,
+        });
+      }
+    }
+
     const update = {
       status: "verified",
       ...(assignedVolunteer && { assignedVolunteer }),
     };
 
-    const updated = await RequestModel.findByIdAndUpdate(id, update, {
-      returnDocument: "after",
-    });
-
+    const updated = await RequestModel.findByIdAndUpdate(id, update, { new: true });
     if (!updated) return res.status(404).json({ message: "Request not found" });
 
-    // ✅ Notify the person who submitted the request
+    // Notify submitter
     if (updated.email) {
-      const notif = new NotificationModel({
+      await new NotificationModel({
         recipientEmail: updated.email,
         title: "Your aid request has been verified ✅",
         message: `Your request for ${updated.aidTypes?.join(", ")} in ${updated.district} has been verified by our team.`,
         type: "request_verified",
         link: "/request-aid",
-      });
-      await notif.save();
-
-      // Send real-time socket notification
+      }).save();
       global.io.to(updated.email).emit("alert", {
         title: "Aid Request Verified ✅",
         message: `Your request in ${updated.district} has been verified!`,
       });
     }
 
-    // ✅ Notify the assigned volunteer
+    // Notify volunteer — link to their assignment page
     if (assignedVolunteer?.email) {
-      const volNotif = new NotificationModel({
+      await new NotificationModel({
         recipientEmail: assignedVolunteer.email,
         title: "You have been assigned to a request 🙋",
-        message: `You have been assigned to help with a ${updated.aidTypes?.join(", ")} request in ${updated.district}.`,
+        message: `You have been assigned to help with a ${updated.aidTypes?.join(", ")} request in ${updated.district}. Tap to view details.`,
         type: "volunteer_assigned",
-        link: "/volunteer-dashboard",
-      });
-      await volNotif.save();
-
-      // Send real-time socket notification
+        link: `/volunteer-assignment/${id}`,   // ← updated link
+      }).save();
       global.io.to(assignedVolunteer.email).emit("alert", {
         title: "New Assignment 🙋",
-        message: `You have been assigned to a request in ${updated.district}!`,
+        message: `You have been assigned to a ${updated.district} request!`,
       });
     }
 
@@ -997,8 +1004,19 @@ Description: ${requestData.additionalDetails || "No description"}
       // 👇 THIS TELLS US IF THE API KEY FAILED 👇
       console.error("❌ AI Priority Generation Failed:", aiError.message);
     }
+    // Check for an active (non-completed) existing request from this phone
+    const existingActive = await RequestModel.findOne({
+      phoneNumber: requestData.phoneNumber,
+      status: { $in: ["pending", "verified", "in_progress", "volunteer_done"] },
+    });
+    if (existingActive) {
+      return res.status(409).json({
+        message: "An active request already exists for this phone number.",
+        duplicate: true,
+      });
+    }
 
-    const newRequest = new RequestModel({
+    const newRequest = new RequestModel({   // ← this line was already there
       ...requestData,
       priority: assignedPriority,
     });
@@ -1050,6 +1068,249 @@ app.get("/api/requests/ai-prioritized", async (req, res) => {
     res.status(200).json(requests);
   } catch (error) {
     console.error("Error fetching requests:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/api/requests/:id", async (req, res) => {
+  try {
+    const request = await RequestModel.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    res.status(200).json(request);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+ 
+// ── GET requests assigned to a volunteer ─────────────────────────────
+app.get("/api/requests/assigned-to/:email", async (req, res) => {
+  try {
+    const requests = await RequestModel.find({
+      "assignedVolunteer.email": req.params.email,
+      status: { $in: ["verified", "in_progress", "volunteer_done"] },
+    }).sort({ createdAt: -1 });
+    res.status(200).json(requests);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+ 
+// ── GET completed requests (for Completed tab in AdminRequests) ───────
+app.get("/api/requests/by-status/completed", async (req, res) => {
+  try {
+    const requests = await RequestModel.find({ status: "completed" }).sort({ completedAt: -1 });
+    res.status(200).json(requests);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+ 
+// ── Volunteer: mark as working (in_progress) ─────────────────────────
+app.put("/api/requests/:id/start-work", async (req, res) => {
+  try {
+    const { volunteerEmail } = req.body;
+    const request = await RequestModel.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    if (request.assignedVolunteer?.email !== volunteerEmail)
+      return res.status(403).json({ message: "Not authorized" });
+ 
+    const updated = await RequestModel.findByIdAndUpdate(
+      req.params.id,
+      { status: "in_progress" },
+      { new: true }
+    );
+ 
+    // Notify admin
+    const notif = new NotificationModel({
+      recipientEmail: ADMIN_EMAIL,
+      title: "Volunteer started work 🛠️",
+      message: `${request.assignedVolunteer.name} has started working on the ${request.district} request.`,
+      type: "volunteer_update",
+      link: `/admin-requests/${req.params.id}`,
+    });
+    await notif.save();
+    global.io.to(ADMIN_EMAIL).emit("alert", {
+      title: "Volunteer Started Work 🛠️",
+      message: `${request.assignedVolunteer.name} is now working on the ${request.district} request.`,
+    });
+ 
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+ 
+// ── Volunteer: send inquiry to admin ─────────────────────────────────
+app.post("/api/requests/:id/inquiry", async (req, res) => {
+  try {
+    const { message, volunteerEmail, volunteerName } = req.body;
+    const request = await RequestModel.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    if (request.assignedVolunteer?.email !== volunteerEmail)
+      return res.status(403).json({ message: "Not authorized" });
+ 
+    const updated = await RequestModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: {
+          inquiries: {
+            from: "volunteer",
+            senderEmail: volunteerEmail,
+            senderName: volunteerName,
+            message,
+            sentAt: new Date(),
+          },
+        },
+      },
+      { new: true }
+    );
+ 
+    // Notify admin
+    const notif = new NotificationModel({
+      recipientEmail: ADMIN_EMAIL,
+      title: `Inquiry from ${volunteerName} 💬`,
+      message: `"${message.slice(0, 80)}${message.length > 80 ? "..." : ""}"`,
+      type: "inquiry",
+      link: `/admin-requests/${req.params.id}`,
+    });
+    await notif.save();
+    global.io.to(ADMIN_EMAIL).emit("alert", {
+      title: "Volunteer Inquiry 💬",
+      message: `${volunteerName} sent a message about the ${request.district} request.`,
+    });
+ 
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+ 
+// ── Admin: reply to inquiry ───────────────────────────────────────────
+app.post("/api/requests/:id/inquiry/reply", async (req, res) => {
+  try {
+    const { message, adminName } = req.body;
+    const request = await RequestModel.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+ 
+    const updated = await RequestModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: {
+          inquiries: {
+            from: "admin",
+            senderEmail: ADMIN_EMAIL,
+            senderName: adminName || "Admin",
+            message,
+            sentAt: new Date(),
+          },
+        },
+      },
+      { new: true }
+    );
+ 
+    // Notify volunteer
+    if (request.assignedVolunteer?.email) {
+      const notif = new NotificationModel({
+        recipientEmail: request.assignedVolunteer.email,
+        title: "Admin replied to your inquiry 💬",
+        message: `"${message.slice(0, 80)}${message.length > 80 ? "..." : ""}"`,
+        type: "inquiry_reply",
+        link: `/volunteer-assignment/${req.params.id}`,
+      });
+      await notif.save();
+      global.io.to(request.assignedVolunteer.email).emit("alert", {
+        title: "Admin Replied 💬",
+        message: `Admin responded about the ${request.district} request.`,
+      });
+    }
+ 
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+ 
+// ── Volunteer: mark done ──────────────────────────────────────────────
+app.put("/api/requests/:id/volunteer-done", async (req, res) => {
+  try {
+    const { volunteerEmail } = req.body;
+    const request = await RequestModel.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    if (request.assignedVolunteer?.email !== volunteerEmail)
+      return res.status(403).json({ message: "Not authorized" });
+ 
+    const updated = await RequestModel.findByIdAndUpdate(
+      req.params.id,
+      { status: "volunteer_done" },
+      { new: true }
+    );
+ 
+    // Notify admin
+    const notif = new NotificationModel({
+      recipientEmail: ADMIN_EMAIL,
+      title: "Volunteer marked request done ✅",
+      message: `${request.assignedVolunteer.name} completed work on the ${request.district} request. Please review and close.`,
+      type: "volunteer_done",
+      link: `/admin-requests/${req.params.id}`,
+    });
+    await notif.save();
+    global.io.to(ADMIN_EMAIL).emit("alert", {
+      title: "Request Ready to Close ✅",
+      message: `${request.assignedVolunteer.name} finished the ${request.district} request!`,
+    });
+ 
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+ 
+// ── Admin: mark request completed ────────────────────────────────────
+app.put("/api/requests/:id/complete", async (req, res) => {
+  try {
+    const request = await RequestModel.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+ 
+    const updated = await RequestModel.findByIdAndUpdate(
+      req.params.id,
+      { status: "completed", completedAt: new Date() },
+      { new: true }
+    );
+ 
+    // Notify the user who submitted
+    if (updated.email) {
+      const notif = new NotificationModel({
+        recipientEmail: updated.email,
+        title: "Your aid request has been fulfilled 🎉",
+        message: `Your request for ${updated.aidTypes?.join(", ")} in ${updated.district} has been completed. You may now submit a new request if needed.`,
+        type: "request_completed",
+        link: "/request-aid",
+      });
+      await notif.save();
+      global.io.to(updated.email).emit("alert", {
+        title: "Aid Request Fulfilled 🎉",
+        message: `Your request in ${updated.district} has been completed!`,
+      });
+    }
+ 
+    // Notify the volunteer
+    if (updated.assignedVolunteer?.email) {
+      const notif = new NotificationModel({
+        recipientEmail: updated.assignedVolunteer.email,
+        title: "Request officially closed 🏁",
+        message: `The ${updated.district} request has been marked as completed by admin. Great work!`,
+        type: "request_completed",
+        link: "/volunteer-dashboard",
+      });
+      await notif.save();
+      global.io.to(updated.assignedVolunteer.email).emit("alert", {
+        title: "Request Closed 🏁",
+        message: `The ${updated.district} request is officially done. Well done!`,
+      });
+    }
+ 
+    res.status(200).json(updated);
+  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 });
