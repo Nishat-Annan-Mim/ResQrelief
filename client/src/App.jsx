@@ -40,6 +40,7 @@ import Inventory from "./Components/Inventory";
 import Landing from "./Components/Landing";
 import Adminvolunteers from "./Components/Adminvolunteers";
 import AdminAlerts from "./Components/AdminAlerts";
+import UserAlerts from "./Components/UserAlerts";
 
 
 function RequireAuth({ children }) {
@@ -291,6 +292,7 @@ function App() {
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/fail" element={<PaymentFail />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
+        <Route path="/user-alerts" element={<RequireAuth><UserAlerts /></RequireAuth>} />
       </Routes>
     </BrowserRouter>
   );

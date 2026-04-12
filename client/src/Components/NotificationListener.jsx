@@ -5,7 +5,8 @@ const NotificationListener = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const email = sessionStorage.getItem("email");
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const email = storedUser.email || sessionStorage.getItem("email");
     if (!email) {
       console.warn("⚠️ NotificationListener: No email in sessionStorage. Socket not connected.");
       return;

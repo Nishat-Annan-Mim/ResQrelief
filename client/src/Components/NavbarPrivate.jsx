@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./NavbarPrivate.css";
-
+import NotificationBell from "./NotificationBell"; 
 const NavbarPrivate = () => {
   return (
     <div className="navbar-container">
@@ -42,7 +42,10 @@ const NavbarPrivate = () => {
               Donate
             </Link>
           </li>
-         
+          <li>
+            <NotificationBell />
+          </li>
+                  
           <li>
             <Link to="/logout" className="nav-item logout-btn">
               Logout

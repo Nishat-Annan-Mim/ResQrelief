@@ -22,6 +22,7 @@ const supplyDonationRoutes = require("./routes/supplyDonationRoutes");
 // Replace GoogleGenerativeAI import with:
 const app = express();
 const BannedModel = require("./model/Banned");
+const NotificationModel = require("./model/Notification");
 
 const http = require("http");
 const { Server } = require("socket.io");
@@ -31,6 +32,71 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "*" },
 });
+const DISTRICT_COORDS = {
+  "Dhaka":        { lat: 23.8103, lng: 90.4125 },
+  "Chattogram":   { lat: 22.3569, lng: 91.7832 },
+  "Sylhet":       { lat: 24.8949, lng: 91.8687 },
+  "Rajshahi":     { lat: 24.3745, lng: 88.6042 },
+  "Khulna":       { lat: 22.8456, lng: 89.5403 },
+  "Barishal":     { lat: 22.7010, lng: 90.3535 },
+  "Rangpur":      { lat: 25.7439, lng: 89.2752 },
+  "Mymensingh":   { lat: 24.7471, lng: 90.4203 },
+  "Cumilla":      { lat: 23.4607, lng: 91.1809 },
+  "Narayanganj":  { lat: 23.6238, lng: 90.5000 },
+  "Gazipur":      { lat: 23.9999, lng: 90.4203 },
+  "Cox's Bazar":  { lat: 21.4272, lng: 92.0058 },
+  "Bogura":       { lat: 24.8465, lng: 89.3776 },
+  "Dinajpur":     { lat: 25.6279, lng: 88.6338 },
+  "Jashore":      { lat: 23.1664, lng: 89.2080 },
+  "Tangail":      { lat: 24.2513, lng: 89.9167 },
+  "Faridpur":     { lat: 23.6070, lng: 89.8429 },
+  "Brahmanbaria": { lat: 23.9570, lng: 91.1115 },
+  "Noakhali":     { lat: 22.8696, lng: 91.0993 },
+  "Feni":         { lat: 23.0159, lng: 91.3976 },
+  "Lakshmipur":   { lat: 22.9449, lng: 90.8412 },
+  "Chandpur":     { lat: 23.2513, lng: 90.6520 },
+  "Habiganj":     { lat: 24.3745, lng: 91.4156 },
+  "Moulvibazar":  { lat: 24.4829, lng: 91.7774 },
+  "Sunamganj":    { lat: 25.0651, lng: 91.3950 },
+  "Kishoreganj":  { lat: 24.4449, lng: 90.7766 },
+  "Netrokona":    { lat: 24.8103, lng: 90.8674 },
+  "Jamalpur":     { lat: 24.9374, lng: 89.9371 },
+  "Sherpur":      { lat: 25.0204, lng: 90.0152 },
+  "Manikganj":    { lat: 23.8643, lng: 90.0024 },
+  "Munshiganj":   { lat: 23.5422, lng: 90.5305 },
+  "Narsingdi":    { lat: 23.9322, lng: 90.7150 },
+  "Madaripur":    { lat: 23.1641, lng: 90.2015 },
+  "Shariatpur":   { lat: 23.2423, lng: 90.4350 },
+  "Gopalganj":    { lat: 23.0050, lng: 89.8267 },
+  "Rajbari":      { lat: 23.7574, lng: 89.6441 },
+  "Magura":       { lat: 23.4876, lng: 89.4196 },
+  "Narail":       { lat: 23.1724, lng: 89.5120 },
+  "Satkhira":     { lat: 22.7185, lng: 89.0705 },
+  "Bagerhat":     { lat: 22.6602, lng: 89.7854 },
+  "Chuadanga":    { lat: 23.6401, lng: 88.8415 },
+  "Meherpur":     { lat: 23.7621, lng: 88.6318 },
+  "Kushtia":      { lat: 23.9013, lng: 89.1204 },
+  "Jhenaidah":    { lat: 23.5449, lng: 89.1522 },
+  "Natore":       { lat: 24.4204, lng: 88.9882 },
+  "Sirajganj":    { lat: 24.4535, lng: 89.7006 },
+  "Pabna":        { lat: 24.0064, lng: 89.2372 },
+  "Naogaon":      { lat: 24.7936, lng: 88.9312 },
+  "Joypurhat":    { lat: 25.1024, lng: 89.0200 },
+  "Kurigram":     { lat: 25.8074, lng: 89.6364 },
+  "Gaibandha":    { lat: 25.3288, lng: 89.5285 },
+  "Lalmonirhat":  { lat: 25.9923, lng: 89.2847 },
+  "Nilphamari":   { lat: 25.9310, lng: 88.8560 },
+  "Panchagarh":   { lat: 26.3411, lng: 88.5541 },
+  "Thakurgaon":   { lat: 26.0318, lng: 88.4616 },
+  "Patuakhali":   { lat: 22.3596, lng: 90.3298 },
+  "Barguna":      { lat: 22.1551, lng: 89.9951 },
+  "Pirojpur":     { lat: 22.5841, lng: 89.9749 },
+  "Jhalokathi":   { lat: 22.6406, lng: 90.1985 },
+  "Bhola":        { lat: 22.6860, lng: 90.6482 },
+  "Bandarban":    { lat: 22.1953, lng: 92.2184 },
+  "Rangamati":    { lat: 22.6352, lng: 92.2018 },
+  "Khagrachhari": { lat: 23.1193, lng: 91.9847 },
+};
 
 global.io = io;
 
@@ -77,6 +143,7 @@ const haversineDistanceKm = (lat1, lon1, lat2, lon2) => {
 
   return Number((R * c).toFixed(2));
 };
+
 
 /* ---------------- Signup API ---------------- */
 
@@ -723,9 +790,8 @@ app.get("/api/volunteers/by-district/:district", async (req, res) => {
 app.put("/api/requests/:id/verify", async (req, res) => {
   try {
     const { id } = req.params;
-    const { assignedVolunteer } = req.body; // optional { name, email, phone }
+    const { assignedVolunteer } = req.body;
 
-    console.time(`verify-${id}`);
     const update = {
       status: "verified",
       ...(assignedVolunteer && { assignedVolunteer }),
@@ -734,9 +800,45 @@ app.put("/api/requests/:id/verify", async (req, res) => {
     const updated = await RequestModel.findByIdAndUpdate(id, update, {
       returnDocument: "after",
     });
-    console.timeEnd(`verify-${id}`);
 
     if (!updated) return res.status(404).json({ message: "Request not found" });
+
+    // ✅ Notify the person who submitted the request
+    if (updated.email) {
+      const notif = new NotificationModel({
+        recipientEmail: updated.email,
+        title: "Your aid request has been verified ✅",
+        message: `Your request for ${updated.aidTypes?.join(", ")} in ${updated.district} has been verified by our team.`,
+        type: "request_verified",
+        link: "/request-aid",
+      });
+      await notif.save();
+
+      // Send real-time socket notification
+      global.io.to(updated.email).emit("alert", {
+        title: "Aid Request Verified ✅",
+        message: `Your request in ${updated.district} has been verified!`,
+      });
+    }
+
+    // ✅ Notify the assigned volunteer
+    if (assignedVolunteer?.email) {
+      const volNotif = new NotificationModel({
+        recipientEmail: assignedVolunteer.email,
+        title: "You have been assigned to a request 🙋",
+        message: `You have been assigned to help with a ${updated.aidTypes?.join(", ")} request in ${updated.district}.`,
+        type: "volunteer_assigned",
+        link: "/volunteer-dashboard",
+      });
+      await volNotif.save();
+
+      // Send real-time socket notification
+      global.io.to(assignedVolunteer.email).emit("alert", {
+        title: "New Assignment 🙋",
+        message: `You have been assigned to a request in ${updated.district}!`,
+      });
+    }
+
     res.status(200).json(updated);
   } catch (error) {
     console.error("Verify error:", error);
@@ -1040,27 +1142,89 @@ Reply in this exact JSON format only, no extra text:
 
 app.post("/api/ai/volunteer-match", async (req, res) => {
   try {
-    // 🚨 SAFETY CHECK: Ensure the API key is actually loaded
     if (!process.env.OPENROUTER_API_KEY) {
-      console.error(
-        "❌ FATAL: OPENROUTER_API_KEY is undefined in volunteer-match!",
-      );
-      return res
-        .status(500)
-        .json({ message: "Server configuration error: Missing API Key" });
+      console.error("❌ FATAL: OPENROUTER_API_KEY is undefined!");
+      return res.status(500).json({ message: "Server configuration error: Missing API Key" });
     }
 
     const { aidTypes, peopleAffected, district, description } = req.body;
 
-    const volunteers = await VolunteerModel.find({ profileCompleted: true });
-    const volunteerSummary = volunteers
-      .map(
-        (v) =>
-          `Name: ${v.fullName}, Role: ${v.volunteerRole}, Skills: ${v.skillsExperience || "None"}, Zone: ${v.preferredZone}, Availability: ${v.preferredTime || "Flexible"}`,
-      )
-      .join("\n");
+    // Step 1: Resolve coordinates — GPS from request or district center fallback
+    const districtCoords = DISTRICT_COORDS[district];
+    const latitude  = req.body.latitude  ?? districtCoords?.lat;
+    const longitude = req.body.longitude ?? districtCoords?.lng;
 
-    const prompt = `
+    // Step 2: Only confirmed + completed volunteers
+    const allVolunteers = await VolunteerModel.find({
+      status: "confirmed",
+      profileCompleted: true,
+    });
+
+    // Step 3: Filter by distance using haversine
+    // Step 3: Distance filter
+let withDistance = [];
+
+if (latitude && longitude) {
+  withDistance = allVolunteers
+    .filter(v => v.currentLatitude && v.currentLongitude)
+    .map(v => ({
+      ...v.toObject(),
+      distanceKm: haversineDistanceKm(
+        latitude, longitude,
+        v.currentLatitude, v.currentLongitude
+      ),
+    }))
+    .sort((a, b) => a.distanceKm - b.distanceKm);
+} else {
+  withDistance = allVolunteers
+    .filter(v => v.preferredZone === district)
+    .map(v => ({ ...v.toObject(), distanceKm: null }));
+}
+
+// Step 4: Score each volunteer for skill relevance
+const aidKeywords = aidTypes?.map(a => a.toLowerCase()) || [];
+
+const scoreSkill = (v) => {
+  const combined = `${v.volunteerRole} ${v.skillsExperience}`.toLowerCase();
+  return aidKeywords.some(k => combined.includes(k)) ? 1 : 0;
+};
+
+// Step 5: Tag and group — both > distance only > skill only
+const tagged = withDistance.map(v => ({
+  ...v,
+  skillMatch: scoreSkill(v),
+  distanceMatch: v.distanceKm === null ? 1 : v.distanceKm <= 50 ? 1 : 0,
+}));
+
+const bothMatch     = tagged.filter(v => v.skillMatch && v.distanceMatch);
+const distanceOnly  = tagged.filter(v => !v.skillMatch && v.distanceMatch);
+const skillOnly     = tagged.filter(v => v.skillMatch && !v.distanceMatch);
+
+// Step 6: Build shortlist — prioritize both, then fill with others
+const shortlist = [
+  ...bothMatch.slice(0, 10),
+  ...distanceOnly.slice(0, 3),
+  ...skillOnly.slice(0, 2),
+].slice(0, 15);
+
+if (shortlist.length === 0) {
+  return res.status(200).json({
+    matches: [],
+    summary: "No confirmed volunteers found near this location.",
+  });
+}
+
+// Step 7: Build prompt with grouping context
+const formatVol = (v, tag) =>
+  `[${tag}] Name: ${v.fullName}, Role: ${v.volunteerRole}, Skills: ${v.skillsExperience || "None"}, Zone: ${v.preferredZone}, Availability: ${v.preferredTime || "Flexible"}${v.distanceKm !== null ? `, Distance: ${v.distanceKm}km` : ""}`;
+
+const volunteerSummary = [
+  ...bothMatch.slice(0, 10).map(v => formatVol(v, "SKILL+DISTANCE MATCH")),
+  ...distanceOnly.slice(0, 3).map(v => formatVol(v, "CLOSE BUT SKILL MISMATCH")),
+  ...skillOnly.slice(0, 2).map(v => formatVol(v, "SKILL MATCH BUT FARTHER")),
+].join("\n");
+
+const prompt = `
 You are a disaster relief volunteer matching AI.
 
 A request has come in:
@@ -1069,42 +1233,47 @@ A request has come in:
 - People Affected: ${peopleAffected}
 - Description: ${description || "No description"}
 
-Available volunteers:
+Volunteers are pre-tagged:
+- [SKILL+DISTANCE MATCH] = ideal candidates, prioritize these
+- [CLOSE BUT SKILL MISMATCH] = nearby but skills may not fit — suggest only if no better option
+- [SKILL MATCH BUT FARTHER] = right skills but farther away — suggest if urgency allows travel
+
 ${volunteerSummary}
 
-Match the TOP 3 best volunteers for this request based on their skills, role, and proximity.
+Pick the TOP 3. Always prefer SKILL+DISTANCE matches. Only suggest others if ideal matches are unavailable.
+Mention the match type in the reason.
+
 Reply in this exact JSON format only, no extra text:
 {
   "matches": [
     {
       "name": "Volunteer Name",
-      "reason": "Why this volunteer is the best match",
-      "matchScore": 95
+      "reason": "Why selected — mention skill fit and distance",
+      "matchScore": 95,
+      "matchType": "perfect"
     }
   ],
-  "summary": "One sentence about why these volunteers were selected"
+  "summary": "One sentence about the selection"
 }
-    `;
 
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "http://localhost:3000", // OpenRouter requires this for free models
-          "X-Title": "ResQrelief", // OpenRouter requires this for free models
-        },
-        body: JSON.stringify({
-          model: "openai/gpt-oss-120b:free",
-          messages: [{ role: "user", content: prompt }],
-        }),
+matchType must be one of: "perfect", "distance", "skill"
+`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "ResQrelief",
       },
-    );
+      body: JSON.stringify({
+        model: "openai/gpt-oss-120b:free",
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
 
     const data = await response.json();
-
     if (data.error) throw new Error(data.error.message);
 
     let text = data?.choices?.[0]?.message?.content;
@@ -1119,7 +1288,6 @@ Reply in this exact JSON format only, no extra text:
     res.status(500).json({ message: "AI volunteer matching failed" });
   }
 });
-
 /* ---------------- NID Management ---------------- */
 const fs = require("fs");
 const path = require("path");
@@ -1287,6 +1455,43 @@ app.use("/", supplyDonationRoutes);
 //app.listen(PORT, () => {
  // console.log(`Server running on port ${PORT}`);
 //});
+
+/* ---------------- Notification Routes ---------------- */
+
+// Get all notifications for a user
+app.get("/api/notifications/:email", async (req, res) => {
+  try {
+    const notifications = await NotificationModel.find({
+      recipientEmail: req.params.email,
+    }).sort({ createdAt: -1 });
+    res.status(200).json(notifications);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Mark all as read
+app.put("/api/notifications/read-all/:email", async (req, res) => {
+  try {
+    await NotificationModel.updateMany(
+      { recipientEmail: req.params.email, read: false },
+      { read: true }
+    );
+    res.status(200).json({ message: "All marked as read" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Mark one as read
+app.put("/api/notifications/read/:id", async (req, res) => {
+  try {
+    await NotificationModel.findByIdAndUpdate(req.params.id, { read: true });
+    res.status(200).json({ message: "Marked as read" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 /* ---------------- Server ---------------- */
 

@@ -58,6 +58,15 @@ const AdminAlerts = () => {
       alert("❌ Failed to send alert");
     }
   };
+  const expireAlert = async (id) => {
+  try {
+    await axios.patch(`http://localhost:3001/api/alerts/${id}/expire`);
+    fetchAlerts(); // refresh the table
+  } catch (err) {
+    console.error(err);
+    alert("❌ Could not expire alert");
+  }
+};
 
   return (
     <div className="alert-page">
@@ -142,6 +151,7 @@ const AdminAlerts = () => {
                 <th>Audience</th>
                 <th>Date Sent</th>
                 <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
 
@@ -160,6 +170,26 @@ const AdminAlerts = () => {
                     <td>{a.audience.join(" + ")}</td>
                     <td>{new Date(a.dateSent).toLocaleDateString()}</td>
                     <td>{a.status}</td>
+                    <td>  {/* ← ADD THIS CELL */}
+                      {a.status !== "expired" ? (
+                        <button
+                          onClick={() => expireAlert(a._id)}
+                          style={{
+                            background: "#c0392b",
+                            color: "#fff",
+                            border: "none",
+                            padding: "5px 10px",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontSize: "13px",
+                          }}
+                        >
+                          Expire
+                        </button>
+                      ) : (
+                        <span style={{ color: "#999", fontSize: "13px" }}>—</span>
+                      )}
+                    </td>
                   </tr>
                 ))
               )}

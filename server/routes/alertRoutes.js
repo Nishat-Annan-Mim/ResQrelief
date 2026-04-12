@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Alert = require("../model/Alert");
 const nodemailer = require("nodemailer");
+const NotificationModel = require("../model/Notification"); // ✅ NEW
 
-// Don't create transporter at top level — create it inside the function
 const getTransporter = () => {
   return nodemailer.createTransport({
     service: "gmail",
@@ -32,19 +32,6 @@ const sendEmail = async (to, subject, text) => {
   }
 };
 
-// const client = twilio(
-//   process.env.TWILIO_SID,
-//   process.env.TWILIO_AUTH
-// );
-
-// const sendSMS = async (to, message) => {
-//   await client.messages.create({
-//     body: message,
-//     from: process.env.TWILIO_PHONE,
-//     to,
-//   });
-// };
-
 router.post("/alerts", async (req, res) => {
   try {
     const role = req.headers.role;
@@ -63,12 +50,12 @@ router.post("/alerts", async (req, res) => {
 
     if (audience.includes("volunteers")) {
       const volunteers = await require("../model/Volunteer").find();
-      recipients = new Set([...recipients, ...volunteers.map(v => v.email)]);
+      recipients = new Set([...recipients, ...volunteers.map((v) => v.email)]);
     }
 
     if (audience.includes("beneficiaries")) {
       const users = await require("../model/User").find();
-      recipients = new Set([...recipients, ...users.map(u => u.email)]);
+      recipients = new Set([...recipients, ...users.map((u) => u.email)]);
     }
 
     const newAlert = new Alert({
@@ -81,10 +68,20 @@ router.post("/alerts", async (req, res) => {
 
     await newAlert.save();
 
-    for (const user of recipients) {
+    for (const userEmail of recipients) {
+
+      // ✅ NEW — Save notification to DB for each recipient
+      const notif = new NotificationModel({
+        recipientEmail: userEmail,
+        title: alertTitle,
+        message,
+        type: "alert",
+        link: "/home",
+      });
+      await notif.save();
 
       if (channels.includes("app")) {
-        global.io.to(user).emit("alert", {
+        global.io.to(userEmail).emit("alert", {
           title: alertTitle,
           message,
         });
@@ -92,22 +89,14 @@ router.post("/alerts", async (req, res) => {
 
       if (channels.includes("email")) {
         try {
-          await sendEmail(user, alertTitle, message);
+          await sendEmail(userEmail, alertTitle, message);
         } catch (err) {
-          console.log("Skipping email for:", user);
+          console.log("Skipping email for:", userEmail);
         }
       }
-
-      // if (channels.includes("sms")) {
-      //   const volunteer = await require("../model/Volunteer").findOne({ email: user });
-      //   if (volunteer?.phone) {
-      //     await sendSMS(volunteer.phone, message);
-      //   }
-      // }
     }
 
     res.status(201).json(newAlert);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to send alert" });
@@ -115,15 +104,23 @@ router.post("/alerts", async (req, res) => {
 });
 
 /* GET ALL ALERTS */
-
 router.get("/alerts", async (req, res) => {
   const alerts = await Alert.find();
   res.json(alerts);
 });
 
-
+// PATCH /api/alerts/:id/expire
+router.patch("/alerts/:id/expire", async (req, res) => {
+  try {
+    const alert = await AlertModel.findByIdAndUpdate(
+      req.params.id,
+      { status: "expired" },
+      { new: true }
+    );
+    if (!alert) return res.status(404).json({ message: "Alert not found" });
+    res.status(200).json(alert);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 module.exports = router;
-
-
-
-

@@ -108,6 +108,8 @@ const handleAiVolunteerMatch = async () => {
       peopleAffected: req.peopleAffected,
       district: req.district,
       description: req.additionalDetails,
+      latitude: req.latitude,    // GPS if captured, null if not
+      longitude: req.longitude,
     });
     setAiVolMatch(res.data);
   } catch {
