@@ -42,7 +42,7 @@ import Adminvolunteers from "./Components/Adminvolunteers";
 import AdminAlerts from "./Components/AdminAlerts";
 import UserAlerts from "./Components/UserAlerts";
 import VolunteerAssignment from "./Components/VolunteerAssignment";
-
+import NotificationListener from "./Components/NotificationListener";
 
 function RequireAuth({ children }) {
   const loggedIn = sessionStorage.getItem("isLoggedIn") === "true";
@@ -92,6 +92,7 @@ function App() {
       {renderNavbar()}
 
       <AuthWatcher setLogged={setLogged} setRole={setRole} />
+      {logged && <NotificationListener />}
 
       <Routes>
         <Route

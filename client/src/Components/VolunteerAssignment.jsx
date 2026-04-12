@@ -167,7 +167,7 @@ const VolunteerAssignment = () => {
         volunteerEmail,
       });
       setReq(res.data);
-      setFlash({ type: "success", msg: "✅ You are now marked as working on this request. Admin has been notified." });
+      setFlash({ type: "success", msg: "You are now marked as working on this request. Admin has been notified." });
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to update status. Please try again.";
       setFlash({ type: "error", msg });
@@ -184,7 +184,7 @@ const VolunteerAssignment = () => {
         volunteerEmail,
       });
       setReq(res.data);
-      setFlash({ type: "success", msg: "🎉 Great work! Admin has been notified to close this request." });
+      setFlash({ type: "success", msg: " Great work! Admin has been notified to close this request." });
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to mark as done. Please try again.";
       setFlash({ type: "error", msg });
@@ -249,7 +249,7 @@ const VolunteerAssignment = () => {
         {/* Assignment mismatch warning */}
         {!isAssigned && status !== "completed" && (
           <div style={s.alert}>
-            ⚠️ You are viewing this request but are not the assigned volunteer.
+            You are viewing this request but are not the assigned volunteer.
             Actions and messaging are only available to the assigned volunteer.
             <br />
             <small style={{ opacity: 0.7 }}>
@@ -264,8 +264,8 @@ const VolunteerAssignment = () => {
             {req.district}{req.fullAddress ? `, ${req.fullAddress}` : ""}
           </h1>
           <span style={s.statusBadge(status)}>
-            {status === "in_progress"    ? "🛠️ In Progress" :
-             status === "volunteer_done" ? "✅ Done — Awaiting Admin Review" :
+            {status === "in_progress"    ? "In Progress" :
+             status === "volunteer_done" ? "Done — Awaiting Admin Review" :
              status === "completed"      ? "🏁 Completed" :
              status === "verified"       ? "🔵 Assigned to You" : status}
           </span>
@@ -273,7 +273,7 @@ const VolunteerAssignment = () => {
 
         {/* Request Details */}
         <div style={s.card}>
-          <h2 style={s.h2}>📋 Request Details</h2>
+          <h2 style={s.h2}>Request Details</h2>
           {[
             ["Aid Needed",       req.aidTypes?.join(" + ") || "—"],
             ["People Affected",  req.peopleAffected],
@@ -302,7 +302,7 @@ const VolunteerAssignment = () => {
         {/* ── ACTIONS: only if this volunteer is assigned and request is active ── */}
         {isAssigned && status !== "completed" && (
           <div style={s.card}>
-            <h2 style={s.h2}>⚡ Actions</h2>
+            <h2 style={s.h2}>Actions</h2>
 
             {status === "verified" && (
               <div>
@@ -314,7 +314,7 @@ const VolunteerAssignment = () => {
                   onClick={handleStartWork}
                   disabled={working}
                 >
-                  {working ? "Updating..." : "🛠️ Mark as Working"}
+                  {working ? "Updating..." : "Mark as Working"}
                 </button>
               </div>
             )}
@@ -345,7 +345,7 @@ const VolunteerAssignment = () => {
         {/* ── MESSAGING: only if assigned and not completed ── */}
         {isAssigned && status !== "completed" && (
           <div style={s.card}>
-            <h2 style={s.h2}>💬 Messages with Admin</h2>
+            <h2 style={s.h2}>Messages with Admin</h2>
 
             {/* Chat thread */}
             <div style={{

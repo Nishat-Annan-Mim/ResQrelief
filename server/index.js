@@ -152,58 +152,81 @@ const haversineDistanceKm = (lat1, lon1, lat2, lon2) => {
 app.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
-    const existingUser = await UserModel.findOne({ email });
-
-    if (existingUser) {
-      return res.status(400).json({
-        message: "Email already exists",
+ 
+    // Block banned emails from creating new accounts
+    const isBanned = await BannedModel.findOne({ email });
+    if (isBanned) {
+      return res.status(403).json({
+        message: "This email has been banned and cannot be used to create an account.",
+        banned: true,
       });
     }
-
+ 
+    const existingUser = await UserModel.findOne({ email });
+ 
+    if (existingUser) {
+      // Also block if the existing user account is marked banned
+      if (existingUser.isBanned) {
+        return res.status(403).json({
+          message: "This email has been banned and cannot be used to create an account.",
+          banned: true,
+        });
+      }
+      return res.status(400).json({ message: "Email already exists" });
+    }
+ 
     const hashedPassword = await bcrypt.hash(password, 10);
-
+ 
     const newUser = new UserModel({
       name,
       email,
       password: hashedPassword,
     });
-
+ 
     await newUser.save();
-
-    res.status(201).json({
-      message: "User created successfully",
-    });
+ 
+    res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    res.status(500).json({ message: "Server error" });
   }
 });
+ 
 
 /* ---------------- Login API ---------------- */
 
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
+ 
     const user = await UserModel.findOne({ email });
-
+ 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
+      return res.status(404).json({ message: "User not found" });
+    }
+ 
+    // Block admin accounts from using the regular login endpoint
+    if (user.role === "admin") {
+      return res.status(403).json({
+        message: "Admin accounts must log in through the admin portal.",
+        adminOnly: true,
       });
     }
-
+ 
+    // Block banned users
+    if (user.isBanned) {
+      return res.status(403).json({
+        message: "Your account has been suspended due to a fraudulent request.",
+        banned: true,
+      });
+    }
+ 
     const isMatch = await bcrypt.compare(password, user.password);
-
+ 
     if (!isMatch) {
-      return res.status(401).json({
-        message: "Incorrect password",
-      });
+      return res.status(401).json({ message: "Incorrect password" });
     }
-
+ 
     res.status(200).json({
       message: "Login successful",
       user: {
@@ -215,9 +238,47 @@ app.post("/login", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      message: "Server error",
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Admin Login API (Separate from regular login) ---------------- */
+app.post("/admin-login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify this is an admin account
+    if (user.role !== "admin") {
+      return res.status(403).json({
+        message: "Only admin accounts can access the admin portal.",
+      });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    res.status(200).json({
+      message: "Admin login successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -774,19 +835,6 @@ app.get("/api/volunteers/by-district/:district", async (req, res) => {
   }
 });
 
-// // ── GET all volunteers (for admin, no district filter) ───────
-// app.get("/api/volunteers/all", async (req, res) => {
-//   try {
-//     const volunteers = await VolunteerModel.find({
-//       profileCompleted: true,
-//       isBanned: { $ne: true },
-//     }).select("fullName email phone volunteerRole preferredZone preferredTime");
-//     res.status(200).json(volunteers);
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
 // ── VERIFY request + optionally assign a volunteer ───────────
 // REPLACE your existing PUT /api/requests/:id/verify with this:
 app.put("/api/requests/:id/verify", async (req, res) => {
@@ -835,13 +883,13 @@ app.put("/api/requests/:id/verify", async (req, res) => {
     if (assignedVolunteer?.email) {
       await new NotificationModel({
         recipientEmail: assignedVolunteer.email,
-        title: "You have been assigned to a request 🙋",
+        title: "You have been assigned to a request",
         message: `You have been assigned to help with a ${updated.aidTypes?.join(", ")} request in ${updated.district}. Tap to view details.`,
         type: "volunteer_assigned",
         link: `/volunteer-assignment/${id}`,   // ← updated link
       }).save();
       global.io.to(assignedVolunteer.email).emit("alert", {
-        title: "New Assignment 🙋",
+        title: "New Assignment",
         message: `You have been assigned to a ${updated.district} request!`,
       });
     }
@@ -859,38 +907,50 @@ app.delete("/api/requests/:id", async (req, res) => {
   try {
     const { id } = req.params;
     console.time(`fraud-${id}`);
-
+ 
     const request = await RequestModel.findById(id);
     if (!request) return res.status(404).json({ message: "Request not found" });
-
-    // Ban the phone number and email
+ 
+    const submitterEmail = request.email || null; // email saved on the request at submission
+ 
+    // 1. Add to BannedModel (phone + email both stored)
     await BannedModel.findOneAndUpdate(
-      { $or: [{ phone: request.phoneNumber }, { email: request.fullName }] },
+      { $or: [{ phone: request.phoneNumber }, { email: submitterEmail }].filter(Boolean) },
       {
         phone: request.phoneNumber,
-        email: request.fullName, // store submitter name too for reference
+        email: submitterEmail,
         bannedAt: new Date(),
         reason: "fraud",
       },
       { upsert: true, new: true },
     );
-
-    // Also ban the volunteer account if one exists with this phone
+ 
+    // 2. Set isBanned=true on the User account that submitted this request
+    if (submitterEmail) {
+      await UserModel.findOneAndUpdate({ email: submitterEmail }, { isBanned: true });
+    }
+ 
+    // 3. Also ban any Volunteer record tied to that phone or email
     await VolunteerModel.findOneAndUpdate(
-      { phone: request.phoneNumber },
+      { $or: [{ phone: request.phoneNumber }, ...(submitterEmail ? [{ email: submitterEmail }] : [])] },
       { isBanned: true },
     );
-    await UserModel.findOneAndUpdate(
-      { email: request.phoneNumber }, // in case email matches
-      { isBanned: true },
-    );
+ 
+    // 4. Force-logout: emit a "banned" socket event so the client clears session instantly
+    // ⚠️ IMPORTANT: Only emit to non-admin accounts (don't logout admins!)
+    if (submitterEmail) {
+      const submitter = await UserModel.findOne({ email: submitterEmail });
+      if (submitter && submitter.role !== "admin") {
+        global.io.to(submitterEmail).emit("banned", {
+          message: "Your account has been banned due to a fraudulent request.",
+        });
+      }
+    }
 
     await RequestModel.findByIdAndDelete(id);
     console.timeEnd(`fraud-${id}`);
 
-    res
-      .status(200)
-      .json({ message: "Request marked as fraud, submitter banned" });
+    res.status(200).json({ message: "Request marked as fraud, submitter banned" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -1123,14 +1183,14 @@ app.put("/api/requests/:id/start-work", async (req, res) => {
     // Notify admin
     const notif = new NotificationModel({
       recipientEmail: ADMIN_EMAIL,
-      title: "Volunteer started work 🛠️",
+      title: "Volunteer started work",
       message: `${request.assignedVolunteer.name} has started working on the ${request.district} request.`,
       type: "volunteer_update",
       link: `/admin-requests/${req.params.id}`,
     });
     await notif.save();
     global.io.to(ADMIN_EMAIL).emit("alert", {
-      title: "Volunteer Started Work 🛠️",
+      title: "Volunteer Started Work",
       message: `${request.assignedVolunteer.name} is now working on the ${request.district} request.`,
     });
  
@@ -1168,14 +1228,14 @@ app.post("/api/requests/:id/inquiry", async (req, res) => {
     // Notify admin
     const notif = new NotificationModel({
       recipientEmail: ADMIN_EMAIL,
-      title: `Inquiry from ${volunteerName} 💬`,
+      title: `Inquiry from ${volunteerName}`,
       message: `"${message.slice(0, 80)}${message.length > 80 ? "..." : ""}"`,
       type: "inquiry",
       link: `/admin-requests/${req.params.id}`,
     });
     await notif.save();
     global.io.to(ADMIN_EMAIL).emit("alert", {
-      title: "Volunteer Inquiry 💬",
+      title: "Volunteer Inquiry",
       message: `${volunteerName} sent a message about the ${request.district} request.`,
     });
  
@@ -1212,14 +1272,14 @@ app.post("/api/requests/:id/inquiry/reply", async (req, res) => {
     if (request.assignedVolunteer?.email) {
       const notif = new NotificationModel({
         recipientEmail: request.assignedVolunteer.email,
-        title: "Admin replied to your inquiry 💬",
+        title: "Admin replied to your inquiry",
         message: `"${message.slice(0, 80)}${message.length > 80 ? "..." : ""}"`,
         type: "inquiry_reply",
         link: `/volunteer-assignment/${req.params.id}`,
       });
       await notif.save();
       global.io.to(request.assignedVolunteer.email).emit("alert", {
-        title: "Admin Replied 💬",
+        title: "Admin Replied",
         message: `Admin responded about the ${request.district} request.`,
       });
     }
@@ -1281,14 +1341,14 @@ app.put("/api/requests/:id/complete", async (req, res) => {
     if (updated.email) {
       const notif = new NotificationModel({
         recipientEmail: updated.email,
-        title: "Your aid request has been fulfilled 🎉",
+        title: "Your aid request has been fulfilled",
         message: `Your request for ${updated.aidTypes?.join(", ")} in ${updated.district} has been completed. You may now submit a new request if needed.`,
         type: "request_completed",
         link: "/request-aid",
       });
       await notif.save();
       global.io.to(updated.email).emit("alert", {
-        title: "Aid Request Fulfilled 🎉",
+        title: "Aid Request Fulfilled",
         message: `Your request in ${updated.district} has been completed!`,
       });
     }
@@ -1297,14 +1357,14 @@ app.put("/api/requests/:id/complete", async (req, res) => {
     if (updated.assignedVolunteer?.email) {
       const notif = new NotificationModel({
         recipientEmail: updated.assignedVolunteer.email,
-        title: "Request officially closed 🏁",
+        title: "Request officially closed",
         message: `The ${updated.district} request has been marked as completed by admin. Great work!`,
         type: "request_completed",
         link: "/volunteer-dashboard",
       });
       await notif.save();
       global.io.to(updated.assignedVolunteer.email).emit("alert", {
-        title: "Request Closed 🏁",
+        title: "Request Closed",
         message: `The ${updated.district} request is officially done. Well done!`,
       });
     }
@@ -1634,13 +1694,23 @@ app.put("/api/volunteer/confirm/:id", async (req, res) => {
 /* ---------------- Get All Volunteers (Admin) ---------------- */
 app.get("/api/volunteers/all", async (req, res) => {
   try {
-    const volunteers = await VolunteerModel.find();
+    const { district } = req.query;
+ 
+    const query = district
+      ? { preferredZone: { $regex: new RegExp(district.trim(), "i") } }
+      : {};
+ 
+    const volunteers = await VolunteerModel.find(query).select(
+      "fullName email phone volunteerRole preferredZone preferredTime availableFrom availableUntil status isBanned"
+    );
+ 
     res.status(200).json(volunteers);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });
+ 
 
 /* ---------------- Remove Volunteer (Admin) ---------------- */
 app.delete("/api/volunteer/remove/:id", async (req, res) => {

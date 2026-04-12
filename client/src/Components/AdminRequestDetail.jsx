@@ -18,12 +18,13 @@ const AdminRequestDetail = () => {
   const [doneMessage, setDoneMessage] = useState("");
 
   // volunteer assign state
-  const [volunteers, setVolunteers]   = useState([]);
-  const [loadingVols, setLoadingVols] = useState(false);
-  const [selectedVol, setSelectedVol] = useState(null);
+  const [volunteers, setVolunteers]     = useState([]);
+  const [loadingVols, setLoadingVols]   = useState(false);
+  const [selectedVol, setSelectedVol]   = useState(null);
   const [showVolPanel, setShowVolPanel] = useState(false);
-  const [volSearch, setVolSearch]     = useState("");
-  const [assignError, setAssignError] = useState("");
+  const [volSearch, setVolSearch]       = useState("");
+  const [districtFilter, setDistrictFilter] = useState("");
+  const [assignError, setAssignError]   = useState("");
 
   // confirm modals
   const [confirmModal, setConfirmModal] = useState(null);
@@ -63,19 +64,16 @@ const AdminRequestDetail = () => {
     return () => { if (socketRef.current) socketRef.current.disconnect(); };
   }, [id]);
 
-  // Load volunteers when panel opens
+  // Load ALL volunteers when panel opens
   useEffect(() => {
-    if (!showVolPanel || !req) return;
+    if (!showVolPanel) return;
     setLoadingVols(true);
     axios
-      .get(`${BASE}/api/volunteers/by-district/${req.district}`)
-      .then((res) => {
-        if (res.data.length > 0) setVolunteers(res.data);
-        else return axios.get(`${BASE}/api/volunteers/all`).then((r) => setVolunteers(r.data));
-      })
-      .catch(() => axios.get(`${BASE}/api/volunteers/all`).then((r) => setVolunteers(r.data)))
+      .get(`${BASE}/api/volunteers/all`)
+      .then((res) => setVolunteers(res.data))
+      .catch(() => setVolunteers([]))
       .finally(() => setLoadingVols(false));
-  }, [showVolPanel, req]);
+  }, [showVolPanel]);
 
   // ── Actions ──────────────────────────────────────────────────────────
 
@@ -169,10 +167,13 @@ const AdminRequestDetail = () => {
     finally { setLoadingAiVol(false); }
   };
 
-  const filteredVols = volunteers.filter((v) =>
-    `${v.fullName} ${v.volunteerRole} ${v.preferredZone}`
-      .toLowerCase().includes(volSearch.toLowerCase())
-  );
+  const filteredVols = volunteers.filter((v) => {
+    const matchesSearch = `${v.fullName} ${v.volunteerRole} ${v.preferredZone}`
+      .toLowerCase().includes(volSearch.toLowerCase());
+    const matchesDistrict = districtFilter.trim() === "" ||
+      (v.preferredZone || "").toLowerCase().includes(districtFilter.trim().toLowerCase());
+    return matchesSearch && matchesDistrict;
+  });
 
   const timeAgo = (d) => {
     const diff = Math.floor((Date.now() - new Date(d)) / 60000);
@@ -190,8 +191,8 @@ const AdminRequestDetail = () => {
     s === "completed"      ? "#4338ca" : "#888";
 
   const statusLabel = (s) =>
-    s === "in_progress"    ? "In Progress 🛠️" :
-    s === "volunteer_done" ? "Volunteer Done ✅ — Awaiting your review" :
+    s === "in_progress"    ? "In Progress " :
+    s === "volunteer_done" ? "Volunteer Done  — Awaiting your review" :
     s === "completed"      ? "Completed 🏁" : s;
 
   if (!req) return <div style={{ padding: "40px", color: "#888" }}>Loading...</div>;
@@ -255,7 +256,7 @@ const AdminRequestDetail = () => {
               </>
             ) : (
               <>
-                <h3>⚠️ Mark as Fraud?</h3>
+                <h3>Mark as Fraud?</h3>
                 <p>
                   This will <strong>permanently delete</strong> the request and{" "}
                   <strong>ban</strong> the phone number{" "}
@@ -311,7 +312,7 @@ const AdminRequestDetail = () => {
           {/* Assigned volunteer display */}
           {req.assignedVolunteer && (
             <div className="detail-card ard-assigned-card" style={{ marginTop: "20px" }}>
-              <h3>🙋 Assigned Volunteer</h3>
+              <h3>Assigned Volunteer</h3>
               <p><strong>{req.assignedVolunteer.name}</strong></p>
               <p style={{ color: "#666" }}>{req.assignedVolunteer.email}</p>
               <p style={{ color: "#666" }}>{req.assignedVolunteer.phone}</p>
@@ -323,8 +324,8 @@ const AdminRequestDetail = () => {
                   fontSize: "13px", fontWeight: 600,
                 }}>
                   {req.status === "in_progress"
-                    ? "🛠️ Currently working on this request"
-                    : "✅ Volunteer has marked this as done — awaiting your review"}
+                    ? "Currently working on this request"
+                    : "Volunteer has marked this as done — awaiting your review"}
                 </div>
               )}
             </div>
@@ -333,7 +334,7 @@ const AdminRequestDetail = () => {
           {/* ── Inquiry / Messaging Thread ── */}
           {req.assignedVolunteer && (
             <div className="detail-card" style={{ marginTop: "20px" }}>
-              <h3>💬 Volunteer Messages</h3>
+              <h3>Volunteer Messages</h3>
 
               {(!req.inquiries || req.inquiries.length === 0) ? (
                 <p style={{ color: "#aaa", fontSize: "14px", marginBottom: "16px" }}>
@@ -396,12 +397,20 @@ const AdminRequestDetail = () => {
           {showVolPanel && (
             <div className="detail-card ard-vol-panel" style={{ marginTop: "20px" }}>
               <div className="ard-vol-panel-header">
-                <h3>🙋 Select a Volunteer</h3>
+                <h3>Select a Volunteer</h3>
                 <button className="ard-close-btn" onClick={() => setShowVolPanel(false)}>✕</button>
               </div>
               <p className="ard-vol-subtitle">
-                Showing volunteers near <strong>{req.district}</strong>
+                Showing all volunteers · filter by district or name below
               </p>
+              <input
+                className="ard-vol-search"
+                type="text"
+                placeholder="Filter by district (e.g. Dhaka, Sylhet...)"
+                value={districtFilter}
+                onChange={(e) => setDistrictFilter(e.target.value)}
+                style={{ marginBottom: "8px" }}
+              />
               <input
                 className="ard-vol-search"
                 placeholder="Search by name, role..."
@@ -426,7 +435,7 @@ const AdminRequestDetail = () => {
                       </div>
                       <div className="ard-vol-meta">{v.phone}</div>
                       {v.preferredTime && (
-                        <div className="ard-vol-time">🕐 {v.preferredTime}</div>
+                        <div className="ard-vol-time">{v.preferredTime}</div>
                       )}
                     </div>
                   ))}
@@ -456,7 +465,7 @@ const AdminRequestDetail = () => {
           {/* ── MARK COMPLETE — shown only when volunteer has marked done ── */}
           {req.status === "volunteer_done" && (
             <div className="detail-card" style={{ marginTop: "16px", background: "#f0fdf4", border: "1px solid #86efac" }}>
-              <h3 style={{ margin: "0 0 10px 0", color: "#065f46" }}>✅ Ready to Close</h3>
+              <h3 style={{ margin: "0 0 10px 0", color: "#065f46" }}>Ready to Close</h3>
               <p style={{ fontSize: "14px", color: "#166534", marginBottom: "16px" }}>
                 {req.assignedVolunteer?.name} has completed their work. Review and mark this request as officially done.
               </p>
@@ -465,7 +474,7 @@ const AdminRequestDetail = () => {
                 style={{ width: "100%" }}
                 onClick={handleMarkComplete}
               >
-                🏁 Mark as Completed
+               Mark as Completed
               </button>
             </div>
           )}
@@ -489,7 +498,7 @@ const AdminRequestDetail = () => {
                   style={{ width: "100%" }}
                   onClick={() => setShowVolPanel((p) => !p)}
                 >
-                  {showVolPanel ? "▲ Hide Volunteers" : "🙋 Assign Volunteer"}
+                  {showVolPanel ? "▲ Hide Volunteers" : "Assign Volunteer"}
                 </button>
                 {selectedVol && (
                   <p style={{ marginTop: "10px", fontSize: "13px", color: "#16a34a" }}>
@@ -522,7 +531,7 @@ const AdminRequestDetail = () => {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3>AI Resource Allocation</h3>
               <button className="btn-admin" onClick={handleAiResourceAllocation} disabled={loadingAiRes}>
-                {loadingAiRes ? "Analyzing..." : "🤖 Recommend Resources"}
+                {loadingAiRes ? "Analyzing..." : "Recommend Resources"}
               </button>
             </div>
             {aiResources && (
@@ -555,7 +564,7 @@ const AdminRequestDetail = () => {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3>AI Volunteer Match</h3>
               <button className="btn-admin" onClick={handleAiVolunteerMatch} disabled={loadingAiVol}>
-                {loadingAiVol ? "Matching..." : "🤖 Find Best Match"}
+                {loadingAiVol ? "Matching..." : "Find Best Match"}
               </button>
             </div>
             {aiVolMatch && (
@@ -583,7 +592,7 @@ const AdminRequestDetail = () => {
                   ))}
                 </div>
                 <p style={{ color: "#aaa", fontSize: "12px", marginTop: "10px" }}>
-                  💡 Use "Assign Volunteer" above to confirm the assignment.
+                   Use "Assign Volunteer" above to confirm the assignment.
                 </p>
               </div>
             )}

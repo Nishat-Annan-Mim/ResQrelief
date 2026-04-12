@@ -3,18 +3,16 @@ import axios from "axios";
 import "./AdminAlerts.css";
 
 const AdminAlerts = () => {
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
+  const [title, setTitle]       = useState("");
+  const [message, setMessage]   = useState("");
+  const [district, setDistrict] = useState("");
   const [audience, setAudience] = useState([]);
   const [channels, setChannels] = useState([]);
-  const [alerts, setAlerts] = useState([]);
+  const [alerts, setAlerts]     = useState([]);
 
   const toggle = (value, list, setList) => {
-    if (list.includes(value)) {
-      setList(list.filter((i) => i !== value));
-    } else {
-      setList([...list, value]);
-    }
+    if (list.includes(value)) setList(list.filter((i) => i !== value));
+    else setList([...list, value]);
   };
 
   const fetchAlerts = async () => {
@@ -26,47 +24,53 @@ const AdminAlerts = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAlerts();
-  }, []);
+  useEffect(() => { fetchAlerts(); }, []);
 
   const sendAlert = async () => {
     try {
-      await axios.post(
+      const res = await axios.post(
         "http://localhost:3001/api/alerts",
         {
           alertTitle: title,
           message,
           audience,
           channels,
+          // Pass district only when email channel is selected — used for tiered filtering
+          district: channels.includes("email") ? district.trim() || undefined : undefined,
         },
-        {
-          headers: { role: sessionStorage.getItem("role") },
-        }
+        { headers: { role: sessionStorage.getItem("role") } }
       );
 
-      alert("✅ Alert Sent!");
+      const { emailsSent, inAppSent } = res.data;
+      alert(
+        `✅ Alert Sent!\n` +
+        (channels.includes("email")
+          ? `📧 Emails sent to ${emailsSent} recipient(s) (distance-based selection)\n`
+          : "") +
+        (channels.includes("app") ? `🔔 In-app notification sent to ${inAppSent} recipient(s)` : "")
+      );
 
       setTitle("");
       setMessage("");
+      setDistrict("");
       setAudience([]);
       setChannels([]);
-
-      fetchAlerts(); // refresh table
+      fetchAlerts();
     } catch (err) {
       console.error(err);
       alert("❌ Failed to send alert");
     }
   };
+
   const expireAlert = async (id) => {
-  try {
-    await axios.patch(`http://localhost:3001/api/alerts/${id}/expire`);
-    fetchAlerts(); // refresh the table
-  } catch (err) {
-    console.error(err);
-    alert("❌ Could not expire alert");
-  }
-};
+    try {
+      await axios.patch(`http://localhost:3001/api/alerts/${id}/expire`);
+      fetchAlerts();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Could not expire alert");
+    }
+  };
 
   return (
     <div className="alert-page">
@@ -92,6 +96,24 @@ const AdminAlerts = () => {
             onChange={(e) => setMessage(e.target.value)}
           />
 
+          <label>
+            District{" "}
+            <span style={{ fontWeight: "normal", color: "#888", fontSize: "13px" }}>
+              (used for proximity-based email targeting)
+            </span>
+          </label>
+          <input
+            placeholder="e.g. Dhaka, Sylhet, Chattogram..."
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+          />
+          {channels.includes("email") && (
+            <p style={{ fontSize: "12px", color: "#888", marginTop: "-8px", marginBottom: "8px" }}>
+              💡 Volunteers within 50 km will all be emailed. Beyond 50 km, only the nearest
+              volunteer will receive an email.
+            </p>
+          )}
+
           <label>Target Audience</label>
           <div className="checkbox-group">
             <label>
@@ -102,7 +124,6 @@ const AdminAlerts = () => {
               />
               Volunteers
             </label>
-
             <label>
               <input
                 type="checkbox"
@@ -123,7 +144,6 @@ const AdminAlerts = () => {
               />
               In-App
             </label>
-
             <label>
               <input
                 type="checkbox"
@@ -158,7 +178,7 @@ const AdminAlerts = () => {
             <tbody>
               {alerts.length === 0 ? (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: "center" }}>
+                  <td colSpan="6" style={{ textAlign: "center" }}>
                     No alerts sent yet
                   </td>
                 </tr>
@@ -170,18 +190,14 @@ const AdminAlerts = () => {
                     <td>{a.audience.join(" + ")}</td>
                     <td>{new Date(a.dateSent).toLocaleDateString()}</td>
                     <td>{a.status}</td>
-                    <td>  {/* ← ADD THIS CELL */}
+                    <td>
                       {a.status !== "expired" ? (
                         <button
                           onClick={() => expireAlert(a._id)}
                           style={{
-                            background: "#c0392b",
-                            color: "#fff",
-                            border: "none",
-                            padding: "5px 10px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontSize: "13px",
+                            background: "#c0392b", color: "#fff", border: "none",
+                            padding: "5px 10px", borderRadius: "4px",
+                            cursor: "pointer", fontSize: "13px",
                           }}
                         >
                           Expire

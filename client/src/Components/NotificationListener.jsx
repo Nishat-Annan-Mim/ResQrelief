@@ -1,14 +1,16 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 
 const NotificationListener = () => {
   const socketRef = useRef(null);
+  const navigate  = useNavigate();
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
     const email = storedUser.email || sessionStorage.getItem("email");
     if (!email) {
-      console.warn("⚠️ NotificationListener: No email in sessionStorage. Socket not connected.");
+      console.warn("⚠️ NotificationListener: No email found. Socket not connected.");
       return;
     }
 
@@ -21,18 +23,25 @@ const NotificationListener = () => {
       socketRef.current.emit("join", email);
     });
 
+    // ── Regular alert notification ────────────────────────────
     socketRef.current.on("alert", (data) => {
       showNotification(data.title, data.message);
     });
 
+    // ── Account banned: clear session and force to login ─────
+    socketRef.current.on("banned", (data) => {
+      sessionStorage.clear();
+      localStorage.clear();
+      if (socketRef.current) socketRef.current.disconnect();
+      alert(`🚫 Account Suspended\n\n${data?.message || "Your account has been banned due to a fraudulent request."}\n\nYou have been logged out.`);
+      window.location.href = "/login"; // hard redirect — works even as component unmounts
+    });
     socketRef.current.on("connect_error", (err) => {
       console.error("❌ Socket connection error:", err.message);
     });
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      if (socketRef.current) socketRef.current.disconnect();
     };
   }, []);
 
@@ -40,7 +49,6 @@ const NotificationListener = () => {
 };
 
 function showNotification(title, message) {
-  // Inject keyframes once
   if (!document.getElementById("rq-notif-styles")) {
     const style = document.createElement("style");
     style.id = "rq-notif-styles";
@@ -57,16 +65,15 @@ function showNotification(title, message) {
     document.head.appendChild(style);
   }
 
-  // Create or reuse container
   let container = document.getElementById("rq-notif-container");
   if (!container) {
     container = document.createElement("div");
     container.id = "rq-notif-container";
     Object.assign(container.style, {
       position: "fixed",
-      top: "80px",       // below navbar
+      top: "80px",
       right: "20px",
-      zIndex: "999999",  // very high to clear any stacking context
+      zIndex: "999999",
       display: "flex",
       flexDirection: "column",
       gap: "10px",
