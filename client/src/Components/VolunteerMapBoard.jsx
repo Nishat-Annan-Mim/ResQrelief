@@ -725,8 +725,7 @@ const VolunteerMapBoard = () => {
           </p>
 
           <div className="selected-location-box">
-            📍 lat: {requestForm.latitude || "--"}, lng:{" "}
-            {requestForm.longitude || "--"}
+            📍
             <div className="selected-address-line">
               {requestForm.address || "No address selected yet"}
             </div>

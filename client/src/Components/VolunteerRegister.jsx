@@ -292,7 +292,7 @@ const VolunteerRegister = () => {
                 value={formData.emergencyContact}
                 onChange={handleChange}
                 onKeyDown={handlePhoneSubmit}
-                placeholder="Emergency contact phone number"
+                placeholder="After placeing phone number must press-'Enter' "
               />
             </div>
             {/* ✅ Show relation AFTER pressing Enter */}

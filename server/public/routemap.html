@@ -7,8 +7,9 @@
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: Segoe UI, sans-serif; }
-
-        /* ── BACK BUTTON ── */
+        #savedByInfo {
+        display: none !important;
+        }
         #backBtn {
             position: absolute;
             top: 15px;
@@ -26,7 +27,6 @@
         }
         #backBtn:hover { background: #e63946; }
 
-        /* ── ASSIGNED LOCATIONS PANEL ── */
         #assignedPanel {
             position: absolute;
             top: 60px;
@@ -58,6 +58,7 @@
             font-weight: 600;
         }
         .assigned-location-item:last-child { border-bottom: none; }
+
         #toggleAssignedBtn {
             position: absolute;
             top: 15px;
@@ -75,7 +76,6 @@
         }
         #toggleAssignedBtn:hover { background: #d97706; }
 
-        /* ── SEARCH BAR ── */
         #searchContainer {
             position: absolute;
             top: 15px;
@@ -109,7 +109,6 @@
         }
         #searchBtn:hover { background: #e63946; }
 
-        /* ── SUGGESTIONS ── */
         #suggestions {
             position: absolute;
             top: 65px;
@@ -130,13 +129,12 @@
         }
         .suggestion-item:hover { background: #f0f0f0; }
 
-        /* ── LOCATION LIST CARD ── */
         #locationList {
             position: absolute;
             top: 120px;
             left: 15px;
             width: 240px;
-            max-height: 70vh;
+            max-height: 60vh;
             background: white;
             z-index: 1000;
             overflow-y: auto;
@@ -181,7 +179,72 @@
             font-size: 14px;
         }
 
-        /* ── CUSTOM MARKER ── */
+        #saveRouteBtn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 9px;
+            background: #16a34a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+        }
+        #saveRouteBtn:hover { background: #15803d; }
+
+        #clearSavedBtn {
+            width: 100%;
+            margin-top: 6px;
+            padding: 9px;
+            background: #f3f4f6;
+            color: #c0392b;
+            border: 1px solid #e63946;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+        }
+        #clearSavedBtn:hover { background: #fee2e2; }
+
+        #savedBadge {
+            display: none;
+            margin-top: 8px;
+            padding: 6px 10px;
+            background: #d8f3dc;
+            color: #2d6a4f;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        #savedByInfo {
+            display: none;
+            margin-top: 4px;
+            padding: 5px 10px;
+            background: #f0f4ff;
+            color: #3730a3;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        #loadingBadge {
+            display: none;
+            margin-top: 8px;
+            padding: 6px 10px;
+            background: #fff3cd;
+            color: #d97706;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+        }
+
         .custom-marker {
             width: 30px;
             height: 30px;
@@ -200,13 +263,9 @@
 </head>
 <body>
 
-    <!-- ── BACK BUTTON ── -->
     <button id="backBtn" onclick="window.close()">← Back</button>
-
-    <!-- ── ASSIGNED LOCATIONS TOGGLE ── -->
     <button id="toggleAssignedBtn">📋 See Assigned Locations</button>
 
-    <!-- ── ASSIGNED LOCATIONS PANEL ── -->
     <div id="assignedPanel">
         <h4>📍 Assigned Destinations</h4>
         <p style="font-size:12px; color:#92400e; margin: 0 0 8px 0;">
@@ -215,19 +274,22 @@
         <div id="assignedLocationItems"></div>
     </div>
 
-    <!-- ── SEARCH ── -->
     <div id="searchContainer">
         <input type="text" id="searchBox" placeholder="Search a place..." />
         <button id="searchBtn">Search</button>
     </div>
     <div id="suggestions"></div>
 
-    <!-- ── ROUTE LOCATION LIST ── -->
     <div id="locationList">
         <div id="locationHeader">
             <h4>🗺️ My Route</h4>
             <button id="clearBtn">Clear All</button>
         </div>
+        <div id="loadingBadge">⏳ Loading saved route...</div>
+        <div id="savedBadge">✅ Route Saved</div>
+        <div id="savedByInfo"></div>
+        <button id="saveRouteBtn">💾 Save Route for Team</button>
+        <button id="clearSavedBtn">🗑️ Clear Saved Route</button>
     </div>
 
     <div id="map" style="width:100%; height:100vh;"></div>
@@ -236,9 +298,14 @@
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
     <script>
-        // ── READ ASSIGNED LOCATIONS FROM URL ──
+        const BASE_URL = "http://localhost:3001";
+
+        // ── READ URL PARAMS ──
         const params = new URLSearchParams(window.location.search);
         const rawLocations = params.get("locations");
+        const opName = params.get("op") || "Unknown Operation";
+        const opId = params.get("opId") || null;
+
         const assignedLocations = rawLocations
             ? rawLocations.split(",").map(l => decodeURIComponent(l.trim())).filter(Boolean)
             : [];
@@ -246,7 +313,7 @@
         // ── POPULATE ASSIGNED PANEL ──
         const assignedItemsDiv = document.getElementById("assignedLocationItems");
         if (assignedLocations.length > 0) {
-            assignedLocations.forEach((loc, i) => {
+            assignedLocations.forEach(loc => {
                 const div = document.createElement("div");
                 div.className = "assigned-location-item";
                 div.innerHTML = `<span>📍</span><span>${loc}</span>`;
@@ -256,7 +323,7 @@
             assignedItemsDiv.innerHTML = `<p style="font-size:13px;color:#aaa;">No locations assigned.</p>`;
         }
 
-        // ── TOGGLE PANEL ──
+        // ── TOGGLE ASSIGNED PANEL ──
         const assignedPanel = document.getElementById("assignedPanel");
         document.getElementById("toggleAssignedBtn").onclick = function () {
             if (assignedPanel.style.display === "none" || assignedPanel.style.display === "") {
@@ -276,20 +343,24 @@
         var markers = [];
         var control = null;
 
-        const locationList = document.getElementById("locationList");
-        const clearBtn = document.getElementById("clearBtn");
-        const searchBox = document.getElementById("searchBox");
+        const locationList   = document.getElementById("locationList");
+        const clearBtn       = document.getElementById("clearBtn");
+        const saveRouteBtn   = document.getElementById("saveRouteBtn");
+        const clearSavedBtn  = document.getElementById("clearSavedBtn");
+        const savedBadge     = document.getElementById("savedBadge");
+        const savedByInfo    = document.getElementById("savedByInfo");
+        const loadingBadge   = document.getElementById("loadingBadge");
+        const searchBox      = document.getElementById("searchBox");
         const suggestionsDiv = document.getElementById("suggestions");
 
         let debounceTimer;
 
         // ── SEARCH AUTOCOMPLETE ──
         searchBox.addEventListener("input", function () {
-            let query = searchBox.value;
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                if (query.length < 3) { suggestionsDiv.innerHTML = ""; return; }
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+                if (searchBox.value.length < 3) { suggestionsDiv.innerHTML = ""; return; }
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchBox.value)}`)
                     .then(res => res.json())
                     .then(data => {
                         suggestionsDiv.innerHTML = "";
@@ -313,10 +384,11 @@
         map.on('locationfound', function (e) {
             userMarker = L.marker(e.latlng).addTo(map)
                 .bindPopup("📍 You are here").openPopup();
+            loadSavedRoute();
         });
         map.on('locationerror', function () {
-            // default to Bangladesh if location not found
             map.setView([23.8, 90.4], 7);
+            loadSavedRoute();
         });
 
         // ── NUMBER ICON ──
@@ -332,9 +404,7 @@
             markers.forEach((m, i) => m.marker.setIcon(createNumberIcon(i + 1)));
         }
 
-        function getDistance(a, b) {
-            return map.distance(a, b);
-        }
+        function getDistance(a, b) { return map.distance(a, b); }
 
         // ── NEAREST NEIGHBOR OPTIMIZATION ──
         function optimizeRoute() {
@@ -349,9 +419,8 @@
                     let dist = getDistance(current, m.marker.getLatLng());
                     if (dist < nearestDist) { nearestDist = dist; nearestIndex = i; }
                 });
-                let next = remaining.splice(nearestIndex, 1)[0];
-                optimized.push(next);
-                current = next.marker.getLatLng();
+                optimized.push(remaining.splice(nearestIndex, 1)[0]);
+                current = optimized[optimized.length - 1].marker.getLatLng();
             }
             markers = optimized;
         }
@@ -359,7 +428,6 @@
         // ── ADD LOCATION ──
         function addLocation(lat, lon, name) {
             if (!userMarker) {
-                // if location not found yet, set a default start
                 userMarker = L.marker([23.8, 90.4]).addTo(map)
                     .bindPopup("📍 Starting Point").openPopup();
             }
@@ -367,9 +435,12 @@
                 icon: createNumberIcon(markers.length + 1)
             }).addTo(map).bindPopup(name);
 
-            markers.push({ marker, name });
+            markers.push({ marker, name, lat: parseFloat(lat), lon: parseFloat(lon) });
             addToList(name, marker);
             clearBtn.style.display = "block";
+            saveRouteBtn.style.display = "block";
+            savedBadge.style.display = "none";
+            savedByInfo.style.display = "none";
             optimizeRoute();
             refreshMarkers();
             updateRoute();
@@ -381,7 +452,7 @@
             div.className = "location-item";
 
             let text = document.createElement("span");
-            text.innerText = name.length > 28 ? name.substring(0, 28) + "..." : name;
+            text.innerText = name.length > 26 ? name.substring(0, 26) + "..." : name;
 
             let del = document.createElement("span");
             del.innerText = "❌";
@@ -393,12 +464,17 @@
                 optimizeRoute();
                 refreshMarkers();
                 updateRoute();
-                if (markers.length === 0) clearBtn.style.display = "none";
+                savedBadge.style.display = "none";
+                savedByInfo.style.display = "none";
+                if (markers.length === 0) {
+                    clearBtn.style.display = "none";
+                    saveRouteBtn.style.display = "none";
+                }
             };
 
             div.appendChild(text);
             div.appendChild(del);
-            locationList.appendChild(div);
+            locationList.insertBefore(div, loadingBadge);
         }
 
         // ── UPDATE ROUTE ──
@@ -408,28 +484,123 @@
             let waypoints = [userMarker.getLatLng()];
             markers.forEach(m => waypoints.push(m.marker.getLatLng()));
             control = L.Routing.control({
-                waypoints: waypoints,
+                waypoints,
                 routeWhileDragging: true,
                 draggableWaypoints: true
             }).addTo(map);
             control.on('waypointschanged', function (e) {
                 let newOrder = e.waypoints.slice(1);
-                markers.sort((a, b) => {
-                    return newOrder.findIndex(w => w.latLng.equals(a.marker.getLatLng())) -
-                           newOrder.findIndex(w => w.latLng.equals(b.marker.getLatLng()));
-                });
+                markers.sort((a, b) =>
+                    newOrder.findIndex(w => w.latLng.equals(a.marker.getLatLng())) -
+                    newOrder.findIndex(w => w.latLng.equals(b.marker.getLatLng()))
+                );
                 refreshMarkers();
             });
         }
 
-        // ── CLEAR ALL ──
+        // ── SAVE ROUTE TO MONGODB ──
+        async function saveRoute() {
+            if (!opId) return alert("No operation ID found. Cannot save.");
+
+            const routePoints = markers.map(m => ({
+                name: m.name,
+                lat: m.lat,
+                lon: m.lon,
+            }));
+
+             const emailFromUrl = params.get("email");
+    const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "{}");
+    const savedBy = emailFromUrl || user?.email || "Unknown volunteer";  // ← fixed priority
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/operation-route/${opId}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        routePoints,
+                        savedBy,
+                        operationName: decodeURIComponent(opName),
+                    }),
+                });
+
+                if (res.ok) {
+                    savedBadge.style.display = "block";
+                    savedBadge.textContent = "✅ Route Saved for Team";
+                    savedByInfo.style.display = "block";
+                    savedByInfo.textContent = `💾 Saved by: ${savedBy}`;
+                    saveRouteBtn.style.display = "none";
+                    clearSavedBtn.style.display = "block";
+                } else {
+                    alert("Failed to save route. Please try again.");
+                }
+            } catch (err) {
+                alert("Server error while saving route.");
+            }
+        }
+
+        // ── LOAD SAVED ROUTE FROM MONGODB ──
+        async function loadSavedRoute() {
+            if (!opId) return;
+
+            loadingBadge.style.display = "block";
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/operation-route/${opId}`);
+                const data = await res.json();
+
+                loadingBadge.style.display = "none";
+
+                if (!data || !data.routePoints || data.routePoints.length === 0) return;
+
+                // load all saved points
+                data.routePoints.forEach(point => {
+                    addLocation(point.lat, point.lon, point.name);
+                });
+
+                // show saved info
+                savedBadge.style.display = "block";
+                savedBadge.textContent = "✅ Team Route Loaded";
+                savedByInfo.style.display = "block";
+                savedByInfo.textContent = `💾 Last saved by: ${data.savedBy || "teammate"}`;
+                saveRouteBtn.style.display = "none";
+                clearSavedBtn.style.display = "block";
+
+            } catch (err) {
+                loadingBadge.style.display = "none";
+                console.log("No saved route found or error loading.");
+            }
+        }
+
+        // ── CLEAR SAVED ROUTE FROM MONGODB ──
+        async function clearSavedRoute() {
+            if (!opId) return;
+            if (!confirm("Clear the saved route for all team members?")) return;
+
+            try {
+                await fetch(`${BASE_URL}/api/operation-route/${opId}`, { method: "DELETE" });
+                clearSavedBtn.style.display = "none";
+                savedBadge.style.display = "none";
+                savedByInfo.style.display = "none";
+                alert("Saved route cleared for all team members.");
+            } catch (err) {
+                alert("Failed to clear saved route.");
+            }
+        }
+
+        // ── CLEAR ALL FROM MAP ──
         clearBtn.addEventListener("click", function () {
             markers.forEach(m => map.removeLayer(m.marker));
             markers = [];
             document.querySelectorAll(".location-item").forEach(item => item.remove());
             clearBtn.style.display = "none";
+            saveRouteBtn.style.display = "none";
+            savedBadge.style.display = "none";
+            savedByInfo.style.display = "none";
             if (control) map.removeControl(control);
         });
+
+        saveRouteBtn.addEventListener("click", saveRoute);
+        clearSavedBtn.addEventListener("click", clearSavedRoute);
 
         // ── SEARCH BUTTON ──
         document.getElementById("searchBtn").onclick = () => {
@@ -447,6 +618,7 @@
         map.on('click', e => {
             addLocation(e.latlng.lat, e.latlng.lng, "Selected Location");
         });
+
     </script>
 </body>
 </html>

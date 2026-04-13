@@ -214,7 +214,7 @@ const AdminOperations = () => {
           >
             Volunteers
           </li>
-          <li className="sidebar-item active">Operations</li>
+          <li className="sidebar-item active">Relief Operations</li>
           <li
             className="sidebar-item"
             onClick={() => navigate("/admin-alerts")}

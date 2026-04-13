@@ -1,0 +1,368 @@
+/* VolunteerOperations.css */
+
+/* ── Page Wrapper ── */
+.vo-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ── Back Button ── */
+.vo-back-btn {
+  background: none;
+  border: none;
+  color: #1a1a2e;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+/* ── Page Title ── */
+.vo-page-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+}
+
+/* ── Page Subtitle ── */
+.vo-page-subtitle {
+  color: #666;
+  margin-bottom: 28px;
+}
+
+/* ── Section Heading ── */
+.vo-section-heading {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #1a1a2e;
+}
+
+.vo-section-heading-history {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 32px 0 14px;
+  color: #1a1a2e;
+}
+
+/* ── Empty State Box ── */
+.vo-empty-box {
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  color: #888;
+  margin-bottom: 28px;
+}
+
+.vo-empty-box-history {
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  color: #888;
+}
+
+/* ── Loading ── */
+.vo-loading {
+  padding: 40px;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════
+   ACTIVE OPERATION CARD
+══════════════════════════════════════ */
+.vo-op-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Card Header Row ── */
+.vo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.vo-card-title {
+  margin: 0;
+  font-size: 18px;
+  color: #1a1a2e;
+}
+
+.vo-card-meta {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #888;
+}
+
+/* ── Status Badge ── */
+.vo-status-badge {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* ── Teammates Box ── */
+.vo-teammates-box {
+  margin-top: 14px;
+  background: #f0f4ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.vo-teammates-label {
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3730a3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vo-teammate-name {
+  margin: 3px 0;
+  font-size: 13px;
+  color: #4338ca;
+  font-weight: 600;
+}
+
+/* ── Supply Pickup Point Box ── */
+.vo-pickup-box {
+  margin-top: 16px;
+  background: #fff8e1;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.vo-pickup-icon {
+  font-size: 20px;
+}
+
+.vo-pickup-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vo-pickup-value {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #78350f;
+}
+
+.vo-pickup-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #92400e;
+}
+
+/* ── Destinations Section ── */
+.vo-destinations-section {
+  margin-top: 18px;
+}
+
+.vo-label-style {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Location Card ── */
+.vo-location-card {
+  background: #f9f6f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  border-left: 3px solid #1a1a2e;
+}
+
+.vo-location-name {
+  margin: 0 0 6px 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a2e;
+}
+
+.vo-supplies-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vo-supply-chip {
+  background: #e8e3db;
+  color: #444;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vo-no-supplies {
+  margin: 0;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.vo-no-locations {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #aaa;
+}
+
+/* ── Admin Notes Box ── */
+.vo-notes-box {
+  margin-top: 14px;
+  background: #f9f6f0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.vo-notes-text {
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+}
+
+/* ── Action Buttons Row ── */
+.vo-action-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.vo-route-btn {
+  padding: 10px 20px;
+  background: #0077b6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vo-status-btn {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #1a1a2e, #e63946);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ══════════════════════════════════════
+   HISTORY CARD
+══════════════════════════════════════ */
+.vo-history-card {
+  background: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 14px;
+  opacity: 0.85;
+}
+
+.vo-history-card-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vo-history-title {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.vo-history-meta {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.vo-history-team {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #4338ca;
+}
+
+.vo-completed-badge {
+  background: #d8f3dc;
+  color: #2d6a4f;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+  height: fit-content;
+}
+
+/* ── History Pickup Box ── */
+.vo-history-pickup-box {
+  margin-top: 12px;
+  background: #fff8e1;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vo-history-pickup-icon {
+  font-size: 16px;
+}
+
+.vo-history-pickup-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.vo-history-pickup-value {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #78350f;
+}
+
+/* ── History Locations ── */
+.vo-history-locations {
+  margin-top: 10px;
+}
+
+.vo-history-location-row {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #666;
+}

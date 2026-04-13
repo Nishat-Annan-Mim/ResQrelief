@@ -1341,6 +1341,51 @@ app.delete("/api/operations/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to delete operation" });
   }
 });
+
+/* ---------------- route save ---------------- */
+const OperationRouteModel = require("./model/OperationRoute");
+
+// Save or update route for an operation
+app.post("/api/operation-route/:operationId", async (req, res) => {
+  try {
+    const { operationId } = req.params;
+    const { routePoints, savedBy, operationName } = req.body;
+
+    const route = await OperationRouteModel.findOneAndUpdate(
+      { operationId },
+      { operationId, operationName, savedBy, routePoints },
+      { upsert: true, returnDocument: "after" },
+    );
+
+    res.status(200).json(route);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to save route" });
+  }
+});
+
+// Get saved route for an operation
+app.get("/api/operation-route/:operationId", async (req, res) => {
+  try {
+    const route = await OperationRouteModel.findOne({
+      operationId: req.params.operationId,
+    });
+    res.status(200).json(route || null);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch route" });
+  }
+});
+
+// Clear saved route for an operation
+app.delete("/api/operation-route/:operationId", async (req, res) => {
+  try {
+    await OperationRouteModel.findOneAndDelete({
+      operationId: req.params.operationId,
+    });
+    res.status(200).json({ message: "Route cleared" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to clear route" });
+  }
+});
 /* ---------------- Donation Routes ---------------- */
 app.use("/", donationRoutes);
 app.use("/", supplyDonationRoutes);

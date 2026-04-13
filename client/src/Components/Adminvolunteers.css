@@ -103,6 +103,8 @@
     background: linear-gradient(135deg, #2d6a4f, #40916c);
     color: white;
     box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3);
+    vertical-align: middle;
+    margin: 0;
 }
 
 .table-wrapper .confirm-btn:hover {
@@ -167,13 +169,16 @@
 .table-wrapper .confirmed-badge {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     background: #d8f3dc;
     color: #2d6a4f;
-    padding: 6px 14px;
-    border-radius: 20px;
+    padding: 8px 18px;
+    border-radius: 6px;
     font-size: 0.85rem;
     font-weight: 600;
+    border: none;
+    box-sizing: border-box;
 }
 
 /* ── Loading Text ── */
