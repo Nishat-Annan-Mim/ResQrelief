@@ -1,0 +1,328 @@
+/* AdminOperations.css */
+
+/* ── Form Container ── */
+.op-form-container {
+    background: #e8e3db;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+}
+
+.op-form-container h3 {
+    margin: 0 0 16px 0;
+    color: #1a1a2e;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* ── Form Grid ── */
+.op-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.op-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.op-form-group label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.op-form-group input,
+.op-form-group select,
+.op-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background: #fff;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.op-form-group textarea {
+    height: 80px;
+    resize: vertical;
+}
+
+/* ── Full Width Form Row ── */
+.op-form-row {
+    margin-bottom: 16px;
+}
+
+.op-form-row label {
+    font-size: 13px;
+    color: #666;
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.op-form-row input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+/* ── Supply Chips ── */
+.op-supply-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.op-supply-chip {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 2px solid #ccc;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.op-supply-chip.selected {
+    border-color: #1a1a2e;
+    background: #1a1a2e;
+    color: #fff;
+}
+
+/* ── Custom Supply Row ── */
+.op-custom-supply-row {
+    display: flex;
+    gap: 8px;
+}
+
+.op-custom-supply-row input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.op-selected-supplies {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #444;
+}
+
+/* ── Table ── */
+.op-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.op-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.op-table td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #333;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* ── Status Badge ── */
+.op-status-badge {
+    font-weight: 700;
+    font-size: 13px;
+    background: #f5f5f5;
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+
+.op-status-pending {
+    color: #c0392b;
+}
+
+.op-status-ontheway {
+    color: #d97706;
+}
+
+.op-status-arrived {
+    color: #0077b6;
+}
+
+.op-status-completed {
+    color: #16a34a;
+}
+
+/* ── Main padding override ── */
+.op-main-padding {
+    padding: 30px;
+}
+
+.op-table-wrapper {
+    margin: 0;
+}
+
+/* ── Location Cards ── */
+.op-locations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.op-location-card {
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 16px 18px;
+}
+
+.op-location-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.op-location-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.op-remove-location-btn {
+    background: none;
+    border: none;
+    color: #c0392b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    box-shadow: none;
+}
+
+.op-remove-location-btn:hover {
+    text-decoration: underline;
+    transform: none;
+    box-shadow: none;
+}
+
+.op-supply-label {
+    font-size: 12px;
+    color: #888;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* ── Table Location Rows ── */
+.op-table-location-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed #eee;
+}
+
+.op-table-location-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.op-table-location-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: #1a1a2e;
+}
+
+.op-table-location-supplies {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.op-field-hint {
+    margin: 6px 0 0 0;
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+
+/* ── Volunteer Checklist ── */
+.op-volunteer-checklist {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    background: #fff;
+}
+
+.op-volunteer-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.op-volunteer-row:last-child {
+    border-bottom: none;
+}
+
+.op-volunteer-row:hover {
+    background: #f8f9ff;
+}
+
+.op-volunteer-row.selected {
+    background: #eef2ff;
+    border-left: 3px solid #1a1a2e;
+}
+
+.op-volunteer-checkbox {
+    font-size: 18px;
+    color: #1a1a2e;
+    min-width: 20px;
+    margin-top: 1px;
+}
+
+.op-volunteer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.op-volunteer-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.op-volunteer-meta {
+    font-size: 12px;
+    color: #888;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .op-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

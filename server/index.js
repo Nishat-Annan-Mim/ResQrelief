@@ -16,10 +16,8 @@ const inventoryRoutes = require("./routes/inventoryRoutes");
 const alertRoutes = require("./routes/alertRoutes");
 const donationRoutes = require("./routes/donationRoutes");
 const supplyDonationRoutes = require("./routes/supplyDonationRoutes");
+const OperationModel = require("./model/Operation");
 
-
-// dotenv.config();
-// Replace GoogleGenerativeAI import with:
 const app = express();
 const BannedModel = require("./model/Banned");
 
@@ -45,10 +43,12 @@ io.on("connection", (socket) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({
-  origin: (origin, callback) => callback(null, true),
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => callback(null, true),
+    credentials: true,
+  }),
+);
 
 //app.use(cors());
 app.use("/api", inventoryRoutes);
@@ -827,8 +827,10 @@ app.get("/api/banned/check/:phone", async (req, res) => {
 app.post("/api/requests", async (req, res) => {
   try {
     const requestData = req.body;
-     // ✅ ADD THIS — check if phone is banned FIRST
-    const isBanned = await BannedModel.findOne({ phone: requestData.phoneNumber });
+    // ✅ ADD THIS — check if phone is banned FIRST
+    const isBanned = await BannedModel.findOne({
+      phone: requestData.phoneNumber,
+    });
     if (isBanned) {
       return res.status(403).json({
         message: "This number has been banned due to a fraudulent request.",
@@ -1279,13 +1281,72 @@ app.delete("/api/admin/aid-requests/:id", async (req, res) => {
   }
 });
 
+/* ---------------- relief operation ---------------- */
+// SF1: Admin creates an operation assigned to a volunteer
+app.post("/api/operations", async (req, res) => {
+  try {
+    const op = new OperationModel(req.body);
+    await op.save();
+    res.status(201).json(op);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to create operation" });
+  }
+});
+
+// SF1+SF2: Admin gets ALL operations (for dashboard)
+app.get("/api/operations", async (req, res) => {
+  try {
+    const ops = await OperationModel.find().sort({ createdAt: -1 });
+    res.status(200).json(ops);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch operations" });
+  }
+});
+
+// SF3: Volunteer gets their own operations (by email)
+app.get("/api/operations/volunteer/:email", async (req, res) => {
+  try {
+    const ops = await OperationModel.find({
+      "volunteers.volunteerEmail": req.params.email,
+    }).sort({ createdAt: -1 });
+    res.status(200).json(ops);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch volunteer operations" });
+  }
+});
+
+// SF2: Volunteer updates status
+app.put("/api/operations/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const updated = await OperationModel.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { returnDocument: "after" },
+    );
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update status" });
+  }
+});
+
+// SF1: Admin deletes an operation
+// SF1: Admin deletes an operation
+app.delete("/api/operations/:id", async (req, res) => {
+  try {
+    await OperationModel.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Operation deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete operation" });
+  }
+});
 /* ---------------- Donation Routes ---------------- */
 app.use("/", donationRoutes);
 app.use("/", supplyDonationRoutes);
 
 //const PORT = process.env.PORT || 3001;
 //app.listen(PORT, () => {
- // console.log(`Server running on port ${PORT}`);
+// console.log(`Server running on port ${PORT}`);
 //});
 
 /* ---------------- Server ---------------- */
@@ -1293,8 +1354,6 @@ app.use("/", supplyDonationRoutes);
 //server.listen(process.env.PORT, () => {
 //  console.log(`Server running on port ${process.env.PORT}`);
 //});
-
-
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

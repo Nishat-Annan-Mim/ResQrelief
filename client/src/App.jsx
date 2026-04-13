@@ -40,7 +40,8 @@ import Inventory from "./Components/Inventory";
 import Landing from "./Components/Landing";
 import Adminvolunteers from "./Components/Adminvolunteers";
 import AdminAlerts from "./Components/AdminAlerts";
-
+import AdminOperations from "./Components/AdminOperations";
+import VolunteerOperations from "./Components/VolunteerOperations";
 
 function RequireAuth({ children }) {
   const loggedIn = sessionStorage.getItem("isLoggedIn") === "true";
@@ -205,6 +206,22 @@ function App() {
           element={
             <RequireAuth>
               <VolunteerMapBoard />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin-operations"
+          element={
+            <RequireAdmin>
+              <AdminOperations />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/volunteer-operations"
+          element={
+            <RequireAuth>
+              <VolunteerOperations />
             </RequireAuth>
           }
         />

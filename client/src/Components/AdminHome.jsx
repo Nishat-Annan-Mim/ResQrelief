@@ -68,6 +68,12 @@ const AdminHome = () => {
           </li>
           <li
             className="sidebar-item"
+            onClick={() => navigate("/admin-operations")}
+          >
+            Operations
+          </li>
+          <li
+            className="sidebar-item"
             onClick={() => navigate("/admin-alerts")}
           >
             Alerts
