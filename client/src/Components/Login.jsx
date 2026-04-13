@@ -22,17 +22,21 @@ const Login = () => {
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("user", JSON.stringify(res.data.user));
       sessionStorage.setItem("role", res.data.user.role);
-      sessionStorage.setItem("email", res.data.user.email); // ✅ ADD THIS
+      sessionStorage.setItem("email", res.data.user.email);
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("role", res.data.user.role);
-      localStorage.setItem("needVolunteerPassword", "true"); // For volunteers
+      localStorage.setItem("needVolunteerPassword", "true");
       navigate("/home");
     } catch (error) {
-      if (error.response) {
-        alert(error.response.data.message);
+      const data = error.response?.data;
+      if (data?.adminOnly) {
+        alert("⚠️ Admin accounts must log in through the Admin Login portal.");
+        navigate("/admin-login");
+      } else if (data?.banned) {
+        alert("🚫 Your account has been suspended due to a fraudulent request. You cannot log in.");
       } else {
-        alert("Login failed");
+        alert(data?.message || "Login failed");
       }
     }
   };

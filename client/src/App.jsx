@@ -40,6 +40,9 @@ import Inventory from "./Components/Inventory";
 import Landing from "./Components/Landing";
 import Adminvolunteers from "./Components/Adminvolunteers";
 import AdminAlerts from "./Components/AdminAlerts";
+import UserAlerts from "./Components/UserAlerts";
+import VolunteerAssignment from "./Components/VolunteerAssignment";
+import NotificationListener from "./Components/NotificationListener";
 import AdminOperations from "./Components/AdminOperations";
 import VolunteerOperations from "./Components/VolunteerOperations";
 
@@ -91,6 +94,7 @@ function App() {
       {renderNavbar()}
 
       <AuthWatcher setLogged={setLogged} setRole={setRole} />
+      {logged && <NotificationListener />}
 
       <Routes>
         <Route
@@ -308,6 +312,8 @@ function App() {
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/fail" element={<PaymentFail />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
+        <Route path="/user-alerts" element={<RequireAuth><UserAlerts /></RequireAuth>} />
+        <Route path="/volunteer-assignment/:id" element={<VolunteerAssignment />} />
       </Routes>
     </BrowserRouter>
   );

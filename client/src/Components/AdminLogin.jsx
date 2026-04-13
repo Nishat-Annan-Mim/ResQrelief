@@ -14,15 +14,11 @@ const AdminLogin = ({ setLogged, setRole }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3001/login", formData);
-
-      if (res.data.user.role !== "admin") {
-        alert("You are not an admin!");
-        return;
-      }
+      const res = await axios.post("http://localhost:3001/admin-login", formData);
 
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("user", JSON.stringify(res.data.user));
+      sessionStorage.setItem("email", res.data.user.email);
       sessionStorage.setItem("role", "admin"); 
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(res.data.user));

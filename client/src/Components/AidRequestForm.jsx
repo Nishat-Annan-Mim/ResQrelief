@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./AidRequestForm.css";
 
@@ -27,7 +27,21 @@ const BANGLADESH_DISTRICTS = [
   "Sylhet", "Tangail", "Thakurgaon"
 ];
 
+
 const AidRequestForm = () => {
+  const [coords, setCoords] = useState({ latitude: null, longitude: null });
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setCoords({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        }),
+        () => {},
+        { timeout: 5000 }
+      );
+    }
+  }, []);
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -79,6 +93,9 @@ const AidRequestForm = () => {
         aidTypes: formData.selectedAidTypes,
         additionalDetails: formData.additionalDetails,
         otherDetails: otherText,
+        latitude: coords.latitude,   // ← missing
+        longitude: coords.longitude,
+        email: sessionStorage.getItem("email"), 
       });
 
       if (response.data.duplicate) {

@@ -53,15 +53,16 @@
     background: white;
     cursor: pointer;
     transition: all 0.25s ease;
+     color: #666666
 }
 
 /* Hover effect for nav links */
 .nav-item:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    background: #007bff;
+    background: #3e4045;
     color: white;
-    border-color: #007bff;
+    border-color: #121416;
 }
 
 /* Logout button */

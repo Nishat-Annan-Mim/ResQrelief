@@ -29,7 +29,10 @@ const Signup = () => {
 
       navigate("/login");
     } catch (error) {
-      if (error.response && error.response.status === 400) {
+      const data = error.response?.data;
+      if (data?.banned) {
+        alert("🚫 This email has been banned and cannot be used to create an account.");
+      } else if (error.response?.status === 400) {
         alert("Email already exists");
       } else {
         console.log(error);

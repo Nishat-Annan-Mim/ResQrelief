@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./NavbarPrivate.css"; // reuse same styles
+import NotificationBell from "./NotificationBell";
 
 const NavbarAdmin = () => {
   return (
@@ -15,6 +16,9 @@ const NavbarAdmin = () => {
           <li><Link to="/transparency" className="nav-item">Transparency</Link></li>
           <li><Link to="/admin-home" className="nav-item">Dashboard</Link></li>
           <li><Link to="/inventory" className="nav-item">Inventory</Link></li>
+          <li>
+            <NotificationBell />
+          </li>
           <li><Link to="/logout" className="nav-item logout-btn">Logout</Link></li>
         </ul>
       </nav>
