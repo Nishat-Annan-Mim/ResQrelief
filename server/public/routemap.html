@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Relief Route Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: Segoe UI, sans-serif; }
+
+        /* ── BACK BUTTON ── */
+        #backBtn {
+            position: absolute;
+            top: 15px;
+            left: 57px;
+            z-index: 1100;
+            padding: 9px 16px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        #backBtn:hover { background: #e63946; }
+
+        /* ── ASSIGNED LOCATIONS PANEL ── */
+        #assignedPanel {
+            position: absolute;
+            top: 60px;
+            left: 15px;
+            width: 260px;
+            background: #fff8e1;
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 14px;
+            z-index: 1100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            display: none;
+        }
+        #assignedPanel h4 {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            color: #92400e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .assigned-location-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #fde68a;
+            font-size: 13px;
+            color: #78350f;
+            font-weight: 600;
+        }
+        .assigned-location-item:last-child { border-bottom: none; }
+        #toggleAssignedBtn {
+            position: absolute;
+            top: 15px;
+            left: 140px;
+            z-index: 1100;
+            padding: 9px 14px;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #toggleAssignedBtn:hover { background: #d97706; }
+
+        /* ── SEARCH BAR ── */
+        #searchContainer {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #searchBox {
+            padding: 8px;
+            width: 220px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            font-size: 13px;
+        }
+        #searchBtn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            background: #1a1a2e;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        #searchBtn:hover { background: #e63946; }
+
+        /* ── SUGGESTIONS ── */
+        #suggestions {
+            position: absolute;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 236px;
+            background: white;
+            z-index: 1000;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .suggestion-item {
+            padding: 7px 10px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .suggestion-item:hover { background: #f0f0f0; }
+
+        /* ── LOCATION LIST CARD ── */
+        #locationList {
+            position: absolute;
+            top: 120px;
+            left: 15px;
+            width: 240px;
+            max-height: 70vh;
+            background: white;
+            z-index: 1000;
+            overflow-y: auto;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 12px;
+        }
+        #locationHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #locationHeader h4 { margin: 0; font-size: 14px; color: #1a1a2e; }
+        #clearBtn {
+            padding: 5px 8px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            background: #e63946;
+            color: white;
+            cursor: pointer;
+            display: none;
+        }
+        #clearBtn:hover { background: #c0392b; }
+
+        .location-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            background: #f7f7f7;
+            font-size: 13px;
+            color: #333;
+        }
+        .delete-btn {
+            color: #e63946;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* ── CUSTOM MARKER ── */
+        .custom-marker {
+            width: 30px;
+            height: 30px;
+            background: #e63946;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            border: 2px solid #1a1a2e;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── BACK BUTTON ── -->
+    <button id="backBtn" onclick="window.close()">← Back</button>
+
+    <!-- ── ASSIGNED LOCATIONS TOGGLE ── -->
+    <button id="toggleAssignedBtn">📋 See Assigned Locations</button>
+
+    <!-- ── ASSIGNED LOCATIONS PANEL ── -->
+    <div id="assignedPanel">
+        <h4>📍 Assigned Destinations</h4>
+        <p style="font-size:12px; color:#92400e; margin: 0 0 8px 0;">
+            Search these locations in the search bar to build your route.
+        </p>
+        <div id="assignedLocationItems"></div>
+    </div>
+
+    <!-- ── SEARCH ── -->
+    <div id="searchContainer">
+        <input type="text" id="searchBox" placeholder="Search a place..." />
+        <button id="searchBtn">Search</button>
+    </div>
+    <div id="suggestions"></div>
+
+    <!-- ── ROUTE LOCATION LIST ── -->
+    <div id="locationList">
+        <div id="locationHeader">
+            <h4>🗺️ My Route</h4>
+            <button id="clearBtn">Clear All</button>
+        </div>
+    </div>
+
+    <div id="map" style="width:100%; height:100vh;"></div>
+
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        // ── READ ASSIGNED LOCATIONS FROM URL ──
+        const params = new URLSearchParams(window.location.search);
+        const rawLocations = params.get("locations");
+        const assignedLocations = rawLocations
+            ? rawLocations.split(",").map(l => decodeURIComponent(l.trim())).filter(Boolean)
+            : [];
+
+        // ── POPULATE ASSIGNED PANEL ──
+        const assignedItemsDiv = document.getElementById("assignedLocationItems");
+        if (assignedLocations.length > 0) {
+            assignedLocations.forEach((loc, i) => {
+                const div = document.createElement("div");
+                div.className = "assigned-location-item";
+                div.innerHTML = `<span>📍</span><span>${loc}</span>`;
+                assignedItemsDiv.appendChild(div);
+            });
+        } else {
+            assignedItemsDiv.innerHTML = `<p style="font-size:13px;color:#aaa;">No locations assigned.</p>`;
+        }
+
+        // ── TOGGLE PANEL ──
+        const assignedPanel = document.getElementById("assignedPanel");
+        document.getElementById("toggleAssignedBtn").onclick = function () {
+            if (assignedPanel.style.display === "none" || assignedPanel.style.display === "") {
+                assignedPanel.style.display = "block";
+                this.textContent = "✕ Close";
+            } else {
+                assignedPanel.style.display = "none";
+                this.textContent = "📋 See Assigned Locations";
+            }
+        };
+
+        // ── MAP SETUP ──
+        var map = L.map('map').setView([23.8, 90.4], 7);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        var userMarker;
+        var markers = [];
+        var control = null;
+
+        const locationList = document.getElementById("locationList");
+        const clearBtn = document.getElementById("clearBtn");
+        const searchBox = document.getElementById("searchBox");
+        const suggestionsDiv = document.getElementById("suggestions");
+
+        let debounceTimer;
+
+        // ── SEARCH AUTOCOMPLETE ──
+        searchBox.addEventListener("input", function () {
+            let query = searchBox.value;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                if (query.length < 3) { suggestionsDiv.innerHTML = ""; return; }
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        suggestionsDiv.innerHTML = "";
+                        data.slice(0, 5).forEach(place => {
+                            let div = document.createElement("div");
+                            div.className = "suggestion-item";
+                            div.innerText = place.display_name;
+                            div.onclick = function () {
+                                searchBox.value = place.display_name;
+                                suggestionsDiv.innerHTML = "";
+                                addLocation(place.lat, place.lon, place.display_name);
+                            };
+                            suggestionsDiv.appendChild(div);
+                        });
+                    });
+            }, 400);
+        });
+
+        // ── GET USER LOCATION ──
+        map.locate({ setView: true, maxZoom: 13 });
+        map.on('locationfound', function (e) {
+            userMarker = L.marker(e.latlng).addTo(map)
+                .bindPopup("📍 You are here").openPopup();
+        });
+        map.on('locationerror', function () {
+            // default to Bangladesh if location not found
+            map.setView([23.8, 90.4], 7);
+        });
+
+        // ── NUMBER ICON ──
+        function createNumberIcon(number) {
+            return L.divIcon({
+                className: '',
+                html: `<div class="custom-marker">${number}</div>`,
+                iconSize: [30, 30]
+            });
+        }
+
+        function refreshMarkers() {
+            markers.forEach((m, i) => m.marker.setIcon(createNumberIcon(i + 1)));
+        }
+
+        function getDistance(a, b) {
+            return map.distance(a, b);
+        }
+
+        // ── NEAREST NEIGHBOR OPTIMIZATION ──
+        function optimizeRoute() {
+            if (!userMarker || markers.length <= 1) return;
+            let remaining = [...markers];
+            let optimized = [];
+            let current = userMarker.getLatLng();
+            while (remaining.length > 0) {
+                let nearestIndex = 0;
+                let nearestDist = Infinity;
+                remaining.forEach((m, i) => {
+                    let dist = getDistance(current, m.marker.getLatLng());
+                    if (dist < nearestDist) { nearestDist = dist; nearestIndex = i; }
+                });
+                let next = remaining.splice(nearestIndex, 1)[0];
+                optimized.push(next);
+                current = next.marker.getLatLng();
+            }
+            markers = optimized;
+        }
+
+        // ── ADD LOCATION ──
+        function addLocation(lat, lon, name) {
+            if (!userMarker) {
+                // if location not found yet, set a default start
+                userMarker = L.marker([23.8, 90.4]).addTo(map)
+                    .bindPopup("📍 Starting Point").openPopup();
+            }
+            let marker = L.marker([lat, lon], {
+                icon: createNumberIcon(markers.length + 1)
+            }).addTo(map).bindPopup(name);
+
+            markers.push({ marker, name });
+            addToList(name, marker);
+            clearBtn.style.display = "block";
+            optimizeRoute();
+            refreshMarkers();
+            updateRoute();
+        }
+
+        // ── ADD TO SIDE LIST ──
+        function addToList(name, marker) {
+            let div = document.createElement("div");
+            div.className = "location-item";
+
+            let text = document.createElement("span");
+            text.innerText = name.length > 28 ? name.substring(0, 28) + "..." : name;
+
+            let del = document.createElement("span");
+            del.innerText = "❌";
+            del.className = "delete-btn";
+            del.onclick = function () {
+                map.removeLayer(marker);
+                markers = markers.filter(m => m.marker !== marker);
+                div.remove();
+                optimizeRoute();
+                refreshMarkers();
+                updateRoute();
+                if (markers.length === 0) clearBtn.style.display = "none";
+            };
+
+            div.appendChild(text);
+            div.appendChild(del);
+            locationList.appendChild(div);
+        }
+
+        // ── UPDATE ROUTE ──
+        function updateRoute() {
+            if (control) map.removeControl(control);
+            if (markers.length === 0) return;
+            let waypoints = [userMarker.getLatLng()];
+            markers.forEach(m => waypoints.push(m.marker.getLatLng()));
+            control = L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: true,
+                draggableWaypoints: true
+            }).addTo(map);
+            control.on('waypointschanged', function (e) {
+                let newOrder = e.waypoints.slice(1);
+                markers.sort((a, b) => {
+                    return newOrder.findIndex(w => w.latLng.equals(a.marker.getLatLng())) -
+                           newOrder.findIndex(w => w.latLng.equals(b.marker.getLatLng()));
+                });
+                refreshMarkers();
+            });
+        }
+
+        // ── CLEAR ALL ──
+        clearBtn.addEventListener("click", function () {
+            markers.forEach(m => map.removeLayer(m.marker));
+            markers = [];
+            document.querySelectorAll(".location-item").forEach(item => item.remove());
+            clearBtn.style.display = "none";
+            if (control) map.removeControl(control);
+        });
+
+        // ── SEARCH BUTTON ──
+        document.getElementById("searchBtn").onclick = () => {
+            let place = searchBox.value;
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.length) return alert("Place not found");
+                    addLocation(data[0].lat, data[0].lon, place);
+                    suggestionsDiv.innerHTML = "";
+                });
+        };
+
+        // ── MAP CLICK ──
+        map.on('click', e => {
+            addLocation(e.latlng.lat, e.latlng.lng, "Selected Location");
+        });
+    </script>
+</body>
+</html>

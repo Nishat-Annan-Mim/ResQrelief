@@ -70,7 +70,7 @@ const AdminHome = () => {
             className="sidebar-item"
             onClick={() => navigate("/admin-operations")}
           >
-            Operations
+            Relief Operations
           </li>
           <li
             className="sidebar-item"
