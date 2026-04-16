@@ -1,0 +1,378 @@
+/* AdminTaskManagement.css */
+/* Matches the warm beige/red palette from the screenshot */
+
+.atm-page {
+  padding: 28px 32px;
+  background: #f5f0eb;
+  min-height: calc(100vh - 70px);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ---- Stats ---- */
+.atm-stats-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.atm-stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px 28px;
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-top: 4px solid #c8b8a2;
+}
+
+.atm-stat-card.pending { border-top-color: #e67e22; }
+.atm-stat-card.inprogress { border-top-color: #2980b9; }
+.atm-stat-card.completed { border-top-color: #27ae60; }
+
+.atm-stat-num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c2c2c;
+}
+
+.atm-stat-label {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ---- Controls ---- */
+.atm-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.atm-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.atm-search:focus { border-color: #b04a2f; }
+
+.atm-select {
+  padding: 10px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+.atm-btn-create {
+  background: #b04a2f;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.atm-btn-create:hover { background: #8e3520; }
+
+/* ---- Table ---- */
+.atm-table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow-x: auto;
+}
+
+.atm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.atm-table thead tr {
+  background: #f0e8df;
+}
+
+.atm-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: #3a2e28;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e0d4c8;
+}
+
+.atm-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid #f0ebe4;
+  vertical-align: middle;
+  color: #3a3a3a;
+}
+
+.atm-table tbody tr:hover {
+  background: #fdf9f5;
+}
+
+.atm-task-title {
+  font-weight: 600;
+  color: #2c2c2c;
+  max-width: 200px;
+}
+
+.atm-type-badge {
+  background: #f0e8df;
+  color: #5a3e2b;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.atm-unassigned {
+  color: #aaa;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.atm-priority-dot {
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.atm-status-select {
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.atm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.atm-btn-edit {
+  background: #2980b9;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.atm-btn-edit:hover { background: #1f6391; }
+
+.atm-btn-delete {
+  background: #c0392b;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.atm-btn-delete:hover { background: #922b21; }
+
+.atm-loading, .atm-empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: #999;
+  font-size: 1rem;
+  background: #fff;
+  border-radius: 12px;
+}
+
+/* ---- Modal ---- */
+.atm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.atm-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 32px;
+  width: 100%;
+  max-width: 680px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.atm-modal h2 {
+  margin: 0 0 24px;
+  color: #2c2c2c;
+  font-size: 1.4rem;
+  border-bottom: 2px solid #f0e8df;
+  padding-bottom: 14px;
+}
+
+.atm-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.atm-full {
+  grid-column: 1 / -1;
+}
+
+.atm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.atm-field label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.5px;
+}
+
+.atm-field input,
+.atm-field select,
+.atm-field textarea {
+  padding: 10px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  background: #fdfaf7;
+}
+
+.atm-field input:focus,
+.atm-field select:focus,
+.atm-field textarea:focus {
+  border-color: #b04a2f;
+}
+
+.atm-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0e8df;
+}
+
+.atm-btn-cancel {
+  background: #f0e8df;
+  color: #5a3e2b;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.atm-btn-cancel:hover { background: #e0d4c8; }
+
+.atm-btn-save {
+  background: #b04a2f;
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.atm-btn-save:hover { background: #8e3520; }
+
+@media (max-width: 600px) {
+  .atm-modal-grid { grid-template-columns: 1fr; }
+  .atm-page { padding: 16px; }
+  .atm-stats-row { gap: 10px; }
+}
+
+/* ---- Volunteer Preview Card ---- */
+.atm-volunteer-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #f0faf3;
+  border: 1px solid #b7dfca;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #2c5a3e;
+}
+
+.atm-volunteer-preview span {
+  background: #d4f0e2;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.atm-vol-status.confirmed {
+  background: #27ae60 !important;
+  color: #fff !important;
+}
+
+.atm-vol-status.pending {
+  background: #e67e22 !important;
+  color: #fff !important;
+}
+
+/* ---- Modal Feedback Message ---- */
+.atm-modal-msg {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.atm-modal-msg-error {
+  background: #fdf0ed;
+  color: #c0392b;
+  border: 1px solid #f1c0b9;
+}
+
+.atm-modal-msg-success {
+  background: #f0faf3;
+  color: #27ae60;
+  border: 1px solid #b7dfca;
+}

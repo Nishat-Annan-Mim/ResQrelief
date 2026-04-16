@@ -17,6 +17,9 @@ const alertRoutes = require("./routes/alertRoutes");
 const donationRoutes = require("./routes/donationRoutes");
 const supplyDonationRoutes = require("./routes/supplyDonationRoutes");
 const OperationModel = require("./model/Operation");
+const VolunteerTaskModel = require("./model/VolunteerTask");
+const NGOAgencyModel = require("./model/NGOAgency");
+const CollabPostModel = require("./model/CollabPost");
 
 const app = express();
 const BannedModel = require("./model/Banned");
@@ -1928,6 +1931,231 @@ app.put("/api/notifications/read/:id", async (req, res) => {
     res.status(200).json({ message: "Marked as read" });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ============================================================
+// ADD THESE LINES near the top of index.js (with other requires)
+// ================================================================
+// FEATURE 9: ROLE-BASED VOLUNTEER TASK MANAGEMENT ROUTES
+// ================================================================
+
+// Create a task (Admin)
+// Create a task (Admin)
+app.post("/api/tasks", async (req, res) => {
+  try {
+    const task = new VolunteerTaskModel(req.body);
+    await task.save();
+
+    // Respond with success immediately after DB save
+    res.status(201).json(task);
+
+    // Send notification AFTER responding — failure won't affect the response
+    if (task.assignedTo?.volunteerEmail) {
+      try {
+        const notification = new NotificationModel({
+          recipientEmail: task.assignedTo.volunteerEmail,
+          title: `New Task Assigned: ${task.title}`,          // ← was missing!
+          message: `You have been assigned a new task: "${task.title}" (${task.taskType}) — Priority: ${task.priority.toUpperCase()}`,
+          type: "task",
+          link: "/volunteer-tasks",
+        });
+        await notification.save();
+        if (global.io) {
+          global.io.to(task.assignedTo.volunteerEmail).emit("new-notification", notification);
+        }
+      } catch (notifErr) {
+        console.error("Notification failed (non-critical):", notifErr.message);
+      }
+    }
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to create task" });
+  }
+});
+
+// Get all tasks (Admin)
+app.get("/api/tasks", async (req, res) => {
+  try {
+    const tasks = await VolunteerTaskModel.find().sort({ createdAt: -1 });
+    res.status(200).json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch tasks" });
+  }
+});
+
+// Get tasks for a specific volunteer (by email)
+app.get("/api/tasks/volunteer/:email", async (req, res) => {
+  try {
+    const tasks = await VolunteerTaskModel.find({
+      "assignedTo.volunteerEmail": req.params.email,
+    }).sort({ createdAt: -1 });
+    res.status(200).json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch volunteer tasks" });
+  }
+});
+
+// Update task status (Volunteer or Admin)
+app.put("/api/tasks/:id/status", async (req, res) => {
+  try {
+    const { status, completionNote } = req.body;
+    const updated = await VolunteerTaskModel.findByIdAndUpdate(
+      req.params.id,
+      { status, ...(completionNote ? { completionNote } : {}) },
+      { new: true }
+    );
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update task status" });
+  }
+});
+
+// Update full task (Admin edit)
+app.put("/api/tasks/:id", async (req, res) => {
+  try {
+    const updated = await VolunteerTaskModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update task" });
+  }
+});
+
+// Delete task (Admin)
+app.delete("/api/tasks/:id", async (req, res) => {
+  try {
+    await VolunteerTaskModel.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Task deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete task" });
+  }
+});
+
+
+// ================================================================
+// FEATURE 10: NGO / AUTHORITY COLLABORATION PORTAL ROUTES
+// ================================================================
+
+// Register an NGO/Agency
+app.post("/api/ngo/register", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const existing = await NGOAgencyModel.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Agency with this email already registered" });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const agency = new NGOAgencyModel({ ...req.body, password: hashedPassword });
+    await agency.save();
+    res.status(201).json({ message: "Agency registered. Awaiting admin verification.", agency });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Registration failed" });
+  }
+});
+
+// NGO Login
+app.post("/api/ngo/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const agency = await NGOAgencyModel.findOne({ email });
+    if (!agency) return res.status(404).json({ message: "Agency not found" });
+    if (agency.status !== "verified") {
+      return res.status(403).json({ message: "Your agency is not yet verified by admin." });
+    }
+    const isMatch = await bcrypt.compare(password, agency.password);
+    if (!isMatch) return res.status(401).json({ message: "Incorrect password" });
+    res.status(200).json({ message: "Login successful", agency: { ...agency._doc, password: undefined } });
+  } catch (err) {
+    res.status(500).json({ message: "Login failed" });
+  }
+});
+
+// Admin: Get all NGO agencies
+app.get("/api/ngo/agencies", async (req, res) => {
+  try {
+    const agencies = await NGOAgencyModel.find().sort({ createdAt: -1 });
+    res.status(200).json(agencies);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch agencies" });
+  }
+});
+
+// Admin: Verify or reject an NGO
+app.put("/api/ngo/agencies/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const updated = await NGOAgencyModel.findByIdAndUpdate(
+      req.params.id,
+      { status, isVerified: status === "verified" },
+      { new: true }
+    );
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update agency status" });
+  }
+});
+
+// Get all collaboration posts
+app.get("/api/collab/posts", async (req, res) => {
+  try {
+    const posts = await CollabPostModel.find().sort({ createdAt: -1 });
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch posts" });
+  }
+});
+
+// Create a collab post (verified NGO)
+app.post("/api/collab/posts", async (req, res) => {
+  try {
+    const post = new CollabPostModel(req.body);
+    await post.save();
+    res.status(201).json(post);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to create post" });
+  }
+});
+
+// Respond to a collab post
+app.post("/api/collab/posts/:id/respond", async (req, res) => {
+  try {
+    const post = await CollabPostModel.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+    post.responses.push(req.body);
+    await post.save();
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to respond" });
+  }
+});
+
+// Update post status
+app.put("/api/collab/posts/:id/status", async (req, res) => {
+  try {
+    const updated = await CollabPostModel.findByIdAndUpdate(
+      req.params.id,
+      { status: req.body.status },
+      { new: true }
+    );
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update post status" });
+  }
+});
+
+// Delete a collab post (admin or post owner)
+app.delete("/api/collab/posts/:id", async (req, res) => {
+  try {
+    await CollabPostModel.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Post deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete post" });
   }
 });
 

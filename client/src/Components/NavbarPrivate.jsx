@@ -39,7 +39,11 @@ const NavbarPrivate = () => {
           <li>
             <NotificationBell />
           </li>
-                  
+
+          <li>
+            <Link to="/collaboration-portal" className="nav-item">Collab Portal</Link>
+          </li>
+
           <li>
             <Link to="/logout" className="nav-item logout-btn">
               Logout

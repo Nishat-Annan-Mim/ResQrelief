@@ -78,6 +78,14 @@ const AdminHome = () => {
           >
             Alerts
           </li>
+
+          <li className="sidebar-item" onClick={() => navigate("/admin-tasks")}>
+            Task Management
+          </li>
+          <li className="sidebar-item" onClick={() => navigate("/collaboration-portal")}>
+            NGO Collaboration
+          </li>
+          
         </ul>
       </aside>
 

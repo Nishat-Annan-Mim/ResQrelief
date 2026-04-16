@@ -45,6 +45,10 @@ import VolunteerAssignment from "./Components/VolunteerAssignment";
 import NotificationListener from "./Components/NotificationListener";
 import AdminOperations from "./Components/AdminOperations";
 import VolunteerOperations from "./Components/VolunteerOperations";
+import AdminTaskManagement from "./Components/AdminTaskManagement";
+import VolunteerTasks from "./Components/VolunteerTasks";
+import CollaborationPortal from "./Components/CollaborationPortal";
+import NGORegister from "./Components/NGORegister";
 
 function RequireAuth({ children }) {
   const loggedIn = sessionStorage.getItem("isLoggedIn") === "true";
@@ -309,6 +313,33 @@ function App() {
             </RequireAdmin>
           }
         />
+
+        <Route
+          path="/admin-tasks"
+          element={
+            <RequireAdmin>
+              <AdminTaskManagement />
+            </RequireAdmin>
+         }
+       />
+        <Route
+          path="/volunteer-tasks"
+          element={
+            <RequireAuth>
+              <VolunteerTasks />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/collaboration-portal"
+          element={
+            <RequireAuth>
+              <CollaborationPortal />
+            </RequireAuth>
+          }
+        />
+        <Route path="/ngo-register" element={<NGORegister />} />
+
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/fail" element={<PaymentFail />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
