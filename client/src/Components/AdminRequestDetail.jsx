@@ -17,14 +17,24 @@ const AdminRequestDetail = () => {
   const [done, setDone]         = useState(false);
   const [doneMessage, setDoneMessage] = useState("");
 
-  // volunteer assign state
-  const [volunteers, setVolunteers]     = useState([]);
-  const [loadingVols, setLoadingVols]   = useState(false);
+  // volunteer assign state (kept for verify action)
   const [selectedVol, setSelectedVol]   = useState(null);
-  const [showVolPanel, setShowVolPanel] = useState(false);
-  const [volSearch, setVolSearch]       = useState("");
-  const [districtFilter, setDistrictFilter] = useState("");
   const [assignError, setAssignError]   = useState("");
+
+  // Task assignment modal state (Feature 9)
+  const TASK_TYPES = [
+    "Food Distribution","Medical Aid","Transport Coordination",
+    "Shelter Setup","Search & Rescue","Water Supply","Communication","Logistics",
+  ];
+  const emptyTaskForm = {
+    title: "", taskType: "", description: "", zone: "",
+    priority: "medium", dueDate: "",
+    assignedTo: { volunteerEmail: "", volunteerName: "", volunteerId: "" },
+  };
+  const [showTaskModal, setShowTaskModal]   = useState(false);
+  const [taskForm, setTaskForm]             = useState(emptyTaskForm);
+  const [taskVolunteers, setTaskVolunteers] = useState([]);
+  const [taskModalMsg, setTaskModalMsg]     = useState({ text: "", type: "" });
 
   // confirm modals
   const [confirmModal, setConfirmModal] = useState(null);
@@ -64,16 +74,13 @@ const AdminRequestDetail = () => {
     return () => { if (socketRef.current) socketRef.current.disconnect(); };
   }, [id]);
 
-  // Load ALL volunteers when panel opens
+  // Load volunteers for task modal
   useEffect(() => {
-    if (!showVolPanel) return;
-    setLoadingVols(true);
-    axios
-      .get(`${BASE}/api/volunteers/all`)
-      .then((res) => setVolunteers(res.data))
-      .catch(() => setVolunteers([]))
-      .finally(() => setLoadingVols(false));
-  }, [showVolPanel]);
+    if (!showTaskModal) return;
+    axios.get(`${BASE}/api/volunteers/all`)
+      .then((res) => setTaskVolunteers(res.data.filter((v) => v.volunteerRole && v.volunteerRole !== "")))
+      .catch(() => setTaskVolunteers([]));
+  }, [showTaskModal]);
 
   // ── Actions ──────────────────────────────────────────────────────────
 
@@ -81,24 +88,52 @@ const AdminRequestDetail = () => {
     setConfirmModal(null);
     setAssignError("");
     try {
-      await axios.put(`${BASE}/api/requests/${id}/verify`, {
-        assignedVolunteer: selectedVol
-          ? { name: selectedVol.fullName, email: selectedVol.email, phone: selectedVol.phone }
-          : null,
-      });
-      setDoneMessage(
-        "✅ Request has been verified" +
-        (selectedVol ? ` and assigned to ${selectedVol.fullName}!` : "!")
-      );
+      await axios.put(`${BASE}/api/requests/${id}/verify`, { assignedVolunteer: null });
+      setDoneMessage("✅ Request has been verified!");
       setDone(true);
+    } catch {
+      setDoneMessage("✅ Request has been verified!");
+      setDone(true);
+    }
+  };
+
+  const handleTaskVolunteerSelect = (e) => {
+    const email = e.target.value;
+    const vol = taskVolunteers.find((v) => v.email === email);
+    setTaskForm({
+      ...taskForm,
+      assignedTo: {
+        volunteerEmail: email,
+        volunteerName: vol ? vol.fullName : "",
+        volunteerId: vol ? vol._id : "",
+      },
+    });
+  };
+
+  const handleTaskSubmit = async () => {
+    if (!taskForm.title || !taskForm.taskType || !taskForm.description) {
+      setTaskModalMsg({ text: "Please fill in title, type, and description.", type: "error" });
+      return;
+    }
+    try {
+      await axios.post("http://localhost:3001/api/tasks", taskForm);
+      setTaskModalMsg({
+        text: taskForm.assignedTo.volunteerEmail
+          ? "Task created and volunteer notified!"
+          : "Task created successfully!",
+        type: "success",
+      });
+      setTimeout(() => {
+        setShowTaskModal(false);
+        setTaskForm(emptyTaskForm);
+        setTaskModalMsg({ text: "", type: "" });
+      }, 1400);
     } catch (err) {
-      if (err.response?.data?.limitReached) {
-        setAssignError(err.response.data.message);
-        setConfirmModal(null);
-      } else {
-        setDoneMessage("✅ Request has been verified!");
-        setDone(true);
-      }
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error;
+      setTaskModalMsg({
+        text: serverMsg ? `Failed: ${serverMsg}` : "Failed to create task. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -167,13 +202,7 @@ const AdminRequestDetail = () => {
     finally { setLoadingAiVol(false); }
   };
 
-  const filteredVols = volunteers.filter((v) => {
-    const matchesSearch = `${v.fullName} ${v.volunteerRole} ${v.preferredZone}`
-      .toLowerCase().includes(volSearch.toLowerCase());
-    const matchesDistrict = districtFilter.trim() === "" ||
-      (v.preferredZone || "").toLowerCase().includes(districtFilter.trim().toLowerCase());
-    return matchesSearch && matchesDistrict;
-  });
+  // (filtered volunteers handled inside task modal)
 
   const timeAgo = (d) => {
     const diff = Math.floor((Date.now() - new Date(d)) / 60000);
@@ -244,11 +273,7 @@ const AdminRequestDetail = () => {
             {confirmModal.type === "verify" ? (
               <>
                 <h3>Confirm Verification</h3>
-                <p>
-                  {selectedVol
-                    ? `Verify this request and assign it to ${selectedVol.fullName}?`
-                    : "Verify this request without assigning a volunteer?"}
-                </p>
+                <p>Verify this request? You can assign tasks to volunteers after verification.</p>
                 <div className="ard-modal-btns">
                   <button className="btn-verify" onClick={handleVerify}>Yes, Verify</button>
                   <button className="btn-cancel" onClick={() => setConfirmModal(null)}>Cancel</button>
@@ -393,60 +418,106 @@ const AdminRequestDetail = () => {
             </div>
           )}
 
-          {/* Volunteer selector panel */}
-          {showVolPanel && (
-            <div className="detail-card ard-vol-panel" style={{ marginTop: "20px" }}>
-              <div className="ard-vol-panel-header">
-                <h3>Select a Volunteer</h3>
-                <button className="ard-close-btn" onClick={() => setShowVolPanel(false)}>✕</button>
-              </div>
-              <p className="ard-vol-subtitle">
-                Showing all volunteers · filter by district or name below
-              </p>
-              <input
-                className="ard-vol-search"
-                type="text"
-                placeholder="Filter by district (e.g. Dhaka, Sylhet...)"
-                value={districtFilter}
-                onChange={(e) => setDistrictFilter(e.target.value)}
-                style={{ marginBottom: "8px" }}
-              />
-              <input
-                className="ard-vol-search"
-                placeholder="Search by name, role..."
-                value={volSearch}
-                onChange={(e) => setVolSearch(e.target.value)}
-              />
-              {loadingVols ? (
-                <p style={{ color: "#aaa", padding: "12px 0" }}>Loading volunteers...</p>
-              ) : filteredVols.length === 0 ? (
-                <p style={{ color: "#aaa", padding: "12px 0" }}>No volunteers found.</p>
-              ) : (
-                <div className="ard-vol-list">
-                  {filteredVols.map((v) => (
-                    <div
-                      key={v._id}
-                      className={`ard-vol-card ${selectedVol?._id === v._id ? "ard-vol-selected" : ""}`}
-                      onClick={() => { setSelectedVol(v); setAssignError(""); }}
+          {/* Task Assignment Modal */}
+          {showTaskModal && (
+            <div className="ard-overlay" onClick={() => setShowTaskModal(false)}>
+              <div className="ard-modal" style={{ maxWidth: "620px", width: "95%" }} onClick={(e) => e.stopPropagation()}>
+                <h3 style={{ marginBottom: "16px" }}>📋 Assign New Task</h3>
+
+                {taskModalMsg.text && (
+                  <div style={{
+                    padding: "10px 14px", borderRadius: "8px", marginBottom: "14px",
+                    background: taskModalMsg.type === "error" ? "#fef3c7" : "#d1fae5",
+                    color: taskModalMsg.type === "error" ? "#92400e" : "#065f46",
+                    fontSize: "13px", fontWeight: 600,
+                  }}>
+                    {taskModalMsg.type === "error" ? "⚠️" : "✅"} {taskModalMsg.text}
+                  </div>
+                )}
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <div style={{ gridColumn: "1" }}>
+                    <label style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "4px" }}>Task Title *</label>
+                    <input
+                      value={taskForm.title}
+                      onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                      placeholder="e.g. Distribute food packs in Feni North"
+                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "4px" }}>Task Type *</label>
+                    <select
+                      value={taskForm.taskType}
+                      onChange={(e) => setTaskForm({ ...taskForm, taskType: e.target.value })}
+                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
                     >
-                      <div className="ard-vol-name">{v.fullName}</div>
-                      <div className="ard-vol-meta">
-                        {v.volunteerRole || "—"} · {v.preferredZone || "—"}
-                      </div>
-                      <div className="ard-vol-meta">{v.phone}</div>
-                      {v.preferredTime && (
-                        <div className="ard-vol-time">{v.preferredTime}</div>
-                      )}
-                    </div>
-                  ))}
+                      <option value="">Select task type</option>
+                      {TASK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "4px" }}>Description *</label>
+                    <textarea
+                      value={taskForm.description}
+                      onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                      placeholder="Describe the task in detail..."
+                      rows={3}
+                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "4px" }}>Assign Volunteer</label>
+                    <select
+                      value={taskForm.assignedTo.volunteerEmail}
+                      onChange={handleTaskVolunteerSelect}
+                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
+                    >
+                      <option value="">— Unassigned —</option>
+                      {taskVolunteers.map((v) => (
+                        <option key={v._id} value={v.email}>
+                          {v.fullName} · {v.volunteerRole} · {v.preferredZone}{v.status === "confirmed" ? " ✓" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "4px" }}>Zone / Location</label>
+                    <input
+                      value={taskForm.zone}
+                      onChange={(e) => setTaskForm({ ...taskForm, zone: e.target.value })}
+                      placeholder="e.g. Dhaka, Sylhet North"
+                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "4px" }}>Priority</label>
+                    <select
+                      value={taskForm.priority}
+                      onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
+                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
+                    >
+                      <option value="high">🔴 High — Urgent, life-critical</option>
+                      <option value="medium">🟠 Medium — Important but not immediate</option>
+                      <option value="low">🟢 Low — Can be scheduled</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "4px" }}>Due Date</label>
+                    <input
+                      type="date"
+                      value={taskForm.dueDate}
+                      onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
+                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
+                    />
+                  </div>
                 </div>
-              )}
-              {selectedVol && (
-                <div className="ard-selected-badge">
-                  ✓ Selected: <strong>{selectedVol.fullName}</strong>
-                  <button className="ard-clear-btn" onClick={() => setSelectedVol(null)}>Clear</button>
+
+                <div className="ard-modal-btns" style={{ marginTop: "20px" }}>
+                  <button className="btn-cancel" onClick={() => setShowTaskModal(false)}>Cancel</button>
+                  <button className="btn-verify" onClick={handleTaskSubmit}>Assign Task</button>
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>
@@ -479,7 +550,7 @@ const AdminRequestDetail = () => {
             </div>
           )}
 
-          {/* Assign + Verify/Fraud — only for pending requests */}
+          {/* Assign Task + Verify/Fraud — only for pending requests */}
           {req.status === "pending" && (
             <>
               {assignError && (
@@ -496,15 +567,14 @@ const AdminRequestDetail = () => {
                 <button
                   className="btn-admin"
                   style={{ width: "100%" }}
-                  onClick={() => setShowVolPanel((p) => !p)}
+                  onClick={() => {
+                    setTaskForm({ ...emptyTaskForm, zone: req.district || "" });
+                    setTaskModalMsg({ text: "", type: "" });
+                    setShowTaskModal(true);
+                  }}
                 >
-                  {showVolPanel ? "▲ Hide Volunteers" : "Assign Volunteer"}
+                  📋 Assign New Task
                 </button>
-                {selectedVol && (
-                  <p style={{ marginTop: "10px", fontSize: "13px", color: "#16a34a" }}>
-                    ✓ {selectedVol.fullName} selected
-                  </p>
-                )}
               </div>
 
               <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
@@ -524,6 +594,23 @@ const AdminRequestDetail = () => {
                 </button>
               </div>
             </>
+          )}
+
+          {/* Assign Task — also available for verified requests */}
+          {req.status === "verified" && (
+            <div className="detail-card" style={{ marginTop: "16px" }}>
+              <button
+                className="btn-admin"
+                style={{ width: "100%" }}
+                onClick={() => {
+                  setTaskForm({ ...emptyTaskForm, zone: req.district || "" });
+                  setTaskModalMsg({ text: "", type: "" });
+                  setShowTaskModal(true);
+                }}
+              >
+                📋 Assign New Task
+              </button>
+            </div>
           )}
 
           {/* ── AI Resource Allocation ── */}
@@ -592,7 +679,7 @@ const AdminRequestDetail = () => {
                   ))}
                 </div>
                 <p style={{ color: "#aaa", fontSize: "12px", marginTop: "10px" }}>
-                   Use "Assign Volunteer" above to confirm the assignment.
+                   Use "Assign New Task" above to dispatch the matched volunteer.
                 </p>
               </div>
             )}
