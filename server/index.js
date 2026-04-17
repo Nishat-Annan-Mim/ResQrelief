@@ -1090,9 +1090,24 @@ Description: ${requestData.additionalDetails || "No description"}
     });
 
     await newRequest.save();
-    res
-      .status(201)
-      .json({ message: "Request submitted successfully", request: newRequest });
+    res.status(201).json({ message: "Request submitted successfully", request: newRequest });
+
+    // Notify admin after responding — failure won't affect the user's submission
+    try {
+      const adminNotif = new NotificationModel({
+        recipientEmail: ADMIN_EMAIL,
+        title: `New ${assignedPriority} priority request — ${newRequest.district}`,
+        message: `${newRequest.fullName} needs ${newRequest.aidTypes?.join(", ")} for ${newRequest.peopleAffected} people.`,
+        type: "alert",
+        link: `/admin-requests/${newRequest._id}`,
+      });
+      await adminNotif.save();
+      if (global.io) {
+        global.io.to(ADMIN_EMAIL).emit("new-notification", adminNotif);
+      }
+    } catch (notifErr) {
+      console.error("Admin notification failed (non-critical):", notifErr.message);
+    }
   } catch (error) {
     console.error("Error creating request:", error);
     res.status(500).json({ message: "Server error" });

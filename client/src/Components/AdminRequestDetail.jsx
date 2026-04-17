@@ -211,7 +211,7 @@ const handleVerify = async () => {
   const handleFraud = async () => {
     setConfirmModal(null);
     await axios.delete(`${BASE}/api/requests/${id}`);
-    setDoneMessage("🚫 Request marked as fraud. Submitter has been banned.");
+    setDoneMessage(" Request marked as fraud. Submitter has been banned.");
     setDone(true);
   };
 
@@ -786,8 +786,8 @@ const handleAiVolunteerMatch = async () => {
               {assignError && <div style={{ marginTop: "16px", padding: "12px 16px", background: "#fef3c7", border: "1px solid #fde68a", borderRadius: "8px", color: "#92400e", fontSize: "14px" }}>⚠️ {assignError}</div>}
               
               <div style={{ display: "flex", gap: "16px", marginTop: "24px" }}>
-                <button className="btn-verify" style={{ flex: 1, padding: "14px" }} onClick={() => setConfirmModal({ type: "verify" })}>✅ Verify</button>
-                <button className="btn-fraud" style={{ flex: 1, padding: "14px" }} onClick={() => setConfirmModal({ type: "fraud" })}>🚫 Fraud</button>
+                <button className="btn-verify" style={{ flex: 1, padding: "14px" }} onClick={() => setConfirmModal({ type: "verify" })}> Verify</button>
+                <button className="btn-fraud" style={{ flex: 1, padding: "14px" }} onClick={() => setConfirmModal({ type: "fraud" })}> Fraud</button>
               </div>
             </>
           )}

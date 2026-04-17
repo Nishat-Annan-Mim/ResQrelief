@@ -334,7 +334,10 @@ const VolunteerDashboard = () => {
             </button>
 
             <button onClick={() => navigate("/volunteer-tasks")}>
-              📋 My Assigned Tasks ▶
+              My Assigned Tasks ▶
+            </button>
+            <button onClick={() => navigate("/user-alerts")}>
+              Emergency Alerts ▶
             </button>
           </div>
         </div>

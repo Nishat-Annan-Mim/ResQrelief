@@ -80,10 +80,10 @@ const NotificationBell = () => {
     setOpen(false);
     
     // ✅ NEW ROUTING LOGIC: Intercept "alert" types and route them correctly
-    if (notif.type === "alert") {
-      navigate("/user-alerts"); 
-    } else if (notif.link) {
+    if (notif.link) {
       navigate(notif.link);
+    } else if (notif.type === "alert") {
+      navigate("/user-alerts");
     }
   };
 
