@@ -221,10 +221,173 @@ const AddItemModal = ({ onClose, onAdded }) => {
 const labelStyle = { fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "6px", letterSpacing: "0.5px" };
 const inputStyle = { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box", outline: "none" };
 
+// ── Edit Item Modal ────────────────────────────────────────────────────────────
+const EditItemModal = ({ item, onClose, onUpdated }) => {
+  const [form, setForm] = useState({
+    itemName: item.itemName || "",
+    category: item.category || "",
+    warehouseLocation: item.warehouseLocation || "",
+    quantity: item.quantity ?? "",
+    expiryDate: item.expiryDate ? new Date(item.expiryDate).toISOString().split("T")[0] : "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleUpdate = async () => {
+    if (!form.itemName.trim() || form.quantity === "") {
+      setError("Item Name and Quantity are required.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const status = getStatus(Number(form.quantity), form.expiryDate);
+      await axios.put(`${BASE_URL}/inventory/${item._id}`, { ...form, quantity: Number(form.quantity), status });
+      onUpdated();
+      onClose();
+    } catch {
+      setError("Failed to update item. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}
+      onClick={onClose}>
+      <div style={{ background: "#fff", borderRadius: "16px", padding: "36px 32px", maxWidth: "480px", width: "90%", boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}
+        onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ margin: "0 0 6px 0", fontSize: "20px", fontWeight: 700 }}>✏️ Edit Inventory Item</h2>
+        <p style={{ margin: "0 0 24px 0", color: "#888", fontSize: "14px" }}>Update the details for <strong>{item.itemName}</strong>.</p>
+
+        {error && (
+          <div style={{ background: "#fef3c7", border: "1px solid #fde68a", borderRadius: "8px", padding: "10px 14px", color: "#92400e", fontSize: "13px", marginBottom: "16px" }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div>
+            <label style={labelStyle}>Item Name *</label>
+            <input value={form.itemName} onChange={(e) => set("itemName", e.target.value)} placeholder="e.g. Rice Bags" style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Category</label>
+            <ComboBox value={form.category} onChange={(v) => set("category", v)} options={CATEGORY_OPTIONS} placeholder="Select or type category" />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Warehouse Location</label>
+            <ComboBox value={form.warehouseLocation} onChange={(v) => set("warehouseLocation", v)} options={WAREHOUSE_OPTIONS} placeholder="Select or type warehouse" />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div>
+              <label style={labelStyle}>Quantity *</label>
+              <input type="number" min="0" value={form.quantity} onChange={(e) => set("quantity", e.target.value)} placeholder="0" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Expiry Date</label>
+              <input type="date" value={form.expiryDate} onChange={(e) => set("expiryDate", e.target.value)} style={inputStyle} />
+            </div>
+          </div>
+
+          {form.quantity !== "" && (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 14px", borderRadius: "8px", background: "#f7f4ee", border: "1px solid #e8e4dc" }}>
+              <span style={{ fontSize: "13px", color: "#888" }}>Auto-computed status:</span>
+              <span style={{ fontSize: "13px", fontWeight: 700, ...(STATUS_STYLES[getStatus(Number(form.quantity), form.expiryDate)] || {}), padding: "2px 10px", borderRadius: "999px" }}>
+                {getStatus(Number(form.quantity), form.expiryDate)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: "12px", marginTop: "28px" }}>
+          <button onClick={onClose} style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1.5px solid #ddd", background: "#f7f7f7", color: "#555", fontWeight: 600, fontSize: "15px", cursor: "pointer" }}>
+            Cancel
+          </button>
+          <button onClick={handleUpdate} disabled={saving} style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "none", background: "#2b7cff", color: "#fff", fontWeight: 700, fontSize: "15px", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}>
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Category Dropdown Filter ───────────────────────────────────────────────────
+const CategoryDropdown = ({ value, onChange, categories }) => {
+  const isCustom = value !== "All" && !categories.includes(value);
+  const [customText, setCustomText] = useState(isCustom ? value : "");
+
+  const handleSelect = (e) => {
+    const v = e.target.value;
+    if (v === "__custom__") {
+      setCustomText("");
+      onChange("");
+    } else {
+      setCustomText("");
+      onChange(v);
+    }
+  };
+
+  const selectValue = isCustom ? "__custom__" : value;
+
+  return (
+    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+      <select
+        value={selectValue}
+        onChange={handleSelect}
+        style={{
+          padding: "9px 14px",
+          border: "1.5px solid #ddd",
+          borderRadius: "8px",
+          fontSize: "14px",
+          background: "#fff",
+          color: "#333",
+          cursor: "pointer",
+          outline: "none",
+          minWidth: "170px",
+          fontWeight: 600,
+        }}
+      >
+        <option value="All">All Categories</option>
+        {categories.map((cat) => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
+        <option value="__custom__">Other (type…)</option>
+      </select>
+
+      {(selectValue === "__custom__" || isCustom) && (
+        <input
+          value={customText}
+          onChange={(e) => {
+            setCustomText(e.target.value);
+            onChange(e.target.value);
+          }}
+          placeholder="Type category…"
+          style={{
+            padding: "9px 14px",
+            border: "1.5px solid #2b7cff",
+            borderRadius: "8px",
+            fontSize: "14px",
+            outline: "none",
+            width: "150px",
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
 // ── Main Inventory Component ───────────────────────────────────────────────────
 const Inventory = () => {
   const [items, setItems] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editItem, setEditItem] = useState(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
 
@@ -252,7 +415,8 @@ const Inventory = () => {
       item.itemName?.toLowerCase().includes(search.toLowerCase()) ||
       item.category?.toLowerCase().includes(search.toLowerCase()) ||
       item.warehouseLocation?.toLowerCase().includes(search.toLowerCase());
-    const matchCat = categoryFilter === "All" || item.category === categoryFilter;
+    const matchCat = categoryFilter === "All" || !categoryFilter ||
+      item.category?.toLowerCase().includes(categoryFilter.toLowerCase());
     return matchSearch && matchCat;
   });
 
@@ -294,23 +458,11 @@ const Inventory = () => {
               style={{ width: "100%", padding: "10px 14px 10px 36px", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box", outline: "none" }}
             />
           </div>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            {allCategories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategoryFilter(cat)}
-                style={{
-                  padding: "8px 14px", borderRadius: "999px", fontSize: "13px", fontWeight: 600, cursor: "pointer", border: "1.5px solid",
-                  borderColor: categoryFilter === cat ? "#2b7cff" : "#ddd",
-                  background: categoryFilter === cat ? "#2b7cff" : "#fff",
-                  color: categoryFilter === cat ? "#fff" : "#555",
-                  transition: "all 0.15s",
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          <CategoryDropdown
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            categories={CATEGORY_OPTIONS}
+          />
         </div>
 
         {/* Results count */}
@@ -357,7 +509,13 @@ const Inventory = () => {
                         {item.status}
                       </span>
                     </td>
-                    <td>
+                    <td style={{ display: "flex", gap: "8px" }}>
+                      <button
+                        onClick={() => setEditItem(item)}
+                        style={{ background: "#2b7cff", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}
+                      >
+                        Edit
+                      </button>
                       <button
                         onClick={() => deleteItem(item._id)}
                         style={{ background: "#c0392b", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}
@@ -378,6 +536,15 @@ const Inventory = () => {
         <AddItemModal
           onClose={() => setShowAddModal(false)}
           onAdded={fetchInventory}
+        />
+      )}
+
+      {/* Edit Item Modal */}
+      {editItem && (
+        <EditItemModal
+          item={editItem}
+          onClose={() => setEditItem(null)}
+          onUpdated={fetchInventory}
         />
       )}
     </div>
