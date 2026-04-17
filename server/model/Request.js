@@ -12,12 +12,14 @@ const requestSchema = new mongoose.Schema({
   latitude:         { type: Number },
   longitude:        { type: Number },
   email:            { type: String }, // submitter's account email (for notifications)
+  
 
   status: {
     type: String,
     enum: ["pending", "verified", "in_progress", "volunteer_done", "completed"],
     default: "pending",
   },
+  
 
   priority: {
     type: String,
@@ -31,6 +33,7 @@ const requestSchema = new mongoose.Schema({
     email: { type: String },
     phone: { type: String },
   },
+  
 
   // Chat thread between volunteer and admin
   inquiries: [{
@@ -40,6 +43,12 @@ const requestSchema = new mongoose.Schema({
     message:     { type: String },
     sentAt:      { type: Date, default: Date.now },
   }],
+  aiAnalysis: {
+  fraudScore: { type: Number, default: null },
+  verdict:    { type: String, default: null }, // "LEGITIMATE" | "SUSPICIOUS" | "LIKELY_FRAUD"
+  reason:     { type: String, default: null },
+},
+
 
   completedAt: { type: Date },
 

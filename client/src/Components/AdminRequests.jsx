@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./AdminHome.css";
 
 const TABS = [
-  { label: "🤖 AI Prioritized", value: "all"       },
-  { label: "✅ Verified",        value: "verified"  },
-  { label: "🛠️ In Progress",    value: "in_progress" },
-  { label: "⏳ Pending",         value: "pending"   },
-  { label: "🚫 Fraud / Banned",  value: "fraud"     },
-  { label: "🏁 Completed",       value: "completed" },
+  { label: " AI Prioritized", value: "all"       },
+  { label: " Verified",        value: "verified"  },
+  { label: " Pending",         value: "pending"   },
+  { label: " Fraud / Banned",  value: "fraud"     },
 ];
 
 const AdminRequests = () => {
   const [requests, setRequests]   = useState([]);
   const [banned, setBanned]       = useState([]);
   const [loading, setLoading]     = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
+  // AFTER
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.tab || "all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const AdminRequests = () => {
         setBanned(res.data);
         setRequests([]);
       } else {
-        // works for: verified, in_progress, pending, completed
+        // works for: verified, pending
         const res = await axios.get(`http://localhost:3001/api/requests/by-status/${tab}`);
         setRequests(res.data);
       }
@@ -134,52 +134,10 @@ const AdminRequests = () => {
               </table>
             )
 
-          ) : activeTab === "completed" ? (
-            /* COMPLETED TABLE */
-            requests.length === 0 ? (
-              <p style={{ color: "#aaa", padding: "20px 0" }}>No completed requests yet.</p>
-            ) : (
-              <table className="inv-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Location</th>
-                    <th>Aid Type</th>
-                    <th>Priority</th>
-                    <th>People</th>
-                    <th>Handled By</th>
-                    <th>Completed</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {requests.map((req, index) => (
-                    <tr key={req._id} style={{ cursor: "pointer" }}
-                      onClick={() => navigate(`/admin-requests/${req._id}`, { state: { req } })}>
-                      <td>#{1000 + index}</td>
-                      <td>{req.district}{req.fullAddress ? `, ${req.fullAddress}` : ""}</td>
-                      <td>{req.aidTypes?.join(" + ") || "—"}</td>
-                      <td>
-                        <span className={`priority-label ${getPriorityClass(req.priority)}`}>
-                          {req.priority}
-                        </span>
-                      </td>
-                      <td>{req.peopleAffected}</td>
-                      <td style={{ color: "#4338ca", fontSize: "13px" }}>
-                        {req.assignedVolunteer?.name || "—"}
-                      </td>
-                      <td style={{ color: "#4338ca", fontWeight: 600, fontSize: "13px" }}>
-                        🏁 {req.completedAt ? timeAgo(req.completedAt) : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )
-
           ) : requests.length === 0 ? (
             <p style={{ color: "#aaa", padding: "20px 0" }}>No requests found.</p>
           ) : (
-            /* ALL / VERIFIED / IN_PROGRESS / PENDING TABLE */
+            /* ALL / VERIFIED / PENDING TABLE */
             <table className="inv-table">
               <thead>
                 <tr>
@@ -189,7 +147,6 @@ const AdminRequests = () => {
                   <th>Priority</th>
                   <th>People</th>
                   <th>Status</th>
-                  {(activeTab === "verified" || activeTab === "in_progress") && <th>Assigned To</th>}
                   <th>Submitted</th>
                 </tr>
               </thead>
@@ -216,11 +173,6 @@ const AdminRequests = () => {
                           </span>
                         : statusLabel(req.status)}
                     </td>
-                    {(activeTab === "verified" || activeTab === "in_progress") && (
-                      <td style={{ color: "#16a34a", fontSize: "13px" }}>
-                        {req.assignedVolunteer?.name || "—"}
-                      </td>
-                    )}
                     <td>{timeAgo(req.createdAt)}</td>
                   </tr>
                 ))}

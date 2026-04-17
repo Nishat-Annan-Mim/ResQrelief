@@ -1164,14 +1164,14 @@ app.get("/api/requests/assigned-to/:email", async (req, res) => {
 });
  
 // ── GET completed requests (for Completed tab in AdminRequests) ───────
-app.get("/api/requests/by-status/completed", async (req, res) => {
-  try {
-    const requests = await RequestModel.find({ status: "completed" }).sort({ completedAt: -1 });
-    res.status(200).json(requests);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// app.get("/api/requests/by-status/completed", async (req, res) => {
+//   try {
+//     const requests = await RequestModel.find({ status: "completed" }).sort({ completedAt: -1 });
+//     res.status(200).json(requests);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
  
 // ── Volunteer: mark as working (in_progress) ─────────────────────────
 app.put("/api/requests/:id/start-work", async (req, res) => {
@@ -1476,7 +1476,7 @@ app.post("/api/ai/volunteer-match", async (req, res) => {
       return res.status(500).json({ message: "Server configuration error: Missing API Key" });
     }
 
-    const { aidTypes, peopleAffected, district, description } = req.body;
+    const { aidTypes, peopleAffected, district, description, requestId } = req.body;
 
     // Step 1: Resolve coordinates — GPS from request or district center fallback
     const districtCoords = DISTRICT_COORDS[district];
@@ -1489,12 +1489,22 @@ app.post("/api/ai/volunteer-match", async (req, res) => {
       profileCompleted: true,
     });
 
+    // Step 2b: Exclude volunteers already assigned to this request
+    let assignedEmails = new Set();
+    if (requestId) {
+      const assignedTasks = await VolunteerTaskModel.find({ requestId });
+      assignedEmails = new Set(
+        assignedTasks.map(t => t.assignedTo?.volunteerEmail).filter(Boolean)
+      );
+    }
+    const availableVolunteers = allVolunteers.filter(v => !assignedEmails.has(v.email));
+
     // Step 3: Filter by distance using haversine
     // Step 3: Distance filter
 let withDistance = [];
 
 if (latitude && longitude) {
-  withDistance = allVolunteers
+  withDistance = availableVolunteers
     .filter(v => v.currentLatitude && v.currentLongitude)
     .map(v => ({
       ...v.toObject(),
@@ -1505,7 +1515,7 @@ if (latitude && longitude) {
     }))
     .sort((a, b) => a.distanceKm - b.distanceKm);
 } else {
-  withDistance = allVolunteers
+  withDistance = availableVolunteers
     .filter(v => v.preferredZone === district)
     .map(v => ({ ...v.toObject(), distanceKm: null }));
 }
@@ -1537,9 +1547,12 @@ const shortlist = [
 ].slice(0, 15);
 
 if (shortlist.length === 0) {
+  const noOneLeft = assignedEmails.size > 0 && availableVolunteers.length === 0;
   return res.status(200).json({
     matches: [],
-    summary: "No confirmed volunteers found near this location.",
+    summary: noOneLeft
+      ? "All available volunteers near this location have already been assigned to this request."
+      : "No confirmed volunteers found near this location.",
   });
 }
 
@@ -1617,6 +1630,152 @@ matchType must be one of: "perfect", "distance", "skill"
     res.status(500).json({ message: "AI volunteer matching failed" });
   }
 });
+
+/* ---------------- AI Donation Allocation ---------------- */
+
+app.post("/api/ai/donation-allocation", async (req, res) => {
+  try {
+    if (!process.env.OPENROUTER_API_KEY) {
+      console.error("❌ FATAL: OPENROUTER_API_KEY is undefined!");
+      return res.status(500).json({ message: "Server configuration error: Missing API Key" });
+    }
+
+    const { district, aidTypes, peopleAffected, priority, description } = req.body;
+
+    const DonationModel = require("./model/Donation");
+
+    const collected = await DonationModel.aggregate([
+      { $match: { donationType: "money", paymentStatus: "success" } },
+      { $group: { _id: null, total: { $sum: "$amount" } } },
+    ]);
+    const utilized = await DonationModel.aggregate([
+      { $match: { donationType: "money", isUtilized: true } },
+      { $group: { _id: null, total: { $sum: "$utilizedAmount" } } },
+    ]);
+    const available = (collected[0]?.total || 0) - (utilized[0]?.total || 0);
+
+    const prompt = `
+You are a disaster relief fund allocation advisor for Bangladesh.
+
+Aid Request Details:
+- District: ${district}
+- Aid Types Needed: ${aidTypes?.join(", ")}
+- People Affected: ${peopleAffected}
+- Priority: ${priority}
+- Description: ${description || "N/A"}
+- Available Funds in System: ৳${available} BDT
+
+Estimate the total funds needed for this exact request by using the number of people affected and the requested aid types.
+Use realistic Bangladesh emergency cost assumptions and make the allocation specific to this request.
+
+Reply in this exact JSON format only, no extra text:
+{
+  "estimatedTotal": <number in BDT>,
+  "breakdown": [
+    { "category": "<food/medicine/shelter/etc>", "amount": <number>, "reason": "<brief reason>" }
+  ],
+  "volunteersNeeded": <number>,
+  "canFullyFund": <true/false>,
+  "shortfall": <number or 0>,
+  "reasoning": "<2-3 sentence overall strategy>"
+}`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "ResQrelief",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-120b:free",
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+
+    let text = data?.choices?.[0]?.message?.content;
+    if (!text) throw new Error("No AI text returned");
+
+    text = text.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(text);
+
+    const estimatedTotal = Number(parsed.estimatedTotal) || 0;
+    const canFullyFund = available >= estimatedTotal;
+    const shortfall = canFullyFund ? 0 : Math.max(0, estimatedTotal - available);
+
+    res.status(200).json({
+      ...parsed,
+      availableFunds: available,
+      estimatedTotal,
+      canFullyFund,
+      shortfall,
+    });
+  } catch (error) {
+    console.error("❌ AI donation allocation failed:", error.message);
+    res.status(500).json({ message: "AI allocation failed" });
+  }
+});
+
+app.get("/api/requests/:id/fraud-analysis", async (req, res) => {
+  try {
+    const request = await RequestModel.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+
+    // Return cached result if already analyzed
+    if (request.aiAnalysis?.verdict) {
+      return res.status(200).json(request.aiAnalysis);
+    }
+
+    const fraudPrompt = `You are a fraud detection system for a disaster relief platform in Bangladesh.
+Analyze this aid request and return ONLY a valid JSON object, no extra text:
+
+{
+  "fraudScore": <number 0-100>,
+  "verdict": "<LEGITIMATE or SUSPICIOUS or LIKELY_FRAUD>",
+  "reason": "<one sentence>"
+}
+
+Request:
+- District: ${request.district}
+- Aid Types: ${request.aidTypes?.join(", ")}
+- People Affected: ${request.peopleAffected}
+- Description: ${request.additionalDetails || "N/A"}
+- Phone: ${request.phoneNumber}
+- Email: ${request.email}`;
+
+    const fraudRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-120b:free",
+        messages: [{ role: "user", content: fraudPrompt }],
+      }),
+    });
+
+    const fraudData = await fraudRes.json();
+    const raw = fraudData?.choices?.[0]?.message?.content;
+    if (!raw) return res.status(500).json({ message: "AI returned no response" });
+
+    const clean = raw.replace(/```json|```/g, "").trim();
+    const analysis = JSON.parse(clean);
+
+    // Save to DB so next time it's instant
+    await RequestModel.findByIdAndUpdate(req.params.id, { aiAnalysis: analysis });
+
+    res.status(200).json(analysis);
+  } catch (err) {
+    console.error("Fraud analysis failed:", err.message);
+    res.status(500).json({ message: "Fraud analysis failed" });
+  }
+});
+
 /* ---------------- NID Management ---------------- */
 const fs = require("fs");
 const path = require("path");
@@ -2179,6 +2338,7 @@ app.delete("/api/collab/posts/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to delete post" });
   }
 });
+
 
 /* ---------------- Server ---------------- */
 

@@ -95,7 +95,7 @@ const AdminHome = () => {
         <div className="admin-top-half">
           <div className="inv-card" style={{ height: "100%" }}>
             <div className="admin-header">
-              <h2>📦 Inventory Overview (Top 5)</h2>
+              <h2> Inventory Overview (Top 5)</h2>
               <button
                 onClick={() => navigate("/inventory")}
                 className="btn-admin"
@@ -138,7 +138,7 @@ const AdminHome = () => {
           style={{ display: "block", padding: "25px" }}
         >
           <div className="admin-header">
-            <h2>🤖 AI-Prioritized Requests (Top 5)</h2>
+            <h2> AI-Prioritized Requests (Top 5)</h2>
             <button
               onClick={() => navigate("/admin-requests")}
               className="btn-admin"

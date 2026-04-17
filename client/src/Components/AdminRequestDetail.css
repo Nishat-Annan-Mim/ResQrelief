@@ -186,4 +186,207 @@
 }
 .ard-assigned-card h3 { color: #16a34a; }
 
+/* --- Expanded Layout --- */
+.detail-page {
+  max-width: 1440px; /* Increased from 1280px to make the page much larger */
+  margin: 0 auto;
+  padding: 40px 60px; /* More breathing room on the sides */
+}
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.detail-layout {
+  display: grid;
+  grid-template-columns: 3fr 2fr; /* 60% Left / 40% Right - gives the right side plenty of room for AI */
+  gap: 40px; /* Increased gap */
+  align-items: start;
+}
+.detail-card {
+  padding: 28px; 
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e8e4dc;
+}
+
+/* Add this to the bottom of your CSS file */
+
+/* --- Full-Width AI Panel --- */
+.ai-full-width-container {
+  margin-top: 40px; /* Space from the top grid */
+  background: #faf9f6;
+  border: 1.5px solid #e8e4dc;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.ai-main-btn {
+  width: 100%;
+  padding: 20px;
+  font-size: 18px; /* Slightly larger */
+  font-weight: 700;
+  cursor: pointer;
+  background: #f7f4ee; 
+  color: #1a1a2e; 
+  border: none;
+  border-bottom: 1.5px solid transparent; 
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.ai-main-btn:hover {
+  background: #f0ece4;
+}
+.ai-main-btn.open {
+  border-bottom-color: #ddd8ce; /* Adds a line when opened */
+}
+
+.ai-panel-content {
+  padding: 32px 40px; /* Lots of breathing room */
+}
+
+.ai-options-grid {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ai-option-btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  background: #fff;
+  color: #555;
+  border: 1.5px solid #ddd;
+  transition: all 0.2s;
+  text-align: center;
+}
+.ai-option-btn:hover, .ai-option-btn.active {
+  border-color: #1a1a2e;
+  color: #1a1a2e;
+  background: #f0ece4;
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.ai-output-area {
+  background: #fff;
+  padding: 32px;
+  border-radius: 12px;
+  border: 1px solid #e8e4dc;
+}
+
+/* --- AI Sidebar Card (Right Column) --- */
+.ai-sidebar-card {
+  margin-top: 24px;
+  background: #faf9f6;
+  border: 1.5px solid #e8e4dc;
+  border-radius: 12px;
+  padding: 24px;
+}
+.ai-sidebar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-top: 0;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ai-sidebar-btn {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  background: #fff;
+  color: #1a1a2e;
+  border: 1.5px solid #ddd8ce;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+.ai-sidebar-btn:hover {
+  border-color: #1a1a2e;
+  background: #f0ece4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+.ai-sidebar-btn:last-child {
+  margin-bottom: 0;
+}
+
+/* --- AI Modal Overlay (Spacious Popup) --- */
+.ai-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 46, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+.ai-modal-container {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 800px; /* Wide enough for tables */
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease-out forwards;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ai-modal-header {
+  padding: 20px 32px;
+  border-bottom: 1px solid #e8e4dc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #faf9f6;
+  border-radius: 16px 16px 0 0;
+}
+.ai-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ai-modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.ai-modal-close:hover {
+  color: #c0392b;
+}
+.ai-modal-body {
+  padding: 32px;
+  overflow-y: auto;
+}
 /* Existing btn-verify / btn-fraud — ensure they're in AdminHome.css already */
