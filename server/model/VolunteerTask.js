@@ -55,6 +55,12 @@ const VolunteerTaskSchema = new mongoose.Schema(
       type: String,
       default: "admin",
     },
+
+    // Links this task to a specific aid request
+    requestId: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

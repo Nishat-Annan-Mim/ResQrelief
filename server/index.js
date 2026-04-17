@@ -1989,6 +1989,23 @@ app.get("/api/tasks", async (req, res) => {
   }
 });
 
+// ================================================================
+// ADD THIS ROUTE to index.js — Get tasks for a specific request
+// Place it alongside the other /api/tasks routes (around line 1982)
+// ================================================================
+
+// Get all tasks linked to a specific request (by requestId)
+app.get("/api/tasks/request/:requestId", async (req, res) => {
+  try {
+    const tasks = await VolunteerTaskModel.find({
+      requestId: req.params.requestId,
+    }).sort({ createdAt: -1 });
+    res.status(200).json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch request tasks" });
+  }
+});
+
 // Get tasks for a specific volunteer (by email)
 app.get("/api/tasks/volunteer/:email", async (req, res) => {
   try {

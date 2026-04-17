@@ -2,140 +2,384 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Inventory.css";
 
-const Inventory = () => {
-  const [items, setItems] = useState([]);
+const CATEGORY_OPTIONS = [
+  "Food",
+  "Baby Food",
+  "Medical",
+  "Emergency Supplies",
+  "Water",
+  "Clothing",
+  "Shelter",
+  "Hygiene",
+  "Other",
+];
 
-  const [form, setForm] = useState({
-    itemName: "",
-    category: "",
-    warehouseLocation: "",
-    quantity: "",
-    expiryDate: "",
-  });
+const WAREHOUSE_OPTIONS = [
+  "Warehouse A",
+  "Warehouse B",
+  "Warehouse C",
+  "Warehouse D",
+];
 
-  const BASE_URL = "http://localhost:3001/api";
+const BASE_URL = "http://localhost:3001/api";
 
-  useEffect(() => {
-    fetchInventory();
-  }, []);
-
-  const fetchInventory = async () => {
-    const res = await axios.get(`${BASE_URL}/inventory`);
-    setItems(res.data);
-  };
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const getStatus = (qty, expiry) => {
-    const today = new Date();
-    const exp = new Date(expiry);
-
-    if (qty < 100) return "Low";
-    if (exp < today) return "Expired";
-
+const getStatus = (qty, expiry) => {
+  const today = new Date();
+  const exp = new Date(expiry);
+  if (qty < 100) return "Low";
+  if (expiry && exp < today) return "Expired";
+  if (expiry) {
     const diffDays = (exp - today) / (1000 * 60 * 60 * 24);
     if (diffDays < 7) return "Expiring";
+  }
+  return "OK";
+};
 
-    return "OK";
+const STATUS_STYLES = {
+  OK:       { color: "#27ae60", background: "#eafaf1" },
+  Low:      { color: "#e67e22", background: "#fef5e7" },
+  Expiring: { color: "#2980b9", background: "#eaf4fb" },
+  Expired:  { color: "#c0392b", background: "#fdf2f2" },
+};
+
+// ── ComboBox: dropdown + manual type ─────────────────────────────────────────
+const ComboBox = ({ value, onChange, options, placeholder }) => {
+  const [open, setOpen] = useState(false);
+  const [inputVal, setInputVal] = useState(value || "");
+
+  useEffect(() => { setInputVal(value || ""); }, [value]);
+
+  const handleInput = (e) => {
+    setInputVal(e.target.value);
+    onChange(e.target.value);
+    setOpen(true);
   };
 
-  const addItem = async () => {
-    const { itemName, category, warehouseLocation, quantity, expiryDate } = form;
+  const handleSelect = (opt) => {
+    setInputVal(opt);
+    onChange(opt);
+    setOpen(false);
+  };
 
-    if (!itemName || !quantity) return alert("Fill required fields");
+  const filtered = options.filter((o) =>
+    o.toLowerCase().includes(inputVal.toLowerCase())
+  );
 
-    const status = getStatus(quantity, expiryDate);
+  return (
+    <div style={{ position: "relative" }}>
+      <input
+        value={inputVal}
+        onChange={handleInput}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        placeholder={placeholder}
+        style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box", outline: "none" }}
+      />
+      {open && filtered.length > 0 && (
+        <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1.5px solid #ddd", borderRadius: "8px", zIndex: 100, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", maxHeight: "180px", overflowY: "auto" }}>
+          {filtered.map((opt) => (
+            <div
+              key={opt}
+              onMouseDown={() => handleSelect(opt)}
+              style={{ padding: "10px 14px", cursor: "pointer", fontSize: "14px", color: "#333", borderBottom: "1px solid #f0f0f0" }}
+              onMouseEnter={(e) => e.target.style.background = "#f7f4ee"}
+              onMouseLeave={(e) => e.target.style.background = ""}
+            >
+              {opt}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
-    await axios.post(`${BASE_URL}/inventory`, {
-      ...form,
-      status,
-    });
+// ── Add Item Modal ─────────────────────────────────────────────────────────────
+const AddItemModal = ({ onClose, onAdded }) => {
+  const [form, setForm] = useState({
+    itemName: "", category: "", warehouseLocation: "",
+    quantity: "", expiryDate: "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-    setForm({
-      itemName: "",
-      category: "",
-      warehouseLocation: "",
-      quantity: "",
-      expiryDate: "",
-    });
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
-    fetchInventory();
+  const handleAdd = async () => {
+    if (!form.itemName.trim() || !form.quantity) {
+      setError("Item Name and Quantity are required.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const status = getStatus(Number(form.quantity), form.expiryDate);
+      await axios.post(`${BASE_URL}/inventory`, { ...form, quantity: Number(form.quantity), status });
+      onAdded();
+      onClose();
+    } catch {
+      setError("Failed to add item. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}
+      onClick={onClose}>
+      <div style={{ background: "#fff", borderRadius: "16px", padding: "36px 32px", maxWidth: "480px", width: "90%", boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}
+        onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ margin: "0 0 6px 0", fontSize: "20px", fontWeight: 700 }}>➕ Add Inventory Item</h2>
+        <p style={{ margin: "0 0 24px 0", color: "#888", fontSize: "14px" }}>Fill in the details below to add a new item to stock.</p>
+
+        {error && (
+          <div style={{ background: "#fef3c7", border: "1px solid #fde68a", borderRadius: "8px", padding: "10px 14px", color: "#92400e", fontSize: "13px", marginBottom: "16px" }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div>
+            <label style={labelStyle}>Item Name *</label>
+            <input
+              value={form.itemName}
+              onChange={(e) => set("itemName", e.target.value)}
+              placeholder="e.g. Rice Bags"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Category</label>
+            <ComboBox
+              value={form.category}
+              onChange={(v) => set("category", v)}
+              options={CATEGORY_OPTIONS}
+              placeholder="Select or type category"
+            />
+            <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#aaa" }}>Choose from list or type a custom category.</p>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Warehouse Location</label>
+            <ComboBox
+              value={form.warehouseLocation}
+              onChange={(v) => set("warehouseLocation", v)}
+              options={WAREHOUSE_OPTIONS}
+              placeholder="Select or type warehouse"
+            />
+            <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#aaa" }}>Choose from existing or type a new location.</p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div>
+              <label style={labelStyle}>Quantity *</label>
+              <input
+                type="number"
+                min="0"
+                value={form.quantity}
+                onChange={(e) => set("quantity", e.target.value)}
+                placeholder="0"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Expiry Date</label>
+              <input
+                type="date"
+                value={form.expiryDate}
+                onChange={(e) => set("expiryDate", e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          {/* Preview status */}
+          {form.quantity && (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 14px", borderRadius: "8px", background: "#f7f4ee", border: "1px solid #e8e4dc" }}>
+              <span style={{ fontSize: "13px", color: "#888" }}>Auto-computed status:</span>
+              <span style={{ fontSize: "13px", fontWeight: 700, ...STATUS_STYLES[getStatus(Number(form.quantity), form.expiryDate)] || {}, padding: "2px 10px", borderRadius: "999px" }}>
+                {getStatus(Number(form.quantity), form.expiryDate)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: "12px", marginTop: "28px" }}>
+          <button onClick={onClose} style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1.5px solid #ddd", background: "#f7f7f7", color: "#555", fontWeight: 600, fontSize: "15px", cursor: "pointer" }}>
+            Cancel
+          </button>
+          <button onClick={handleAdd} disabled={saving} style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "none", background: "#2b7cff", color: "#fff", fontWeight: 700, fontSize: "15px", cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}>
+            {saving ? "Adding..." : "Add Item"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const labelStyle = { fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "#888", display: "block", marginBottom: "6px", letterSpacing: "0.5px" };
+const inputStyle = { width: "100%", padding: "10px 14px", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box", outline: "none" };
+
+// ── Main Inventory Component ───────────────────────────────────────────────────
+const Inventory = () => {
+  const [items, setItems] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+
+  useEffect(() => { fetchInventory(); }, []);
+
+  const fetchInventory = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/inventory`);
+      setItems(res.data);
+    } catch { console.error("Failed to fetch inventory"); }
   };
 
   const deleteItem = async (id) => {
+    if (!window.confirm("Delete this item?")) return;
     await axios.delete(`${BASE_URL}/inventory/${id}`);
     fetchInventory();
   };
 
-  // SUMMARY DATA
+  // Derive unique categories from items + preset options
+  const allCategories = ["All", ...Array.from(new Set([...CATEGORY_OPTIONS, ...items.map((i) => i.category).filter(Boolean)]))];
+
+  const filtered = items.filter((item) => {
+    const matchSearch =
+      !search ||
+      item.itemName?.toLowerCase().includes(search.toLowerCase()) ||
+      item.category?.toLowerCase().includes(search.toLowerCase()) ||
+      item.warehouseLocation?.toLowerCase().includes(search.toLowerCase());
+    const matchCat = categoryFilter === "All" || item.category === categoryFilter;
+    return matchSearch && matchCat;
+  });
+
+  // Summary
   const totalItems = items.length;
   const lowStock = items.filter((i) => i.quantity < 100).length;
   const expiring = items.filter((i) => i.status === "Expiring").length;
-  const warehouses = [...new Set(items.map((i) => i.warehouseLocation))].length;
+  const warehouses = [...new Set(items.map((i) => i.warehouseLocation).filter(Boolean))].length;
 
   return (
     <div className="inv-page">
-      <h1 className="inv-title">Inventory Management</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 className="inv-title" style={{ margin: 0 }}>Inventory Management</h1>
+        <button
+          onClick={() => setShowAddModal(true)}
+          style={{ background: "#2b7cff", color: "#fff", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+        >
+          ➕ Add Item
+        </button>
+      </div>
 
-      {/* SUMMARY */}
+      {/* Summary */}
       <div className="inv-summary">
-        <div>Total Items: {totalItems}</div>
-        <div>Low Stock: {lowStock}</div>
-        <div>Expiring Soon: {expiring}</div>
-        <div>Warehouses: {warehouses}</div>
+        <div><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: "#1a1a2e" }}>{totalItems}</span>Total Items</div>
+        <div style={{ color: lowStock > 0 ? "#e67e22" : undefined }}><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: lowStock > 0 ? "#e67e22" : "#1a1a2e" }}>{lowStock}</span>Low Stock</div>
+        <div style={{ color: expiring > 0 ? "#2980b9" : undefined }}><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: expiring > 0 ? "#2980b9" : "#1a1a2e" }}>{expiring}</span>Expiring Soon</div>
+        <div><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: "#1a1a2e" }}>{warehouses}</span>Warehouses</div>
       </div>
 
       <div className="inv-card">
-        {/* FORM */}
-        <div className="inv-add-section">
-          <input name="itemName" placeholder="Item Name" value={form.itemName} onChange={handleChange} />
-          <input name="category" placeholder="Category" value={form.category} onChange={handleChange} />
-          <input name="warehouseLocation" placeholder="Warehouse" value={form.warehouseLocation} onChange={handleChange} />
-          <input name="quantity" type="number" placeholder="Qty" value={form.quantity} onChange={handleChange} />
-          <input name="expiryDate" type="date" value={form.expiryDate} onChange={handleChange} />
-
-          <button onClick={addItem}>+ Add</button>
+        {/* Search & Filter Bar */}
+        <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ flex: 1, minWidth: "200px", position: "relative" }}>
+            <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: "16px" }}>🔍</span>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by item name, category, warehouse..."
+              style={{ width: "100%", padding: "10px 14px 10px 36px", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box", outline: "none" }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {allCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                style={{
+                  padding: "8px 14px", borderRadius: "999px", fontSize: "13px", fontWeight: 600, cursor: "pointer", border: "1.5px solid",
+                  borderColor: categoryFilter === cat ? "#2b7cff" : "#ddd",
+                  background: categoryFilter === cat ? "#2b7cff" : "#fff",
+                  color: categoryFilter === cat ? "#fff" : "#555",
+                  transition: "all 0.15s",
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* TABLE */}
-        <table className="inv-table">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Category</th>
-              <th>Warehouse</th>
-              <th>Qty</th>
-              <th>Expiry</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
+        {/* Results count */}
+        <p style={{ fontSize: "13px", color: "#aaa", marginBottom: "12px" }}>
+          Showing {filtered.length} of {items.length} items
+          {search && ` for "${search}"`}
+          {categoryFilter !== "All" && ` in ${categoryFilter}`}
+        </p>
 
-          <tbody>
-            {items.map((item) => (
-              <tr key={item._id}>
-                <td>{item.itemName}</td>
-                <td>{item.category}</td>
-                <td>{item.warehouseLocation}</td>
-                <td>{item.quantity}</td>
-                <td>
-                  {item.expiryDate
-                    ? new Date(item.expiryDate).toLocaleDateString()
-                    : "N/A"}
-                </td>
-                <td>{item.status}</td>
-                <td>
-                  <button onClick={() => deleteItem(item._id)}>
-                    Delete
-                  </button>
-                </td>
+        {/* Table */}
+        {filtered.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "48px 0", color: "#aaa" }}>
+            <div style={{ fontSize: "40px", marginBottom: "12px" }}>📭</div>
+            <p style={{ margin: 0, fontSize: "15px" }}>No items found.</p>
+            {(search || categoryFilter !== "All") && (
+              <p style={{ margin: "6px 0 0", fontSize: "13px" }}>Try clearing the search or filter.</p>
+            )}
+          </div>
+        ) : (
+          <table className="inv-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Warehouse</th>
+                <th>Qty</th>
+                <th>Expiry</th>
+                <th>Status</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((item) => {
+                const st = STATUS_STYLES[item.status] || {};
+                return (
+                  <tr key={item._id}>
+                    <td style={{ fontWeight: 600 }}>{item.itemName}</td>
+                    <td>{item.category || "—"}</td>
+                    <td>{item.warehouseLocation || "—"}</td>
+                    <td style={{ fontWeight: 600, color: item.quantity < 100 ? "#e67e22" : undefined }}>{item.quantity}</td>
+                    <td>{item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : "N/A"}</td>
+                    <td>
+                      <span style={{ padding: "3px 10px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, ...st }}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => deleteItem(item._id)}
+                        style={{ background: "#c0392b", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
+
+      {/* Add Item Modal */}
+      {showAddModal && (
+        <AddItemModal
+          onClose={() => setShowAddModal(false)}
+          onAdded={fetchInventory}
+        />
+      )}
     </div>
   );
 };
