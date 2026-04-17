@@ -16,6 +16,8 @@ const inventoryRoutes = require("./routes/inventoryRoutes");
 const alertRoutes = require("./routes/alertRoutes");
 const donationRoutes = require("./routes/donationRoutes");
 const supplyDonationRoutes = require("./routes/supplyDonationRoutes");
+const donorImpactRoutes = require("./routes/donorImpactRoutes");
+const storageAnalyticsRoutes = require("./routes/storageAnalyticsRoutes");
 const OperationModel = require("./model/Operation");
 const VolunteerTaskModel = require("./model/VolunteerTask");
 const NGOAgencyModel = require("./model/NGOAgency");
@@ -1891,6 +1893,8 @@ app.delete("/api/operation-route/:operationId", async (req, res) => {
 /* ---------------- Donation Routes ---------------- */
 app.use("/", donationRoutes);
 app.use("/", supplyDonationRoutes);
+app.use("/", donorImpactRoutes);
+app.use("/", storageAnalyticsRoutes);
 
 //const PORT = process.env.PORT || 3001;
 //app.listen(PORT, () => {

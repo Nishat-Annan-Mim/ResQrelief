@@ -16,6 +16,8 @@ const NavbarAdmin = () => {
           <li><Link to="/transparency" className="nav-item">Transparency</Link></li>
           <li><Link to="/admin-home" className="nav-item">Dashboard</Link></li>
           <li><Link to="/inventory" className="nav-item">Inventory</Link></li>
+          <li><Link to="/donor-impact"  className="nav-item">Donor Impact</Link></li>        {/* ← ADD HERE */}
+          <li><Link to="/storage-analytics"  className="nav-item">Storage Analytics</Link></li>  {/* ← ADD HERE */}
           <li>
             <NotificationBell />
           </li>

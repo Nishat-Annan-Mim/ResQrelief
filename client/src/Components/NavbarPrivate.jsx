@@ -37,6 +37,11 @@ const NavbarPrivate = () => {
             </Link>
           </li>
           <li>
+            <Link to="/my-donations" className="nav-item">
+              My Donations
+            </Link>
+          </li>
+          <li>
             <NotificationBell />
           </li>
 

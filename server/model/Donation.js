@@ -28,7 +28,15 @@ const donationSchema = new mongoose.Schema(
     utilizedAmount: { type: Number, default: 0 },
     servedArea: { type: String, default: "" },
     notes: { type: String, default: "" },
-  },
+    // ADD these fields to your existing Donation.js schema
+    impactSummary: { type: String, default: "" },
+    impactImages: [{ type: String }], // stores image URLs or base64
+    certificateGenerated: { type: Boolean, default: false },
+    certificateData: {
+      issuedAt: { type: Date },
+      certificateId: { type: String },
+      },
+    },
   { timestamps: true }
 );
 

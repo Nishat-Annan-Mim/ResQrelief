@@ -6,7 +6,9 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-
+import MyDonations from "./Components/MyDonations";
+import DonorImpact from "./Components/DonorImpact";
+import StorageAnalytics from "./Components/StorageAnalytics";
 import PaymentSuccess from "./Components/PaymentSuccess";
 import PaymentFail from "./Components/PaymentFail";
 import PaymentCancel from "./Components/PaymentCancel";
@@ -339,6 +341,30 @@ function App() {
           }
         />
         <Route path="/ngo-register" element={<NGORegister />} />
+        <Route
+          path="/my-donations"
+          element={
+            <RequireAuth>
+              <MyDonations />
+            </RequireAuth>
+          }
+        />
+       <Route
+        path="/donor-impact"
+        element={
+           <RequireAdmin>
+              <DonorImpact />
+           </RequireAdmin>
+         }
+        />
+       <Route
+         path="/storage-analytics"
+         element={
+            <RequireAdmin>
+                <StorageAnalytics />
+            </RequireAdmin>
+          }
+        /> 
 
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/fail" element={<PaymentFail />} />
