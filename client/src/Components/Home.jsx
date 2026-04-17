@@ -1,17 +1,24 @@
-// import React from "react";
-
-// const Home = () => {
-//   return <div>swee home welcome Home</div>;
-// };
-
-// export default Home;
-
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({ volunteerCount: null, availableFunds: null });
+
+  useEffect(() => {
+    axios.get("http://localhost:3001/api/stats")
+      .then((res) => setStats(res.data))
+      .catch(() => {});
+  }, []);
+
+  const formatFunds = (amount) => {
+    if (amount === null) return "...";
+    if (amount >= 1000) return `৳${(amount / 1000).toFixed(1)}K`;
+    return `৳${amount}`;
+  };
+
   return (
     <div className="home-wrapper">
       <div className="home-container">
@@ -40,13 +47,13 @@ const Home = () => {
         {/* Right Stats */}
         <div className="home-right">
           <div className="stat-card">
-            <span className="stat-number volunteers">84</span>
+            <span className="stat-number volunteers">{stats.volunteerCount ?? "..."}</span>
             <span className="stat-label">Volunteers Deployed</span>
           </div>
 
           <div className="stat-card">
-            <span className="stat-number funds">৳40.2K</span>
-            <span className="stat-label">Funds Raised</span>
+            <span className="stat-number funds">{formatFunds(stats.availableFunds)}</span>
+            <span className="stat-label">Funds Available</span>
           </div>
         </div>
       </div>

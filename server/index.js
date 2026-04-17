@@ -22,6 +22,7 @@ const OperationModel = require("./model/Operation");
 const VolunteerTaskModel = require("./model/VolunteerTask");
 const NGOAgencyModel = require("./model/NGOAgency");
 const CollabPostModel = require("./model/CollabPost");
+const DonationModel = require("./model/Donation");
 
 const app = express();
 const BannedModel = require("./model/Banned");
@@ -874,13 +875,13 @@ app.put("/api/requests/:id/verify", async (req, res) => {
     if (updated.email) {
       await new NotificationModel({
         recipientEmail: updated.email,
-        title: "Your aid request has been verified ✅",
+        title: "Your aid request has been verified ",
         message: `Your request for ${updated.aidTypes?.join(", ")} in ${updated.district} has been verified by our team.`,
         type: "request_verified",
         link: "/request-aid",
       }).save();
       global.io.to(updated.email).emit("alert", {
-        title: "Aid Request Verified ✅",
+        title: "Aid Request Verified ",
         message: `Your request in ${updated.district} has been verified!`,
       });
     }
@@ -2351,6 +2352,30 @@ app.delete("/api/collab/posts/:id", async (req, res) => {
     res.status(200).json({ message: "Post deleted" });
   } catch (err) {
     res.status(500).json({ message: "Failed to delete post" });
+  }
+});
+
+app.get("/api/stats", async (req, res) => {
+  try {
+    const volunteerCount = await VolunteerModel.countDocuments({
+      status: "confirmed",
+      profileCompleted: true,
+    });
+
+    const collected = await DonationModel.aggregate([
+      { $match: { donationType: "money", paymentStatus: "success" } },
+      { $group: { _id: null, total: { $sum: "$amount" } } },
+    ]);
+    const utilized = await DonationModel.aggregate([
+      { $match: { donationType: "money", isUtilized: true } },
+      { $group: { _id: null, total: { $sum: "$utilizedAmount" } } },
+    ]);
+
+    const availableFunds = (collected[0]?.total || 0) - (utilized[0]?.total || 0);
+
+    res.status(200).json({ volunteerCount, availableFunds });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch stats" });
   }
 });
 
