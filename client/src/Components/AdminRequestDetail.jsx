@@ -193,6 +193,7 @@ const handleVerify = async () => {
     const res = await axios.put(`${BASE}/api/requests/${id}/priority`, {
       priority: overridePriority,
       overrideReason: overrideReason.trim(),
+      adminEmail: adminEmail,
     });
     setReq(res.data);
     setShowPriorityOverride(false);
@@ -808,7 +809,7 @@ const handleAiVolunteerMatch = async () => {
               </span>
               {req.priorityOverridden && (
                 <span style={{ fontSize: "12px", color: "#b45309", fontWeight: 600, background: "#fffbeb", border: "1px solid #fde68a", borderRadius: "999px", padding: "3px 10px" }}>
-                  ✏️ Admin Override
+                   Admin Override
                 </span>
               )}
             </div>
@@ -860,6 +861,26 @@ const handleAiVolunteerMatch = async () => {
               </div>
             )}
           </div>
+          {req.priorityHistory?.length > 0 && (
+  <div className="detail-card" style={{ marginTop: "24px" }}>
+    <p style={{ color: "#888", fontSize: "13px", fontWeight: 700, textTransform: "uppercase", margin: "0 0 12px 0" }}>
+      Priority Change Log
+    </p>
+    {req.priorityHistory.slice().reverse().map((h, i) => (
+      <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", marginBottom: "10px", paddingBottom: "10px", borderBottom: i < req.priorityHistory.length - 1 ? "1px solid #f0f0f0" : "none" }}>
+        <span className={`priority-label priority-${h.changedTo?.toLowerCase()}`} style={{ fontSize: "12px", padding: "3px 10px", flexShrink: 0 }}>
+          {h.changedTo}
+        </span>
+        <div>
+          <p style={{ margin: 0, fontSize: "13px", color: "#444", fontStyle: "italic" }}>"{h.reason}"</p>
+          <p style={{ margin: "3px 0 0", fontSize: "12px", color: "#aaa" }}>
+            {h.changedBy} · {timeAgo(h.changedAt)}
+          </p>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
 
           {/* Primary Action Blocks (Moved Above AI) */}
           {req.status === "volunteer_done" && (

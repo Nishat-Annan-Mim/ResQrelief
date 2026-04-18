@@ -26,6 +26,19 @@ const requestSchema = new mongoose.Schema({
     enum: ["HIGH", "MEDIUM", "LOW"],
     default: "MEDIUM",
   },
+  priorityOverridden: { type: Boolean, default: false },
+  overrideReason:     { type: String },
+  overriddenAt:       { type: Date },
+
+  priorityHistory: [
+    {
+      changedTo:  { type: String },
+      reason:     { type: String },
+      changedAt:  { type: Date, default: Date.now },
+      changedBy:  { type: String },
+    }
+  ],
+  
 
   // Volunteer assigned by admin
   assignedVolunteer: {

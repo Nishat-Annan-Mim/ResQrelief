@@ -931,10 +931,17 @@ app.put("/api/requests/:id/priority", async (req, res) => {
         priorityOverridden: true,
         overrideReason,
         overriddenAt: new Date(),
+        $push: {
+          priorityHistory: {
+            changedTo: priority,
+            reason: overrideReason,
+            changedAt: new Date(),
+            changedBy: req.body.adminEmail || "Admin",
+          }
+        }
       },
       { new: true }
     );
-    if (!updated) return res.status(404).json({ message: "Request not found" });
     res.status(200).json(updated);
   } catch (err) {
     res.status(500).json({ message: "Failed to override priority" });
