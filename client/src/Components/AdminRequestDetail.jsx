@@ -91,6 +91,10 @@ const AdminRequestDetail = () => {
   const adminName = sessionStorage.getItem("name") || "Admin";
   const [aiAnalysis, setAiAnalysis] = useState(req?.aiAnalysis || null);
   const [loadingFraud, setLoadingFraud] = useState(false);
+  const [showPriorityOverride, setShowPriorityOverride] = useState(false);
+  const [overridePriority, setOverridePriority]         = useState("");
+  const [overrideReason, setOverrideReason]             = useState("");
+  const [savingOverride, setSavingOverride]             = useState(false);
 
   const fetchReq = async () => {
     try {
@@ -179,6 +183,26 @@ const handleVerify = async () => {
       },
     });
   };
+  const handlePriorityOverride = async () => {
+  if (!overridePriority || !overrideReason.trim()) {
+    alert("Please select a priority and provide a reason.");
+    return;
+  }
+  setSavingOverride(true);
+  try {
+    const res = await axios.put(`${BASE}/api/requests/${id}/priority`, {
+      priority: overridePriority,
+      overrideReason: overrideReason.trim(),
+    });
+    setReq(res.data);
+    setShowPriorityOverride(false);
+    setOverrideReason("");
+  } catch {
+    alert("Failed to override priority.");
+  } finally {
+    setSavingOverride(false);
+  }
+};
 
   const handleTaskSubmit = async () => {
     if (!taskForm.title || !taskForm.taskType || !taskForm.description) {
@@ -764,12 +788,77 @@ const handleAiVolunteerMatch = async () => {
 
         {/* ── RIGHT COLUMN: Actions, Status & AI Triggers ── */}
         <div className="detail-right">
-          
+
+          {/* Current Status */}
           <div className="detail-card">
             <p style={{ color: "#888", fontSize: "15px", marginBottom: "8px" }}>Current Status</p>
             <p style={{ fontWeight: "700", fontSize: "22px", textTransform: "capitalize", color: statusColor(req.status), margin: 0 }}>
               {statusLabel(req.status)}
             </p>
+          </div>
+
+          {/* AI Priority + Override */}
+          <div className="detail-card" style={{ marginTop: "24px" }}>
+            <p style={{ color: "#888", fontSize: "13px", fontWeight: 700, textTransform: "uppercase", margin: "0 0 10px 0" }}>
+              AI Priority Classification
+            </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+              <span className={`priority-label priority-${req.priority?.toLowerCase()}`} style={{ fontSize: "15px", padding: "6px 16px" }}>
+                {req.priority || "—"}
+              </span>
+              {req.priorityOverridden && (
+                <span style={{ fontSize: "12px", color: "#b45309", fontWeight: 600, background: "#fffbeb", border: "1px solid #fde68a", borderRadius: "999px", padding: "3px 10px" }}>
+                  ✏️ Admin Override
+                </span>
+              )}
+            </div>
+            {req.priorityOverridden && req.overrideReason && (
+              <p style={{ fontSize: "13px", color: "#666", fontStyle: "italic", margin: "0 0 12px 0", padding: "8px 12px", background: "#f9f9f9", borderRadius: "6px", borderLeft: "3px solid #b45309" }}>
+                "{req.overrideReason}"
+              </p>
+            )}
+            {!showPriorityOverride ? (
+              <button
+                onClick={() => { setOverridePriority(req.priority || "HIGH"); setShowPriorityOverride(true); }}
+                style={{ width: "100%", padding: "10px", background: "none", border: "1.5px solid #c0392b", color: "#c0392b", borderRadius: "8px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}
+              >
+                 Override AI Priority
+              </button>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <select
+                  value={overridePriority}
+                  onChange={(e) => setOverridePriority(e.target.value)}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" }}
+                >
+                  <option value="HIGH">🔴 HIGH </option>
+                  <option value="MEDIUM">🟠 MEDIUM </option>
+                  <option value="LOW">🟢 LOW </option>
+                </select>
+                <textarea
+                  placeholder="Reason for override (e.g. AI underestimated flood severity based on field report)"
+                  value={overrideReason}
+                  onChange={(e) => setOverrideReason(e.target.value)}
+                  rows={3}
+                  style={{ width: "100%", padding: "9px 12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "14px", resize: "vertical", fontFamily: "inherit", boxSizing: "border-box" }}
+                />
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={() => { setShowPriorityOverride(false); setOverrideReason(""); }}
+                    style={{ flex: 1, padding: "9px", background: "none", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "14px", cursor: "pointer" }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePriorityOverride}
+                    disabled={savingOverride}
+                    style={{ flex: 1, padding: "9px", background: "#c0392b", color: "#fff", border: "none", borderRadius: "8px", fontSize: "14px", fontWeight: 600, cursor: "pointer", opacity: savingOverride ? 0.6 : 1 }}
+                  >
+                    {savingOverride ? "Saving..." : "Confirm"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Primary Action Blocks (Moved Above AI) */}

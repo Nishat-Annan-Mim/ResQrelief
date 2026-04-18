@@ -57,6 +57,18 @@ const AdminRequests = () => {
     if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
     return `${Math.floor(diff / 1440)}d ago`;
   };
+  
+  // 1. Add handleDelete function (inside the component, before return)
+  const handleDelete = async (e, id) => {
+    e.stopPropagation(); // prevent row navigate
+    if (!window.confirm("Delete this request? This cannot be undone.")) return;
+    try {
+      await axios.delete(`http://localhost:3001/api/requests/${id}/remove`);
+      setRequests((prev) => prev.filter((r) => r._id !== id));
+    } catch {
+      alert("Failed to delete request.");
+    }
+  };
 
   const statusColor = (s) =>
     s === "pending"        ? "#c0392b" :
@@ -148,6 +160,7 @@ const AdminRequests = () => {
                   <th>People</th>
                   <th>Status</th>
                   <th>Submitted</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -174,6 +187,26 @@ const AdminRequests = () => {
                         : statusLabel(req.status)}
                     </td>
                     <td>{timeAgo(req.createdAt)}</td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={(e) => handleDelete(e, req._id)}
+                        style={{
+                          background: "#c0392b",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                          color: "#f1ebeb",
+                          padding: "4px 8px",
+                          borderRadius: "6px",
+                          transition: "background 0.2s",
+                        }}
+                        onMouseOver={(e) => (e.currentTarget.style.background = "#fde8e8")}
+                        onMouseOut={(e) => (e.currentTarget.style.background = "none")}
+                        title="Delete request"
+                      >
+                        Remove
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

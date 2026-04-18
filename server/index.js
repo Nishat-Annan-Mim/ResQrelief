@@ -821,6 +821,18 @@ app.delete("/aid-requests/:requestId", async (req, res) => {
   }
 });
 
+
+// ── SIMPLE DELETE: remove request only, no ban ───────────────
+app.delete("/api/requests/:id/remove", async (req, res) => {
+  try {
+    const deleted = await RequestModel.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Request not found" });
+    res.status(200).json({ message: "Request deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 // ============================================================
 // ADD THESE ROUTES TO YOUR index.js (replace or supplement existing ones)
 // ============================================================
@@ -905,6 +917,27 @@ app.put("/api/requests/:id/verify", async (req, res) => {
   } catch (error) {
     console.error("Verify error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Priority Override (Admin CRUD - Update)
+app.put("/api/requests/:id/priority", async (req, res) => {
+  try {
+    const { priority, overrideReason } = req.body;
+    const updated = await RequestModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        priority,
+        priorityOverridden: true,
+        overrideReason,
+        overriddenAt: new Date(),
+      },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ message: "Request not found" });
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to override priority" });
   }
 });
 
