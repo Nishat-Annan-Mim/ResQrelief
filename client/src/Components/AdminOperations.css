@@ -6,6 +6,7 @@
     border-radius: 12px;
     padding: 24px;
     margin-bottom: 28px;
+    overflow: visible;
 }
 
 .op-form-container h3 {
@@ -56,6 +57,8 @@
 /* ── Full Width Form Row ── */
 .op-form-row {
     margin-bottom: 16px;
+    position: relative;
+    overflow: visible;
 }
 
 .op-form-row label {
@@ -102,6 +105,7 @@
 
 /* ── Custom Supply Row ── */
 .op-custom-supply-row {
+    overflow: visible;
     display: flex;
     gap: 8px;
 }
