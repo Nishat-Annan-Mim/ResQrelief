@@ -379,17 +379,41 @@
             }, 400);
         });
 
-        // ── GET USER LOCATION ──
-        map.locate({ setView: true, maxZoom: 13 });
-        map.on('locationfound', function (e) {
-            userMarker = L.marker(e.latlng).addTo(map)
-                .bindPopup("📍 You are here").openPopup();
-            loadSavedRoute();
-        });
-        map.on('locationerror', function () {
-            map.setView([23.8, 90.4], 7);
-            loadSavedRoute();
-        });
+        // ── AUTO-PLOT ASSIGNED LOCATIONS ON MAP ──
+async function plotAssignedLocations() {
+    if (assignedLocations.length === 0) return;
+    for (const locName of assignedLocations) {
+        try {
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locName)}&limit=1`
+            );
+            const data = await res.json();
+            if (data && data.length > 0) {
+                addLocation(data[0].lat, data[0].lon, locName);
+            }
+        } catch (err) {
+            console.warn("Could not geocode:", locName);
+        }
+    }
+}
+
+// ── GET USER LOCATION ──
+map.locate({ setView: true, maxZoom: 13 });
+map.on('locationfound', async function (e) {
+    userMarker = L.marker(e.latlng).addTo(map)
+        .bindPopup("📍 You are here").openPopup();
+    const savedRouteLoaded = await loadSavedRoute();
+    if (!savedRouteLoaded) {
+        await plotAssignedLocations();
+    }
+});
+map.on('locationerror', async function () {
+    map.setView([23.8, 90.4], 7);
+    const savedRouteLoaded = await loadSavedRoute();
+    if (!savedRouteLoaded) {
+        await plotAssignedLocations();
+    }
+});
 
         // ── NUMBER ICON ──
         function createNumberIcon(number) {
@@ -540,7 +564,7 @@
 
         // ── LOAD SAVED ROUTE FROM MONGODB ──
         async function loadSavedRoute() {
-            if (!opId) return;
+            if (!opId) return false;
 
             loadingBadge.style.display = "block";
 
@@ -565,9 +589,12 @@
                 saveRouteBtn.style.display = "none";
                 clearSavedBtn.style.display = "block";
 
+                return true;
+
             } catch (err) {
                 loadingBadge.style.display = "none";
                 console.log("No saved route found or error loading.");
+                return false;
             }
         }
 
