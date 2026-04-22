@@ -235,7 +235,9 @@ const AdminOperations = () => {
           {
             headers: {
               "Accept-Language": "en",
-              "User-Agent": "DisasterReliefApp/1.0",
+              "User-Agent":
+                "DisasterReliefApp/1.0 (disaster-relief-bd@localhost)",
+              Referer: "http://localhost:3000",
             },
           },
         );
@@ -260,7 +262,9 @@ const AdminOperations = () => {
           {
             headers: {
               "Accept-Language": "en",
-              "User-Agent": "DisasterReliefApp/1.0",
+              "User-Agent":
+                "DisasterReliefApp/1.0 (disaster-relief-bd@localhost)",
+              Referer: "http://localhost:3000",
             },
           },
         );
@@ -618,7 +622,10 @@ const AdminOperations = () => {
                           <li
                             key={i}
                             onMouseDown={() => {
-                              setForm({ ...form, locationInput: suggestion });
+                              setForm({
+                                ...form,
+                                locationInput: suggestion.replace(/,/g, ""),
+                              });
                               setLocationSuggestions([]);
                               setShowLocationSuggestions(false);
                             }}
