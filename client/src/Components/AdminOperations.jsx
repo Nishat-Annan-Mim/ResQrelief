@@ -12,7 +12,13 @@ const AdminOperations = () => {
   const [operations, setOperations] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [districtFilter, setDistrictFilter] = useState("");
+  const [pickupSuggestions, setPickupSuggestions] = useState([]);
+  const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
 
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+
+  const [dateError, setDateError] = useState("");
   const [form, setForm] = useState({
     selectedVolunteers: [], // [{ volunteerId, volunteerName, volunteerEmail }]
     operationName: "",
@@ -41,6 +47,30 @@ const AdminOperations = () => {
       .then((res) => setOperations(res.data));
   };
 
+  // ── Timezone-safe helpers ──────────────────────────────────────────────────
+
+  // Returns today's date as "YYYY-MM-DD" using LOCAL time (fixes UTC offset bug)
+  const getLocalToday = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Returns current local time + 180 minutes (3 hours) as "HH:MM"
+  const getMinDepartureTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 180); // Add 3 hours buffer to current time
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+  const isToday = (date) => date === getLocalToday();
+
+  // ──────────────────────────────────────────────────────────────────────────
+
   // All unique districts from confirmed volunteers
   const allDistricts = [
     ...new Set(
@@ -56,14 +86,12 @@ const AdminOperations = () => {
     if (v.status !== "confirmed") return false;
     if (districtFilter && v.preferredZone !== districtFilter) return false;
 
-    // Check availability if operation date is set
     if (form.scheduledDate) {
       const opDate = new Date(form.scheduledDate);
       const from = v.availableFrom ? new Date(v.availableFrom) : null;
       const until = v.availableUntil ? new Date(v.availableUntil) : null;
 
       if (from && until) {
-        // Volunteer must be available on the operation date
         if (opDate < from || opDate > until) return false;
       }
     }
@@ -153,6 +181,9 @@ const AdminOperations = () => {
         "Please select at least one volunteer, fill in operation name, and add at least one location.",
       );
     }
+    if (isToday(form.scheduledDate) && !form.departureTime) {
+      return alert("⚠️ Departure time is required for today's operation.");
+    }
     await axios.post("http://localhost:3001/api/operations", {
       operationName: form.operationName,
       volunteers: form.selectedVolunteers,
@@ -189,6 +220,56 @@ const AdminOperations = () => {
     if (status === "On the way") return "op-status-ontheway";
     if (status === "Arrived") return "op-status-arrived";
     return "op-status-pending";
+  };
+
+  const fetchPickupSuggestions = async (query) => {
+    if (!query || query.length < 2) {
+      setPickupSuggestions([]);
+      return;
+    }
+    clearTimeout(window.pickupTimer);
+    window.pickupTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=6&countrycodes=bd`,
+          {
+            headers: {
+              "Accept-Language": "en",
+              "User-Agent": "DisasterReliefApp/1.0",
+            },
+          },
+        );
+        const data = await res.json();
+        setPickupSuggestions(data.map((item) => item.display_name));
+      } catch (err) {
+        setPickupSuggestions([]);
+      }
+    }, 500);
+  };
+
+  const fetchLocationSuggestions = async (query) => {
+    if (!query || query.length < 2) {
+      setLocationSuggestions([]);
+      return;
+    }
+    clearTimeout(window.locationTimer);
+    window.locationTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=6&countrycodes=bd`,
+          {
+            headers: {
+              "Accept-Language": "en",
+              "User-Agent": "DisasterReliefApp/1.0",
+            },
+          },
+        );
+        const data = await res.json();
+        setLocationSuggestions(data.map((item) => item.display_name));
+      } catch (err) {
+        setLocationSuggestions([]);
+      }
+    }, 500);
   };
 
   return (
@@ -255,10 +336,41 @@ const AdminOperations = () => {
                 <input
                   type="date"
                   value={form.scheduledDate}
-                  onChange={(e) =>
-                    setForm({ ...form, scheduledDate: e.target.value })
-                  }
+                  min={getLocalToday()}
+                  onChange={(e) => {
+                    const selected = e.target.value;
+                    const today = getLocalToday();
+                    if (selected < today) {
+                      setDateError(
+                        "⚠️ Please select today's date or a future date.",
+                      );
+                      setForm({
+                        ...form,
+                        scheduledDate: "",
+                        departureTime: "",
+                      });
+                    } else {
+                      setDateError("");
+                      setForm({
+                        ...form,
+                        scheduledDate: selected,
+                        departureTime: "",
+                      });
+                    }
+                  }}
+                  style={dateError ? { borderColor: "#c0392b" } : {}}
                 />
+                {dateError && (
+                  <p
+                    style={{
+                      color: "#c0392b",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {dateError}
+                  </p>
+                )}
               </div>
 
               <div className="op-form-group">
@@ -266,10 +378,37 @@ const AdminOperations = () => {
                 <input
                   type="time"
                   value={form.departureTime}
-                  onChange={(e) =>
-                    setForm({ ...form, departureTime: e.target.value })
+                  min={
+                    isToday(form.scheduledDate)
+                      ? getMinDepartureTime()
+                      : undefined
                   }
+                  onChange={(e) => {
+                    const chosenTime = e.target.value;
+                    if (isToday(form.scheduledDate)) {
+                      const minTime = getMinDepartureTime();
+                      if (chosenTime <= minTime) {
+                        alert(
+                          "⚠️  Departure time must be later than the current time and at least 3 hours ahead.",
+                        );
+                        setForm({ ...form, departureTime: "" });
+                        return;
+                      }
+                    }
+                    setForm({ ...form, departureTime: chosenTime });
+                  }}
                 />
+                {isToday(form.scheduledDate) && (
+                  <p
+                    style={{
+                      color: "#888",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    Must be later than the current time.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -284,7 +423,6 @@ const AdminOperations = () => {
                 </span>
               </label>
 
-              {/* District filter */}
               <select
                 value={districtFilter}
                 onChange={(e) => setDistrictFilter(e.target.value)}
@@ -307,7 +445,6 @@ const AdminOperations = () => {
                 ))}
               </select>
 
-              {/* Volunteer checklist */}
               <div className="op-volunteer-checklist">
                 {filteredVolunteers.length === 0 && (
                   <p
@@ -352,7 +489,6 @@ const AdminOperations = () => {
                 })}
               </div>
 
-              {/* Selected summary */}
               {form.selectedVolunteers.length > 0 && (
                 <div
                   className="op-selected-supplies"
@@ -369,13 +505,70 @@ const AdminOperations = () => {
             {/* ── SUPPLY PICKUP POINT ── */}
             <div className="op-form-row">
               <label>📦 Supply Collection Point</label>
-              <input
-                placeholder="e.g. Central Warehouse, Farmgate, Dhaka"
-                value={form.supplyPickupPoint}
-                onChange={(e) =>
-                  setForm({ ...form, supplyPickupPoint: e.target.value })
-                }
-              />
+              <div style={{ position: "relative" }}>
+                <input
+                  placeholder="e.g. Central Warehouse, Farmgate, Dhaka"
+                  value={form.supplyPickupPoint}
+                  onChange={(e) => {
+                    setForm({ ...form, supplyPickupPoint: e.target.value });
+                    fetchPickupSuggestions(e.target.value);
+                    setShowPickupSuggestions(true);
+                  }}
+                  onBlur={() =>
+                    setTimeout(() => setShowPickupSuggestions(false), 150)
+                  }
+                  autoComplete="off"
+                />
+                {showPickupSuggestions && pickupSuggestions.length > 0 && (
+                  <ul
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      right: 0,
+                      background: "#fff",
+                      border: "1px solid #ddd",
+                      borderRadius: "6px",
+                      listStyle: "none",
+                      margin: 0,
+                      padding: "4px 0",
+                      zIndex: 999,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                      maxHeight: "220px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {pickupSuggestions.map((suggestion, i) => (
+                      <li
+                        key={i}
+                        onMouseDown={() => {
+                          setForm({ ...form, supplyPickupPoint: suggestion });
+                          setPickupSuggestions([]);
+                          setShowPickupSuggestions(false);
+                        }}
+                        style={{
+                          padding: "8px 14px",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          color: "#333",
+                          borderBottom:
+                            i < pickupSuggestions.length - 1
+                              ? "1px solid #f0f0f0"
+                              : "none",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "#f5f5f5")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "#fff")
+                        }
+                      >
+                        📍 {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               <p className="op-field-hint">
                 Specify the address or landmark where volunteers must collect
                 supplies before heading to destinations.
@@ -386,14 +579,72 @@ const AdminOperations = () => {
             <div className="op-form-row">
               <label>Add Destination Location *</label>
               <div className="op-custom-supply-row">
-                <input
-                  placeholder="e.g. Mirpur-10"
-                  value={form.locationInput}
-                  onChange={(e) =>
-                    setForm({ ...form, locationInput: e.target.value })
-                  }
-                  onKeyDown={(e) => e.key === "Enter" && addLocation()}
-                />
+                <div style={{ position: "relative", flex: 1 }}>
+                  <input
+                    placeholder="e.g. Mirpur-10"
+                    value={form.locationInput}
+                    onChange={(e) => {
+                      setForm({ ...form, locationInput: e.target.value });
+                      fetchLocationSuggestions(e.target.value);
+                      setShowLocationSuggestions(true);
+                    }}
+                    onBlur={() =>
+                      setTimeout(() => setShowLocationSuggestions(false), 150)
+                    }
+                    onKeyDown={(e) => e.key === "Enter" && addLocation()}
+                    autoComplete="off"
+                  />
+                  {showLocationSuggestions &&
+                    locationSuggestions.length > 0 && (
+                      <ul
+                        style={{
+                          position: "absolute",
+                          top: "100%",
+                          left: 0,
+                          right: 0,
+                          background: "#fff",
+                          border: "1px solid #ddd",
+                          borderRadius: "6px",
+                          listStyle: "none",
+                          margin: 0,
+                          padding: "4px 0",
+                          zIndex: 999,
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                          maxHeight: "220px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {locationSuggestions.map((suggestion, i) => (
+                          <li
+                            key={i}
+                            onMouseDown={() => {
+                              setForm({ ...form, locationInput: suggestion });
+                              setLocationSuggestions([]);
+                              setShowLocationSuggestions(false);
+                            }}
+                            style={{
+                              padding: "8px 14px",
+                              cursor: "pointer",
+                              fontSize: "13px",
+                              color: "#333",
+                              borderBottom:
+                                i < locationSuggestions.length - 1
+                                  ? "1px solid #f0f0f0"
+                                  : "none",
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.background = "#f5f5f5")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.background = "#fff")
+                            }
+                          >
+                            📍 {suggestion}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                </div>
                 <button className="btn-admin" onClick={addLocation}>
                   + Add
                 </button>
