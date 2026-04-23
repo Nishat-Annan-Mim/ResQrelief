@@ -21,16 +21,25 @@ router.get("/admin/storage-analytics", async (req, res) => {
     }, {});
 
     // Expiry alerts
+    // ✅ FIXED — matches inventory page logic using status field
     const expiredItems = allItems.filter(
-      (i) => i.expiryDate && new Date(i.expiryDate) < now
+      (i) => i.status === "Expired" || i.status === "expired"
     );
     const expiringIn7Days = allItems.filter(
-      (i) => i.expiryDate && new Date(i.expiryDate) >= now && new Date(i.expiryDate) <= in7Days
-    );
-    const expiringIn30Days = allItems.filter(
-      (i) => i.expiryDate && new Date(i.expiryDate) > in7Days && new Date(i.expiryDate) <= in30Days
-    );
+      (i) =>
+        (i.status !== "Expired" && i.status !== "expired") &&
+        i.expiryDate &&
+        new Date(i.expiryDate) >= now &&
+        new Date(i.expiryDate) <= in7Days
+      );
 
+    const expiringIn30Days = allItems.filter(
+      (i) =>
+        (i.status !== "Expired" && i.status !== "expired") &&
+        i.expiryDate &&
+        new Date(i.expiryDate) > in7Days &&
+        new Date(i.expiryDate) <= in30Days
+      );
     // Stock status breakdown
     const statusBreakdown = allItems.reduce((acc, item) => {
       const s = item.status || "Unknown";
@@ -39,7 +48,10 @@ router.get("/admin/storage-analytics", async (req, res) => {
     }, {});
 
     // Low stock items (quantity < 10)
-    const lowStockItems = allItems.filter((i) => (i.quantity || 0) < 10);
+    // Low stock items — matches inventory page logic using status field
+    const lowStockItems = allItems.filter(
+      (i) => i.status === "Low" || i.status === "low"
+    );
 
     // Warehouse breakdown
     const warehouseBreakdown = allItems.reduce((acc, item) => {

@@ -12,169 +12,251 @@ export default function StorageAnalytics() {
       .catch(() => setLoading(false));
   }, []);
 
+  const exportReport = async (data) => {
+    const { jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(26, 26, 26);
+    doc.rect(0, 0, pageWidth, 28, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("RESQRELIEF — Storage Analytics Report", 14, 13);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 22);
+
+    // KPI Summary
+    doc.setTextColor(26, 26, 26);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Summary", 14, 38);
+
+    const kpis = [
+      ["Total Items", data.totalItems],
+      ["Total Quantity", data.totalQuantity],
+      ["Expired Items", data.expiredItems.length],
+      ["Low Stock Items", data.lowStockItems.length],
+    ];
+
+    autoTable(doc, {
+      startY: 42,
+      head: [["Metric", "Value"]],
+      body: kpis,
+      theme: "grid",
+      headStyles: { fillColor: [26, 26, 26], textColor: 255, fontStyle: "bold" },
+      styles: { fontSize: 10 },
+      columnStyles: { 1: { fontStyle: "bold" } },
+    });
+
+    // Category Breakdown
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Stock by Category", 14, doc.lastAutoTable.finalY + 12);
+
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 16,
+      head: [["Category", "Item Types", "Total Quantity"]],
+      body: Object.entries(data.categoryBreakdown).map(([cat, val]) => [
+        cat, val.count, val.totalQuantity,
+      ]),
+      theme: "striped",
+      headStyles: { fillColor: [21, 101, 192], textColor: 255, fontStyle: "bold" },
+      styles: { fontSize: 10 },
+    });
+
+    // Stock Status
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Stock Status", 14, doc.lastAutoTable.finalY + 12);
+
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 16,
+      head: [["Status", "Count"]],
+      body: Object.entries(data.statusBreakdown).map(([status, count]) => [status, count]),
+      theme: "striped",
+      headStyles: { fillColor: [46, 125, 50], textColor: 255, fontStyle: "bold" },
+      styles: { fontSize: 10 },
+    });
+
+    // Page 2 - Expiry Report
+    doc.addPage();
+    doc.setFillColor(26, 26, 26);
+    doc.rect(0, 0, pageWidth, 18, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("Expiry Report", 14, 13);
+
+    doc.setTextColor(26, 26, 26);
+    doc.setFontSize(12);
+    doc.text(`Expired Items (${data.expiredItems.length})`, 14, 30);
+
+    if (data.expiredItems.length === 0) {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150, 150, 150);
+      doc.text("No expired items.", 14, 38);
+      doc.setTextColor(26, 26, 26);
+    } else {
+      autoTable(doc, {
+        startY: 34,
+        head: [["Item", "Category", "Quantity", "Expired On"]],
+        body: data.expiredItems.map((i) => [
+          i.itemName, i.category, i.quantity,
+          new Date(i.expiryDate).toLocaleDateString(),
+        ]),
+        theme: "grid",
+        headStyles: { fillColor: [198, 47, 59], textColor: 255, fontStyle: "bold" },
+        styles: { fontSize: 10 },
+      });
+    }
+
+    // Expiring in 7 Days
+    const y7 = doc.lastAutoTable ? doc.lastAutoTable.finalY + 14 : 50;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(26, 26, 26);
+    doc.text(`Expiring in 7 Days (${data.expiringIn7Days.length})`, 14, y7);
+
+    if (data.expiringIn7Days.length === 0) {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150, 150, 150);
+      doc.text("None expiring soon.", 14, y7 + 8);
+      doc.setTextColor(26, 26, 26);
+    } else {
+      autoTable(doc, {
+        startY: y7 + 4,
+        head: [["Item", "Category", "Quantity", "Expires On"]],
+        body: data.expiringIn7Days.map((i) => [
+          i.itemName, i.category, i.quantity,
+          new Date(i.expiryDate).toLocaleDateString(),
+        ]),
+        theme: "grid",
+        headStyles: { fillColor: [245, 127, 23], textColor: 255, fontStyle: "bold" },
+        styles: { fontSize: 10 },
+      });
+    }
+
+    // Expiring in 30 Days
+    const y30 = doc.lastAutoTable ? doc.lastAutoTable.finalY + 14 : y7 + 20;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(26, 26, 26);
+    doc.text(`Expiring in 30 Days (${data.expiringIn30Days.length})`, 14, y30);
+
+    if (data.expiringIn30Days.length === 0) {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150, 150, 150);
+      doc.text("None.", 14, y30 + 8);
+      doc.setTextColor(26, 26, 26);
+    } else {
+      autoTable(doc, {
+        startY: y30 + 4,
+        head: [["Item", "Category", "Quantity", "Expires On"]],
+        body: data.expiringIn30Days.map((i) => [
+          i.itemName, i.category, i.quantity,
+          new Date(i.expiryDate).toLocaleDateString(),
+        ]),
+        theme: "grid",
+        headStyles: { fillColor: [46, 125, 50], textColor: 255, fontStyle: "bold" },
+        styles: { fontSize: 10 },
+      });
+    }
+
+    // Page 3 - Low Stock & Warehouse
+    doc.addPage();
+    doc.setFillColor(26, 26, 26);
+    doc.rect(0, 0, pageWidth, 18, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("Low Stock & Warehouse Report", 14, 13);
+
+    doc.setTextColor(26, 26, 26);
+    doc.setFontSize(12);
+    doc.text(`Low Stock Items (${data.lowStockItems.length})`, 14, 30);
+
+    if (data.lowStockItems.length === 0) {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150, 150, 150);
+      doc.text("All items are sufficiently stocked.", 14, 38);
+      doc.setTextColor(26, 26, 26);
+    } else {
+      autoTable(doc, {
+        startY: 34,
+        head: [["Item", "Category", "Quantity", "Location", "Status"]],
+        body: data.lowStockItems.map((i) => [
+          i.itemName, i.category, i.quantity,
+          i.warehouseLocation || "—", i.status || "—",
+        ]),
+        theme: "grid",
+        headStyles: { fillColor: [245, 127, 23], textColor: 255, fontStyle: "bold" },
+        styles: { fontSize: 10 },
+      });
+    }
+
+    // Warehouse Breakdown
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(26, 26, 26);
+    doc.text("Warehouse Breakdown", 14, doc.lastAutoTable.finalY + 14);
+
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 18,
+      head: [["Warehouse", "Item Types", "Total Quantity"]],
+      body: Object.entries(data.warehouseBreakdown).map(([wh, val]) => [
+        wh, val.count, val.totalQuantity,
+      ]),
+      theme: "striped",
+      headStyles: { fillColor: [26, 26, 26], textColor: 255, fontStyle: "bold" },
+      styles: { fontSize: 10 },
+    });
+
+    // Footer on all pages
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `RESQRELIEF Storage Analytics Report  |  Page ${i} of ${pageCount}`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 8,
+        { align: "center" }
+      );
+    }
+
+    doc.save(`storage-report-${new Date().toISOString().split("T")[0]}.pdf`);
+  };
+
   const s = { fontFamily: "Segoe UI, sans-serif", padding: "2rem", maxWidth: "1000px", margin: "0 auto" };
 
   if (loading) return <div style={s}><p>Loading analytics...</p></div>;
   if (!data) return <div style={s}><p>Failed to load analytics.</p></div>;
 
   const tabs = ["overview", "expiry", "low stock", "warehouses"];
-  const exportReport = (data) => {
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <title>Storage Analytics Report</title>
-      <style>
-        body { font-family: Segoe UI, sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem; background: #f5f5f5; color: #1a1a1a; }
-        h1 { color: #1a1a1a; border-bottom: 3px solid #1a1a1a; padding-bottom: 0.5rem; }
-        h2 { color: #1565c0; margin-top: 2rem; border-left: 4px solid #1565c0; padding-left: 0.8rem; }
-        .meta { color: #888; font-size: 0.9rem; margin-bottom: 2rem; }
-        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-        .kpi { background: white; border-radius: 12px; padding: 1.2rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .kpi-label { font-size: 0.8rem; font-weight: 600; color: #888; margin-bottom: 0.4rem; }
-        .kpi-value { font-size: 1.8rem; font-weight: 700; }
-        .kpi.blue .kpi-value { color: #1565c0; }
-        .kpi.green .kpi-value { color: #2e7d32; }
-        .kpi.red .kpi-value { color: #c62f3b; }
-        .kpi.orange .kpi-value { color: #f57f17; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1.5rem; }
-        th { background: #f0f0f0; padding: 0.8rem 1rem; text-align: left; font-weight: 600; color: #444; }
-        td { padding: 0.7rem 1rem; border-bottom: 1px solid #f5f5f5; color: #333; }
-        tr:last-child td { border-bottom: none; }
-        .badge-red { background: #fce4e4; color: #c62f3b; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
-        .badge-orange { background: #fff8e1; color: #f57f17; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
-        .badge-green { background: #e8f5e9; color: #2e7d32; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
-        .empty { color: #aaa; font-style: italic; padding: 1rem; background: white; border-radius: 12px; text-align: center; }
-        .footer { margin-top: 3rem; text-align: center; color: #aaa; font-size: 0.8rem; border-top: 1px solid #ddd; padding-top: 1rem; }
-        @media print { body { background: white; } }
-      </style>
-    </head>
-    <body>
-      <h1>📦 RESQRELIEF — Storage Analytics Report</h1>
-      <p class="meta">Generated: ${new Date().toLocaleString()} &nbsp;|&nbsp; Total Items: ${data.totalItems}</p>
+  const itemColors = ["#1565c0", "#2e7d32", "#b45309", "#be123c", "#7c3aed"];
 
-      <div class="kpi-grid">
-        <div class="kpi blue"><div class="kpi-label">Total Items</div><div class="kpi-value">${data.totalItems}</div></div>
-        <div class="kpi green"><div class="kpi-label">Total Quantity</div><div class="kpi-value">${data.totalQuantity}</div></div>
-        <div class="kpi red"><div class="kpi-label">Expired Items</div><div class="kpi-value">${data.expiredItems.length}</div></div>
-        <div class="kpi orange"><div class="kpi-label">Low Stock</div><div class="kpi-value">${data.lowStockItems.length}</div></div>
-      </div>
-
-      <h2>📊 Category Breakdown</h2>
-      <table>
-        <thead><tr><th>Category</th><th>Item Types</th><th>Total Quantity</th></tr></thead>
-        <tbody>
-          ${Object.entries(data.categoryBreakdown).map(([cat, val]) => `
-            <tr><td>${cat}</td><td>${val.count}</td><td>${val.totalQuantity}</td></tr>
-          `).join("")}
-        </tbody>
-      </table>
-
-      <h2>🚨 Expired Items (${data.expiredItems.length})</h2>
-      ${data.expiredItems.length === 0
-        ? `<div class="empty">No expired items.</div>`
-        : `<table>
-            <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Expired On</th></tr></thead>
-            <tbody>
-              ${data.expiredItems.map((i) => `
-                <tr>
-                  <td>${i.itemName}</td>
-                  <td>${i.category}</td>
-                  <td>${i.quantity}</td>
-                  <td><span class="badge-red">${new Date(i.expiryDate).toLocaleDateString()}</span></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`}
-
-      <h2>⚠️ Expiring in 7 Days (${data.expiringIn7Days.length})</h2>
-      ${data.expiringIn7Days.length === 0
-        ? `<div class="empty">None expiring soon.</div>`
-        : `<table>
-            <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Expires On</th></tr></thead>
-            <tbody>
-              ${data.expiringIn7Days.map((i) => `
-                <tr>
-                  <td>${i.itemName}</td>
-                  <td>${i.category}</td>
-                  <td>${i.quantity}</td>
-                  <td><span class="badge-orange">${new Date(i.expiryDate).toLocaleDateString()}</span></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`}
-
-      <h2>📅 Expiring in 30 Days (${data.expiringIn30Days.length})</h2>
-      ${data.expiringIn30Days.length === 0
-        ? `<div class="empty">None.</div>`
-        : `<table>
-            <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Expires On</th></tr></thead>
-            <tbody>
-              ${data.expiringIn30Days.map((i) => `
-                <tr>
-                  <td>${i.itemName}</td>
-                  <td>${i.category}</td>
-                  <td>${i.quantity}</td>
-                  <td><span class="badge-green">${new Date(i.expiryDate).toLocaleDateString()}</span></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`}
-
-      <h2>⚡ Low Stock Items (${data.lowStockItems.length})</h2>
-      ${data.lowStockItems.length === 0
-        ? `<div class="empty">All items are sufficiently stocked.</div>`
-        : `<table>
-            <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Location</th><th>Status</th></tr></thead>
-            <tbody>
-              ${data.lowStockItems.map((i) => `
-                <tr>
-                  <td>${i.itemName}</td>
-                  <td>${i.category}</td>
-                  <td><span class="badge-red">${i.quantity}</span></td>
-                  <td>${i.warehouseLocation || "—"}</td>
-                  <td>${i.status || "—"}</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`}
-
-      <h2>🏭 Warehouse Breakdown</h2>
-      <table>
-        <thead><tr><th>Warehouse</th><th>Item Types</th><th>Total Quantity</th></tr></thead>
-        <tbody>
-          ${Object.entries(data.warehouseBreakdown).map(([wh, val]) => `
-            <tr><td>${wh}</td><td>${val.count}</td><td>${val.totalQuantity}</td></tr>
-          `).join("")}
-        </tbody>
-      </table>
-
-      <div class="footer">
-        RESQRELIEF Disaster Relief System &nbsp;|&nbsp; Report generated on ${new Date().toLocaleString()}
-      </div>
-    </body>
-    </html>
-  `;
-
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `storage-report-${new Date().toISOString().split("T")[0]}.html`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
   return (
     <div style={s}>
-      <h1 style={{ fontSize: "1.8rem", fontWeight: "700", marginBottom: "0.5rem" }}>📦 Storage Analytics Dashboard</h1>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <p style={{ color: "#666", margin: 0 }}>Advanced insights into community storage, expiry alerts, and stock usage.</p>
+        <div>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: "700", marginBottom: "0.3rem", marginTop: 0 }}>📦 Storage Analytics Dashboard</h1>
+          <p style={{ color: "#666", margin: 0 }}>Advanced insights into community storage, expiry alerts, and stock usage.</p>
+        </div>
         <button
           onClick={() => exportReport(data)}
-          style={{ padding: "0.6rem 1.2rem", backgroundColor: "#1a1a1a", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "0.88rem" }}
+          style={{ padding: "0.6rem 1.2rem", backgroundColor: "#1a1a1a", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "0.88rem", whiteSpace: "nowrap" }}
         >
-          📥 Download Report
+          📄 Download PDF Report
         </button>
       </div>
 
@@ -218,13 +300,11 @@ export default function StorageAnalytics() {
       {/* Overview Tab */}
       {activeTab === "overview" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
-          {/* Category Breakdown */}
           <div style={{ backgroundColor: "#fff", borderRadius: "14px", padding: "1.5rem", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
             <h3 style={{ marginTop: 0, fontSize: "1rem", fontWeight: "700" }}>Stock by Category</h3>
             {Object.entries(data.categoryBreakdown).map(([cat, val], i) => {
               const max = Math.max(...Object.values(data.categoryBreakdown).map(v => v.totalQuantity), 1);
               const pct = (val.totalQuantity / max) * 100;
-              const colors = ["#1565c0", "#2e7d32", "#b45309", "#be123c", "#7c3aed"];
               return (
                 <div key={cat} style={{ marginBottom: "0.8rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", marginBottom: "0.3rem" }}>
@@ -232,14 +312,13 @@ export default function StorageAnalytics() {
                     <span style={{ fontWeight: "600" }}>{val.totalQuantity} units</span>
                   </div>
                   <div style={{ backgroundColor: "#f0f0f0", borderRadius: "999px", height: "8px" }}>
-                    <div style={{ width: `${pct}%`, height: "100%", backgroundColor: colors[i % colors.length], borderRadius: "999px" }} />
+                    <div style={{ width: `${pct}%`, height: "100%", backgroundColor: itemColors[i % itemColors.length], borderRadius: "999px" }} />
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Status Breakdown */}
           <div style={{ backgroundColor: "#fff", borderRadius: "14px", padding: "1.5rem", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
             <h3 style={{ marginTop: 0, fontSize: "1rem", fontWeight: "700" }}>Stock Status</h3>
             {Object.entries(data.statusBreakdown).map(([status, count]) => (
@@ -255,7 +334,6 @@ export default function StorageAnalytics() {
       {/* Expiry Tab */}
       {activeTab === "expiry" && (
         <div>
-          {/* Expired */}
           <div style={{ backgroundColor: "#fce4e4", borderRadius: "14px", padding: "1.5rem", marginBottom: "1rem" }}>
             <h3 style={{ marginTop: 0, color: "#c62f3b" }}>🚨 Expired Items ({data.expiredItems.length})</h3>
             {data.expiredItems.length === 0 ? <p style={{ color: "#888" }}>No expired items.</p> : (
@@ -275,7 +353,6 @@ export default function StorageAnalytics() {
             )}
           </div>
 
-          {/* Expiring in 7 days */}
           <div style={{ backgroundColor: "#fff8e1", borderRadius: "14px", padding: "1.5rem", marginBottom: "1rem" }}>
             <h3 style={{ marginTop: 0, color: "#f57f17" }}>⚠️ Expiring in 7 Days ({data.expiringIn7Days.length})</h3>
             {data.expiringIn7Days.length === 0 ? <p style={{ color: "#888" }}>None expiring soon.</p> : (
@@ -295,7 +372,6 @@ export default function StorageAnalytics() {
             )}
           </div>
 
-          {/* Expiring in 30 days */}
           <div style={{ backgroundColor: "#e8f5e9", borderRadius: "14px", padding: "1.5rem" }}>
             <h3 style={{ marginTop: 0, color: "#2e7d32" }}>📅 Expiring in 30 Days ({data.expiringIn30Days.length})</h3>
             {data.expiringIn30Days.length === 0 ? <p style={{ color: "#888" }}>None.</p> : (
@@ -320,7 +396,7 @@ export default function StorageAnalytics() {
       {/* Low Stock Tab */}
       {activeTab === "low stock" && (
         <div style={{ backgroundColor: "#fff", borderRadius: "14px", padding: "1.5rem", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-          <h3 style={{ marginTop: 0 }}>⚡ Low Stock Items (quantity &lt; 10)</h3>
+          <h3 style={{ marginTop: 0 }}>⚡ Low Stock Items</h3>
           {data.lowStockItems.length === 0 ? <p style={{ color: "#888" }}>All items are sufficiently stocked.</p> : (
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
               <thead><tr><th style={th2}>Item</th><th style={th2}>Category</th><th style={th2}>Quantity</th><th style={th2}>Location</th><th style={th2}>Status</th></tr></thead>
