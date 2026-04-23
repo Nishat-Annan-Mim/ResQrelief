@@ -18,7 +18,9 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     if (!email) return;
     try {
-      const res = await axios.get(`http://localhost:3001/api/notifications/${email}`);
+      const res = await axios.get(
+        `https://resqreliefcheck.onrender.com/api/notifications/${email}`,
+      );
       setNotifications(res.data);
     } catch (err) {
       console.log(err);
@@ -30,7 +32,7 @@ const NotificationBell = () => {
 
     // ✅ Connect socket for real-time
     if (email) {
-      socketRef.current = io("http://localhost:3001", {
+      socketRef.current = io("https://resqreliefcheck.onrender.com", {
         transports: ["websocket", "polling"],
       });
 
@@ -65,7 +67,9 @@ const NotificationBell = () => {
 
     // Mark all as read when opening
     if (!open && unreadCount > 0) {
-      await axios.put(`http://localhost:3001/api/notifications/read-all/${email}`);
+      await axios.put(
+        `https://resqreliefcheck.onrender.com/api/notifications/read-all/${email}`,
+      );
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     }
   };
@@ -73,15 +77,17 @@ const NotificationBell = () => {
   const handleClick = async (notif) => {
     // Mark individual as read
     try {
-      await axios.put(`http://localhost:3001/api/notifications/read/${notif._id}`);
+      await axios.put(
+        `https://resqreliefcheck.onrender.com/api/notifications/read/${notif._id}`,
+      );
     } catch (err) {
       console.log(err);
     }
     setOpen(false);
-    
+
     // ✅ NEW ROUTING LOGIC: Intercept "alert" types and route them correctly
     if (notif.type === "alert") {
-      navigate("/user-alerts"); 
+      navigate("/user-alerts");
     } else if (notif.link) {
       navigate(notif.link);
     }
@@ -89,22 +95,26 @@ const NotificationBell = () => {
 
   const timeAgo = (dateString) => {
     const diff = Math.floor((Date.now() - new Date(dateString)) / 60000);
-    if (diff < 1)  return "just now";
+    if (diff < 1) return "just now";
     if (diff < 60) return `${diff}m ago`;
     if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
     return `${Math.floor(diff / 1440)}d ago`;
   };
 
   const getIcon = (type) => {
-    if (type === "request_verified")  return "✅";
+    if (type === "request_verified") return "✅";
     if (type === "volunteer_assigned") return "🙋";
-    if (type === "alert")             return "🚨";
+    if (type === "alert") return "🚨";
     return "🔔";
   };
 
   return (
     <div className="notif-bell-wrapper" ref={dropdownRef}>
-      <button className="notif-bell-btn" onClick={handleOpen} style={{ display: 'flex', alignItems: 'center' }}>
+      <button
+        className="notif-bell-btn"
+        onClick={handleOpen}
+        style={{ display: "flex", alignItems: "center" }}
+      >
         {/* FIX: Silver SVG Bell instead of text emoji */}
         <svg
           width="16"
@@ -121,7 +131,9 @@ const NotificationBell = () => {
         </svg>
 
         {unreadCount > 0 && (
-          <span className="notif-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>
+          <span className="notif-badge">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
         )}
       </button>
 
@@ -133,8 +145,12 @@ const NotificationBell = () => {
               <button
                 className="notif-clear-btn"
                 onClick={async () => {
-                  await axios.put(`http://localhost:3001/api/notifications/read-all/${email}`);
-                  setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+                  await axios.put(
+                    `https://resqreliefcheck.onrender.com/api/notifications/read-all/${email}`,
+                  );
+                  setNotifications((prev) =>
+                    prev.map((n) => ({ ...n, read: true })),
+                  );
                 }}
               >
                 Mark all read

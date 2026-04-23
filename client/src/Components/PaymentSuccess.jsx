@@ -9,7 +9,7 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     if (tranId) {
-      fetch(`http://localhost:3001/donation/status/${tranId}`)
+      fetch(`https://resqreliefcheck.onrender.com/donation/status/${tranId}`)
         .then((r) => r.json())
         .then(setInfo)
         .catch(() => {});

@@ -138,9 +138,9 @@ const VolunteerMapBoard = () => {
   const loadBoard = useCallback(async () => {
     try {
       const [profileRes, volunteerRes, requestRes] = await Promise.all([
-        axios.get(`http://localhost:3001/volunteer/profile/${user.email}`),
-        axios.get("http://localhost:3001/volunteer/locations"),
-        axios.get("http://localhost:3001/aid-requests"),
+        axios.get(`https://resqreliefcheck.onrender.com/volunteer/profile/${user.email}`),
+        axios.get("https://resqreliefcheck.onrender.com/volunteer/locations"),
+        axios.get("https://resqreliefcheck.onrender.com/aid-requests"),
       ]);
 
       const profile = profileRes.data;
@@ -160,7 +160,7 @@ const VolunteerMapBoard = () => {
 
       try {
         const nearbyRes = await axios.get(
-          `http://localhost:3001/aid-requests/nearby/${user.email}`,
+          `https://resqreliefcheck.onrender.com/aid-requests/nearby/${user.email}`,
         );
         setNearbyRequests(nearbyRes.data);
       } catch (error) {
@@ -238,7 +238,7 @@ const VolunteerMapBoard = () => {
           const address = await reverseGeocodeWithNominatim(lat, lng);
 
           await axios.put(
-            `http://localhost:3001/volunteer/location/${user.email}`,
+            `https://resqreliefcheck.onrender.com/volunteer/location/${user.email}`,
             {
               lat,
               lng,
@@ -278,7 +278,7 @@ const VolunteerMapBoard = () => {
   const removeMyLocation = async () => {
     try {
       await axios.delete(
-        `http://localhost:3001/volunteer/location/${user.email}`,
+        `https://resqreliefcheck.onrender.com/volunteer/location/${user.email}`,
       );
       setSelectedMarker(null);
       clearRoute();
@@ -328,7 +328,7 @@ const VolunteerMapBoard = () => {
     }
 
     try {
-      await axios.post("http://localhost:3001/aid-requests", {
+      await axios.post("https://resqreliefcheck.onrender.com/aid-requests", {
         createdByVolunteerId: volunteerProfile._id,
         createdByVolunteerName: volunteerProfile.fullName,
         createdByVolunteerEmail: volunteerProfile.email,
@@ -360,7 +360,7 @@ const VolunteerMapBoard = () => {
   const acceptRequest = async (requestId) => {
     try {
       await axios.put(
-        `http://localhost:3001/aid-requests/${requestId}/accept`,
+        `https://resqreliefcheck.onrender.com/aid-requests/${requestId}/accept`,
         {
           helperVolunteerId: volunteerProfile._id,
           helperVolunteerName: volunteerProfile.fullName,
@@ -384,7 +384,7 @@ const VolunteerMapBoard = () => {
 
     try {
       await axios.put(
-        `http://localhost:3001/aid-requests/${requestId}/cancel`,
+        `https://resqreliefcheck.onrender.com/aid-requests/${requestId}/cancel`,
         {
           cancellerEmail: volunteerProfile.email,
         },
@@ -399,7 +399,7 @@ const VolunteerMapBoard = () => {
   const markHelped = async (requestId) => {
     try {
       await axios.put(
-        `http://localhost:3001/aid-requests/${requestId}/helped`,
+        `https://resqreliefcheck.onrender.com/aid-requests/${requestId}/helped`,
         {
           helperVolunteerEmail: volunteerProfile.email,
         },
@@ -415,7 +415,7 @@ const VolunteerMapBoard = () => {
 
   const deleteRequest = async (requestId) => {
     try {
-      await axios.delete(`http://localhost:3001/aid-requests/${requestId}`, {
+      await axios.delete(`https://resqreliefcheck.onrender.com/aid-requests/${requestId}`, {
         data: { requesterEmail: volunteerProfile.email },
       });
 

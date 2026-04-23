@@ -18,7 +18,7 @@ const VolunteerPassword = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/volunteer/login",
+        "https://resqreliefcheck.onrender.com/volunteer/login",
         {
           email: user.email,
           password: password,
@@ -31,7 +31,7 @@ const VolunteerPassword = () => {
 
         // Check if profile is completed
         const profileResponse = await axios.get(
-          `http://localhost:3001/volunteer/check/${user.email}`,
+          `https://resqreliefcheck.onrender.com/volunteer/check/${user.email}`,
         );
 
         if (profileResponse.data.profileCompleted) {

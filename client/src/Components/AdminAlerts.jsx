@@ -3,12 +3,12 @@ import axios from "axios";
 import "./AdminAlerts.css";
 
 const AdminAlerts = () => {
-  const [title, setTitle]       = useState("");
-  const [message, setMessage]   = useState("");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
   const [district, setDistrict] = useState("");
   const [audience, setAudience] = useState([]);
   const [channels, setChannels] = useState([]);
-  const [alerts, setAlerts]     = useState([]);
+  const [alerts, setAlerts] = useState([]);
 
   const toggle = (value, list, setList) => {
     if (list.includes(value)) setList(list.filter((i) => i !== value));
@@ -17,37 +17,45 @@ const AdminAlerts = () => {
 
   const fetchAlerts = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/alerts");
+      const res = await axios.get(
+        "https://resqreliefcheck.onrender.com/api/alerts",
+      );
       setAlerts(res.data);
     } catch (err) {
       console.log(err);
     }
   };
 
-  useEffect(() => { fetchAlerts(); }, []);
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
 
   const sendAlert = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:3001/api/alerts",
+        "https://resqreliefcheck.onrender.com/api/alerts",
         {
           alertTitle: title,
           message,
           audience,
           channels,
           // Pass district only when email channel is selected — used for tiered filtering
-          district: channels.includes("email") ? district.trim() || undefined : undefined,
+          district: channels.includes("email")
+            ? district.trim() || undefined
+            : undefined,
         },
-        { headers: { role: sessionStorage.getItem("role") } }
+        { headers: { role: sessionStorage.getItem("role") } },
       );
 
       const { emailsSent, inAppSent } = res.data;
       alert(
         `✅ Alert Sent!\n` +
-        (channels.includes("email")
-          ? `📧 Emails sent to ${emailsSent} recipient(s) (distance-based selection)\n`
-          : "") +
-        (channels.includes("app") ? `🔔 In-app notification sent to ${inAppSent} recipient(s)` : "")
+          (channels.includes("email")
+            ? `📧 Emails sent to ${emailsSent} recipient(s) (distance-based selection)\n`
+            : "") +
+          (channels.includes("app")
+            ? `🔔 In-app notification sent to ${inAppSent} recipient(s)`
+            : ""),
       );
 
       setTitle("");
@@ -64,7 +72,9 @@ const AdminAlerts = () => {
 
   const expireAlert = async (id) => {
     try {
-      await axios.patch(`http://localhost:3001/api/alerts/${id}/expire`);
+      await axios.patch(
+        `https://resqreliefcheck.onrender.com/api/alerts/${id}/expire`,
+      );
       fetchAlerts();
     } catch (err) {
       console.error(err);
@@ -77,7 +87,6 @@ const AdminAlerts = () => {
       <h1 className="main-title">Emergency Notification System</h1>
 
       <div className="alert-wrapper">
-
         {/* LEFT SIDE */}
         <div className="alert-form">
           <h2>Create Emergency Alert</h2>
@@ -98,7 +107,9 @@ const AdminAlerts = () => {
 
           <label>
             District{" "}
-            <span style={{ fontWeight: "normal", color: "#888", fontSize: "13px" }}>
+            <span
+              style={{ fontWeight: "normal", color: "#888", fontSize: "13px" }}
+            >
               (used for proximity-based email targeting)
             </span>
           </label>
@@ -108,9 +119,16 @@ const AdminAlerts = () => {
             onChange={(e) => setDistrict(e.target.value)}
           />
           {channels.includes("email") && (
-            <p style={{ fontSize: "12px", color: "#888", marginTop: "-8px", marginBottom: "8px" }}>
-              💡 Volunteers within 50 km will all be emailed. Beyond 50 km, only the nearest
-              volunteer will receive an email.
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#888",
+                marginTop: "-8px",
+                marginBottom: "8px",
+              }}
+            >
+              💡 Volunteers within 50 km will all be emailed. Beyond 50 km, only
+              the nearest volunteer will receive an email.
             </p>
           )}
 
@@ -195,15 +213,21 @@ const AdminAlerts = () => {
                         <button
                           onClick={() => expireAlert(a._id)}
                           style={{
-                            background: "#c0392b", color: "#fff", border: "none",
-                            padding: "5px 10px", borderRadius: "4px",
-                            cursor: "pointer", fontSize: "13px",
+                            background: "#c0392b",
+                            color: "#fff",
+                            border: "none",
+                            padding: "5px 10px",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontSize: "13px",
                           }}
                         >
                           Expire
                         </button>
                       ) : (
-                        <span style={{ color: "#999", fontSize: "13px" }}>—</span>
+                        <span style={{ color: "#999", fontSize: "13px" }}>
+                          —
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -212,7 +236,6 @@ const AdminAlerts = () => {
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );

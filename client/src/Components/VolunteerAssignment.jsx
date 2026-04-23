@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
-const BASE = "http://localhost:3001";
+const BASE = "https://resqreliefcheck.onrender.com";
 
 // ── Styles ──────────────────────────────────────────────────────────
 const s = {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./Login.css"; 
+import "./Login.css";
 
 const AdminLogin = ({ setLogged, setRole }) => {
   const navigate = useNavigate();
@@ -14,15 +14,18 @@ const AdminLogin = ({ setLogged, setRole }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3001/admin-login", formData);
+      const res = await axios.post(
+        "https://resqreliefcheck.onrender.com/admin-login",
+        formData,
+      );
 
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("user", JSON.stringify(res.data.user));
       sessionStorage.setItem("email", res.data.user.email);
-      sessionStorage.setItem("role", "admin"); 
+      sessionStorage.setItem("role", "admin");
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      localStorage.setItem("role", "admin"); 
+      localStorage.setItem("role", "admin");
 
       setLogged(true);
       setRole("admin");

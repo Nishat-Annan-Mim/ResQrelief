@@ -58,7 +58,7 @@ function DonateMoney({ setView }) {
     }
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/donate/money", {
+      const res = await fetch("https://resqreliefcheck.onrender.com/donate/money", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, amount: Number(form.amount) }),
@@ -140,7 +140,7 @@ function DonateSupplies({ setView }) {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://localhost:3001/donate/supplies", {
+      const res = await fetch("https://resqreliefcheck.onrender.com/donate/supplies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

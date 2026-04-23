@@ -4,17 +4,19 @@ import { useNavigate } from "react-router-dom";
 
 const NotificationListener = () => {
   const socketRef = useRef(null);
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
     const email = storedUser.email || sessionStorage.getItem("email");
     if (!email) {
-      console.warn("⚠️ NotificationListener: No email found. Socket not connected.");
+      console.warn(
+        "⚠️ NotificationListener: No email found. Socket not connected.",
+      );
       return;
     }
 
-    socketRef.current = io("http://localhost:3001", {
+    socketRef.current = io("https://resqreliefcheck.onrender.com", {
       transports: ["websocket", "polling"],
     });
 
@@ -33,7 +35,9 @@ const NotificationListener = () => {
       sessionStorage.clear();
       localStorage.clear();
       if (socketRef.current) socketRef.current.disconnect();
-      alert(`🚫 Account Suspended\n\n${data?.message || "Your account has been banned due to a fraudulent request."}\n\nYou have been logged out.`);
+      alert(
+        `🚫 Account Suspended\n\n${data?.message || "Your account has been banned due to a fraudulent request."}\n\nYou have been logged out.`,
+      );
       window.location.href = "/login"; // hard redirect — works even as component unmounts
     });
     socketRef.current.on("connect_error", (err) => {

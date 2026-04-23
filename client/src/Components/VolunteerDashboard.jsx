@@ -19,7 +19,7 @@ const VolunteerDashboard = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axios.get("http://localhost:3001/api/alerts");
+        const res = await axios.get("https://resqreliefcheck.onrender.com/api/alerts");
         const volunteerAlerts = res.data.filter((a) =>
           a.audience.includes("volunteers"),
         );
@@ -35,7 +35,7 @@ const VolunteerDashboard = () => {
     const fetchVolunteer = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/volunteer/profile/${user.email}`,
+          `https://resqreliefcheck.onrender.com/volunteer/profile/${user.email}`,
         );
         setVolunteer(response.data);
       } catch (error) {
@@ -51,7 +51,7 @@ const VolunteerDashboard = () => {
   // Handle password submission
   const handlePasswordSubmit = async () => {
     try {
-      const res = await axios.post("http://localhost:3001/volunteer/login", {
+      const res = await axios.post("https://resqreliefcheck.onrender.com/volunteer/login", {
         email: user.email,
         password: password,
       });
@@ -78,7 +78,7 @@ const VolunteerDashboard = () => {
 
   const saveEdit = async () => {
     try {
-      await axios.put(`http://localhost:3001/volunteer/update/${user.email}`, {
+      await axios.put(`https://resqreliefcheck.onrender.com/volunteer/update/${user.email}`, {
         [editingField]: editValue,
       });
 

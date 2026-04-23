@@ -11,13 +11,15 @@ const AdminHome = () => {
 
   useEffect(() => {
     // Load top 5 inventory
-    axios.get("http://localhost:3001/api/inventory").then((res) => {
-      setTopItems(res.data.slice(0, 5));
-    });
+    axios
+      .get("https://resqreliefcheck.onrender.com/api/inventory")
+      .then((res) => {
+        setTopItems(res.data.slice(0, 5));
+      });
 
     // Load AI prioritized requests
     axios
-      .get("http://localhost:3001/api/requests/ai-prioritized")
+      .get("https://resqreliefcheck.onrender.com/api/requests/ai-prioritized")
       .then((res) => {
         setTopRequests(res.data.slice(0, 5));
         setLoadingRequests(false);
@@ -82,10 +84,12 @@ const AdminHome = () => {
           <li className="sidebar-item" onClick={() => navigate("/admin-tasks")}>
             Task Management
           </li>
-          <li className="sidebar-item" onClick={() => navigate("/collaboration-portal")}>
+          <li
+            className="sidebar-item"
+            onClick={() => navigate("/collaboration-portal")}
+          >
             NGO Collaboration
           </li>
-          
         </ul>
       </aside>
 

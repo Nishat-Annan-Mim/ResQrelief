@@ -70,7 +70,7 @@ const CollaborationPortal = () => {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/collab/posts");
+      const res = await axios.get("https://resqreliefcheck.onrender.com/api/collab/posts");
       setPosts(res.data);
     } catch (err) {
       console.error(err);
@@ -81,7 +81,7 @@ const CollaborationPortal = () => {
 
   const fetchAgencies = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/ngo/agencies");
+      const res = await axios.get("https://resqreliefcheck.onrender.com/api/ngo/agencies");
       setAgencies(res.data);
     } catch (err) {
       console.error(err);
@@ -91,7 +91,7 @@ const CollaborationPortal = () => {
   const handleNGOLogin = async () => {
     setLoginError("");
     try {
-      const res = await axios.post("http://localhost:3001/api/ngo/login", loginForm);
+      const res = await axios.post("https://resqreliefcheck.onrender.com/api/ngo/login", loginForm);
       sessionStorage.setItem("ngoAgency", JSON.stringify(res.data.agency));
       setNgoSession(res.data.agency);
     } catch (err) {
@@ -114,7 +114,7 @@ const CollaborationPortal = () => {
       : { agencyId: ngoSession._id, agencyName: ngoSession.agencyName, agencyType: ngoSession.agencyType, district: ngoSession.district };
 
     try {
-      await axios.post("http://localhost:3001/api/collab/posts", {
+      await axios.post("https://resqreliefcheck.onrender.com/api/collab/posts", {
         postedBy: poster,
         postType: postForm.postType,
         title: postForm.title,
@@ -137,7 +137,7 @@ const CollaborationPortal = () => {
       : { respondedByAgency: ngoSession.agencyName, respondedByType: ngoSession.agencyType };
 
     try {
-      await axios.post(`http://localhost:3001/api/collab/posts/${postId}/respond`, {
+      await axios.post(`https://resqreliefcheck.onrender.com/api/collab/posts/${postId}/respond`, {
         ...responder,
         message: replyText,
       });
@@ -149,13 +149,13 @@ const CollaborationPortal = () => {
   };
 
   const handleAgencyStatus = async (id, status) => {
-    await axios.put(`http://localhost:3001/api/ngo/agencies/${id}/status`, { status });
+    await axios.put(`https://resqreliefcheck.onrender.com/api/ngo/agencies/${id}/status`, { status });
     fetchAgencies();
   };
 
   const handleDeletePost = async (id) => {
     if (!window.confirm("Delete this post?")) return;
-    await axios.delete(`http://localhost:3001/api/collab/posts/${id}`);
+    await axios.delete(`https://resqreliefcheck.onrender.com/api/collab/posts/${id}`);
     fetchPosts();
   };
 

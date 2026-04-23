@@ -6,20 +6,38 @@ export default function StorageAnalytics() {
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
-    fetch("http://localhost:3001/admin/storage-analytics")
+    fetch("https://resqreliefcheck.onrender.com/admin/storage-analytics")
       .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false); })
+      .then((d) => {
+        setData(d);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
-  const s = { fontFamily: "Segoe UI, sans-serif", padding: "2rem", maxWidth: "1000px", margin: "0 auto" };
+  const s = {
+    fontFamily: "Segoe UI, sans-serif",
+    padding: "2rem",
+    maxWidth: "1000px",
+    margin: "0 auto",
+  };
 
-  if (loading) return <div style={s}><p>Loading analytics...</p></div>;
-  if (!data) return <div style={s}><p>Failed to load analytics.</p></div>;
+  if (loading)
+    return (
+      <div style={s}>
+        <p>Loading analytics...</p>
+      </div>
+    );
+  if (!data)
+    return (
+      <div style={s}>
+        <p>Failed to load analytics.</p>
+      </div>
+    );
 
   const tabs = ["overview", "expiry", "low stock", "warehouses"];
   const exportReport = (data) => {
-  const html = `
+    const html = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -65,70 +83,95 @@ export default function StorageAnalytics() {
       <table>
         <thead><tr><th>Category</th><th>Item Types</th><th>Total Quantity</th></tr></thead>
         <tbody>
-          ${Object.entries(data.categoryBreakdown).map(([cat, val]) => `
+          ${Object.entries(data.categoryBreakdown)
+            .map(
+              ([cat, val]) => `
             <tr><td>${cat}</td><td>${val.count}</td><td>${val.totalQuantity}</td></tr>
-          `).join("")}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
 
       <h2>🚨 Expired Items (${data.expiredItems.length})</h2>
-      ${data.expiredItems.length === 0
-        ? `<div class="empty">No expired items.</div>`
-        : `<table>
+      ${
+        data.expiredItems.length === 0
+          ? `<div class="empty">No expired items.</div>`
+          : `<table>
             <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Expired On</th></tr></thead>
             <tbody>
-              ${data.expiredItems.map((i) => `
+              ${data.expiredItems
+                .map(
+                  (i) => `
                 <tr>
                   <td>${i.itemName}</td>
                   <td>${i.category}</td>
                   <td>${i.quantity}</td>
                   <td><span class="badge-red">${new Date(i.expiryDate).toLocaleDateString()}</span></td>
                 </tr>
-              `).join("")}
+              `,
+                )
+                .join("")}
             </tbody>
-          </table>`}
+          </table>`
+      }
 
       <h2>⚠️ Expiring in 7 Days (${data.expiringIn7Days.length})</h2>
-      ${data.expiringIn7Days.length === 0
-        ? `<div class="empty">None expiring soon.</div>`
-        : `<table>
+      ${
+        data.expiringIn7Days.length === 0
+          ? `<div class="empty">None expiring soon.</div>`
+          : `<table>
             <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Expires On</th></tr></thead>
             <tbody>
-              ${data.expiringIn7Days.map((i) => `
+              ${data.expiringIn7Days
+                .map(
+                  (i) => `
                 <tr>
                   <td>${i.itemName}</td>
                   <td>${i.category}</td>
                   <td>${i.quantity}</td>
                   <td><span class="badge-orange">${new Date(i.expiryDate).toLocaleDateString()}</span></td>
                 </tr>
-              `).join("")}
+              `,
+                )
+                .join("")}
             </tbody>
-          </table>`}
+          </table>`
+      }
 
       <h2>📅 Expiring in 30 Days (${data.expiringIn30Days.length})</h2>
-      ${data.expiringIn30Days.length === 0
-        ? `<div class="empty">None.</div>`
-        : `<table>
+      ${
+        data.expiringIn30Days.length === 0
+          ? `<div class="empty">None.</div>`
+          : `<table>
             <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Expires On</th></tr></thead>
             <tbody>
-              ${data.expiringIn30Days.map((i) => `
+              ${data.expiringIn30Days
+                .map(
+                  (i) => `
                 <tr>
                   <td>${i.itemName}</td>
                   <td>${i.category}</td>
                   <td>${i.quantity}</td>
                   <td><span class="badge-green">${new Date(i.expiryDate).toLocaleDateString()}</span></td>
                 </tr>
-              `).join("")}
+              `,
+                )
+                .join("")}
             </tbody>
-          </table>`}
+          </table>`
+      }
 
       <h2>⚡ Low Stock Items (${data.lowStockItems.length})</h2>
-      ${data.lowStockItems.length === 0
-        ? `<div class="empty">All items are sufficiently stocked.</div>`
-        : `<table>
+      ${
+        data.lowStockItems.length === 0
+          ? `<div class="empty">All items are sufficiently stocked.</div>`
+          : `<table>
             <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Location</th><th>Status</th></tr></thead>
             <tbody>
-              ${data.lowStockItems.map((i) => `
+              ${data.lowStockItems
+                .map(
+                  (i) => `
                 <tr>
                   <td>${i.itemName}</td>
                   <td>${i.category}</td>
@@ -136,17 +179,24 @@ export default function StorageAnalytics() {
                   <td>${i.warehouseLocation || "—"}</td>
                   <td>${i.status || "—"}</td>
                 </tr>
-              `).join("")}
+              `,
+                )
+                .join("")}
             </tbody>
-          </table>`}
+          </table>`
+      }
 
       <h2>🏭 Warehouse Breakdown</h2>
       <table>
         <thead><tr><th>Warehouse</th><th>Item Types</th><th>Total Quantity</th></tr></thead>
         <tbody>
-          ${Object.entries(data.warehouseBreakdown).map(([wh, val]) => `
+          ${Object.entries(data.warehouseBreakdown)
+            .map(
+              ([wh, val]) => `
             <tr><td>${wh}</td><td>${val.count}</td><td>${val.totalQuantity}</td></tr>
-          `).join("")}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
 
@@ -157,44 +207,133 @@ export default function StorageAnalytics() {
     </html>
   `;
 
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `storage-report-${new Date().toISOString().split("T")[0]}.html`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `storage-report-${new Date().toISOString().split("T")[0]}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   return (
     <div style={s}>
-      <h1 style={{ fontSize: "1.8rem", fontWeight: "700", marginBottom: "0.5rem" }}>📦 Storage Analytics Dashboard</h1>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <p style={{ color: "#666", margin: 0 }}>Advanced insights into community storage, expiry alerts, and stock usage.</p>
+      <h1
+        style={{
+          fontSize: "1.8rem",
+          fontWeight: "700",
+          marginBottom: "0.5rem",
+        }}
+      >
+        📦 Storage Analytics Dashboard
+      </h1>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <p style={{ color: "#666", margin: 0 }}>
+          Advanced insights into community storage, expiry alerts, and stock
+          usage.
+        </p>
         <button
           onClick={() => exportReport(data)}
-          style={{ padding: "0.6rem 1.2rem", backgroundColor: "#1a1a1a", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "0.88rem" }}
+          style={{
+            padding: "0.6rem 1.2rem",
+            backgroundColor: "#1a1a1a",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "600",
+            fontSize: "0.88rem",
+          }}
         >
           📥 Download Report
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "1rem",
+          marginBottom: "1.5rem",
+        }}
+      >
         {[
-          { label: "Total Items", value: data.totalItems, color: "#1565c0", bg: "#e3f0ff" },
-          { label: "Total Quantity", value: data.totalQuantity, color: "#2e7d32", bg: "#e8f5e9" },
-          { label: "Expired Items", value: data.expiredItems.length, color: "#c62f3b", bg: "#fce4e4" },
-          { label: "Low Stock", value: data.lowStockItems.length, color: "#f57f17", bg: "#fff8e1" },
+          {
+            label: "Total Items",
+            value: data.totalItems,
+            color: "#1565c0",
+            bg: "#e3f0ff",
+          },
+          {
+            label: "Total Quantity",
+            value: data.totalQuantity,
+            color: "#2e7d32",
+            bg: "#e8f5e9",
+          },
+          {
+            label: "Expired Items",
+            value: data.expiredItems.length,
+            color: "#c62f3b",
+            bg: "#fce4e4",
+          },
+          {
+            label: "Low Stock",
+            value: data.lowStockItems.length,
+            color: "#f57f17",
+            bg: "#fff8e1",
+          },
         ].map((card) => (
-          <div key={card.label} style={{ backgroundColor: card.bg, borderRadius: "14px", padding: "1.2rem", textAlign: "center" }}>
-            <p style={{ fontSize: "0.82rem", fontWeight: "600", color: card.color, marginBottom: "0.4rem", marginTop: 0 }}>{card.label}</p>
-            <p style={{ fontSize: "1.8rem", fontWeight: "700", color: "#1a1a1a", margin: 0 }}>{card.value}</p>
+          <div
+            key={card.label}
+            style={{
+              backgroundColor: card.bg,
+              borderRadius: "14px",
+              padding: "1.2rem",
+              textAlign: "center",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "0.82rem",
+                fontWeight: "600",
+                color: card.color,
+                marginBottom: "0.4rem",
+                marginTop: 0,
+              }}
+            >
+              {card.label}
+            </p>
+            <p
+              style={{
+                fontSize: "1.8rem",
+                fontWeight: "700",
+                color: "#1a1a1a",
+                margin: 0,
+              }}
+            >
+              {card.value}
+            </p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", borderBottom: "2px solid #f0f0f0", paddingBottom: "0.5rem" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "0.5rem",
+          marginBottom: "1.5rem",
+          borderBottom: "2px solid #f0f0f0",
+          paddingBottom: "0.5rem",
+        }}
+      >
         {tabs.map((tab) => (
           <button
             key={tab}
@@ -217,22 +356,70 @@ export default function StorageAnalytics() {
 
       {/* Overview Tab */}
       {activeTab === "overview" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1.5rem",
+          }}
+        >
           {/* Category Breakdown */}
-          <div style={{ backgroundColor: "#fff", borderRadius: "14px", padding: "1.5rem", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ marginTop: 0, fontSize: "1rem", fontWeight: "700" }}>Stock by Category</h3>
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "14px",
+              padding: "1.5rem",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+            }}
+          >
+            <h3 style={{ marginTop: 0, fontSize: "1rem", fontWeight: "700" }}>
+              Stock by Category
+            </h3>
             {Object.entries(data.categoryBreakdown).map(([cat, val], i) => {
-              const max = Math.max(...Object.values(data.categoryBreakdown).map(v => v.totalQuantity), 1);
+              const max = Math.max(
+                ...Object.values(data.categoryBreakdown).map(
+                  (v) => v.totalQuantity,
+                ),
+                1,
+              );
               const pct = (val.totalQuantity / max) * 100;
-              const colors = ["#1565c0", "#2e7d32", "#b45309", "#be123c", "#7c3aed"];
+              const colors = [
+                "#1565c0",
+                "#2e7d32",
+                "#b45309",
+                "#be123c",
+                "#7c3aed",
+              ];
               return (
                 <div key={cat} style={{ marginBottom: "0.8rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", marginBottom: "0.3rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontSize: "0.82rem",
+                      marginBottom: "0.3rem",
+                    }}
+                  >
                     <span>{cat}</span>
-                    <span style={{ fontWeight: "600" }}>{val.totalQuantity} units</span>
+                    <span style={{ fontWeight: "600" }}>
+                      {val.totalQuantity} units
+                    </span>
                   </div>
-                  <div style={{ backgroundColor: "#f0f0f0", borderRadius: "999px", height: "8px" }}>
-                    <div style={{ width: `${pct}%`, height: "100%", backgroundColor: colors[i % colors.length], borderRadius: "999px" }} />
+                  <div
+                    style={{
+                      backgroundColor: "#f0f0f0",
+                      borderRadius: "999px",
+                      height: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${pct}%`,
+                        height: "100%",
+                        backgroundColor: colors[i % colors.length],
+                        borderRadius: "999px",
+                      }}
+                    />
                   </div>
                 </div>
               );
@@ -240,12 +427,31 @@ export default function StorageAnalytics() {
           </div>
 
           {/* Status Breakdown */}
-          <div style={{ backgroundColor: "#fff", borderRadius: "14px", padding: "1.5rem", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ marginTop: 0, fontSize: "1rem", fontWeight: "700" }}>Stock Status</h3>
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "14px",
+              padding: "1.5rem",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+            }}
+          >
+            <h3 style={{ marginTop: 0, fontSize: "1rem", fontWeight: "700" }}>
+              Stock Status
+            </h3>
             {Object.entries(data.statusBreakdown).map(([status, count]) => (
-              <div key={status} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid #f0f0f0" }}>
+              <div
+                key={status}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "0.5rem 0",
+                  borderBottom: "1px solid #f0f0f0",
+                }}
+              >
                 <span style={{ fontSize: "0.88rem" }}>{status}</span>
-                <span style={{ fontWeight: "700", fontSize: "0.88rem" }}>{count} items</span>
+                <span style={{ fontWeight: "700", fontSize: "0.88rem" }}>
+                  {count} items
+                </span>
               </div>
             ))}
           </div>
@@ -256,18 +462,44 @@ export default function StorageAnalytics() {
       {activeTab === "expiry" && (
         <div>
           {/* Expired */}
-          <div style={{ backgroundColor: "#fce4e4", borderRadius: "14px", padding: "1.5rem", marginBottom: "1rem" }}>
-            <h3 style={{ marginTop: 0, color: "#c62f3b" }}>🚨 Expired Items ({data.expiredItems.length})</h3>
-            {data.expiredItems.length === 0 ? <p style={{ color: "#888" }}>No expired items.</p> : (
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
-                <thead><tr><th style={th2}>Item</th><th style={th2}>Category</th><th style={th2}>Qty</th><th style={th2}>Expired On</th></tr></thead>
+          <div
+            style={{
+              backgroundColor: "#fce4e4",
+              borderRadius: "14px",
+              padding: "1.5rem",
+              marginBottom: "1rem",
+            }}
+          >
+            <h3 style={{ marginTop: 0, color: "#c62f3b" }}>
+              🚨 Expired Items ({data.expiredItems.length})
+            </h3>
+            {data.expiredItems.length === 0 ? (
+              <p style={{ color: "#888" }}>No expired items.</p>
+            ) : (
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "0.88rem",
+                }}
+              >
+                <thead>
+                  <tr>
+                    <th style={th2}>Item</th>
+                    <th style={th2}>Category</th>
+                    <th style={th2}>Qty</th>
+                    <th style={th2}>Expired On</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {data.expiredItems.map((item) => (
                     <tr key={item._id}>
                       <td style={td2}>{item.itemName}</td>
                       <td style={td2}>{item.category}</td>
                       <td style={td2}>{item.quantity}</td>
-                      <td style={td2}>{new Date(item.expiryDate).toLocaleDateString()}</td>
+                      <td style={td2}>
+                        {new Date(item.expiryDate).toLocaleDateString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -276,18 +508,44 @@ export default function StorageAnalytics() {
           </div>
 
           {/* Expiring in 7 days */}
-          <div style={{ backgroundColor: "#fff8e1", borderRadius: "14px", padding: "1.5rem", marginBottom: "1rem" }}>
-            <h3 style={{ marginTop: 0, color: "#f57f17" }}>⚠️ Expiring in 7 Days ({data.expiringIn7Days.length})</h3>
-            {data.expiringIn7Days.length === 0 ? <p style={{ color: "#888" }}>None expiring soon.</p> : (
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
-                <thead><tr><th style={th2}>Item</th><th style={th2}>Category</th><th style={th2}>Qty</th><th style={th2}>Expires On</th></tr></thead>
+          <div
+            style={{
+              backgroundColor: "#fff8e1",
+              borderRadius: "14px",
+              padding: "1.5rem",
+              marginBottom: "1rem",
+            }}
+          >
+            <h3 style={{ marginTop: 0, color: "#f57f17" }}>
+              ⚠️ Expiring in 7 Days ({data.expiringIn7Days.length})
+            </h3>
+            {data.expiringIn7Days.length === 0 ? (
+              <p style={{ color: "#888" }}>None expiring soon.</p>
+            ) : (
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "0.88rem",
+                }}
+              >
+                <thead>
+                  <tr>
+                    <th style={th2}>Item</th>
+                    <th style={th2}>Category</th>
+                    <th style={th2}>Qty</th>
+                    <th style={th2}>Expires On</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {data.expiringIn7Days.map((item) => (
                     <tr key={item._id}>
                       <td style={td2}>{item.itemName}</td>
                       <td style={td2}>{item.category}</td>
                       <td style={td2}>{item.quantity}</td>
-                      <td style={td2}>{new Date(item.expiryDate).toLocaleDateString()}</td>
+                      <td style={td2}>
+                        {new Date(item.expiryDate).toLocaleDateString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -296,18 +554,43 @@ export default function StorageAnalytics() {
           </div>
 
           {/* Expiring in 30 days */}
-          <div style={{ backgroundColor: "#e8f5e9", borderRadius: "14px", padding: "1.5rem" }}>
-            <h3 style={{ marginTop: 0, color: "#2e7d32" }}>📅 Expiring in 30 Days ({data.expiringIn30Days.length})</h3>
-            {data.expiringIn30Days.length === 0 ? <p style={{ color: "#888" }}>None.</p> : (
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
-                <thead><tr><th style={th2}>Item</th><th style={th2}>Category</th><th style={th2}>Qty</th><th style={th2}>Expires On</th></tr></thead>
+          <div
+            style={{
+              backgroundColor: "#e8f5e9",
+              borderRadius: "14px",
+              padding: "1.5rem",
+            }}
+          >
+            <h3 style={{ marginTop: 0, color: "#2e7d32" }}>
+              📅 Expiring in 30 Days ({data.expiringIn30Days.length})
+            </h3>
+            {data.expiringIn30Days.length === 0 ? (
+              <p style={{ color: "#888" }}>None.</p>
+            ) : (
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "0.88rem",
+                }}
+              >
+                <thead>
+                  <tr>
+                    <th style={th2}>Item</th>
+                    <th style={th2}>Category</th>
+                    <th style={th2}>Qty</th>
+                    <th style={th2}>Expires On</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {data.expiringIn30Days.map((item) => (
                     <tr key={item._id}>
                       <td style={td2}>{item.itemName}</td>
                       <td style={td2}>{item.category}</td>
                       <td style={td2}>{item.quantity}</td>
-                      <td style={td2}>{new Date(item.expiryDate).toLocaleDateString()}</td>
+                      <td style={td2}>
+                        {new Date(item.expiryDate).toLocaleDateString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -319,17 +602,46 @@ export default function StorageAnalytics() {
 
       {/* Low Stock Tab */}
       {activeTab === "low stock" && (
-        <div style={{ backgroundColor: "#fff", borderRadius: "14px", padding: "1.5rem", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-          <h3 style={{ marginTop: 0 }}>⚡ Low Stock Items (quantity &lt; 10)</h3>
-          {data.lowStockItems.length === 0 ? <p style={{ color: "#888" }}>All items are sufficiently stocked.</p> : (
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
-              <thead><tr><th style={th2}>Item</th><th style={th2}>Category</th><th style={th2}>Quantity</th><th style={th2}>Location</th><th style={th2}>Status</th></tr></thead>
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "14px",
+            padding: "1.5rem",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>
+            ⚡ Low Stock Items (quantity &lt; 10)
+          </h3>
+          {data.lowStockItems.length === 0 ? (
+            <p style={{ color: "#888" }}>All items are sufficiently stocked.</p>
+          ) : (
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "0.88rem",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th style={th2}>Item</th>
+                  <th style={th2}>Category</th>
+                  <th style={th2}>Quantity</th>
+                  <th style={th2}>Location</th>
+                  <th style={th2}>Status</th>
+                </tr>
+              </thead>
               <tbody>
                 {data.lowStockItems.map((item) => (
                   <tr key={item._id}>
                     <td style={td2}>{item.itemName}</td>
                     <td style={td2}>{item.category}</td>
-                    <td style={td2}><span style={{ color: "#c62f3b", fontWeight: "700" }}>{item.quantity}</span></td>
+                    <td style={td2}>
+                      <span style={{ color: "#c62f3b", fontWeight: "700" }}>
+                        {item.quantity}
+                      </span>
+                    </td>
                     <td style={td2}>{item.warehouseLocation || "—"}</td>
                     <td style={td2}>{item.status}</td>
                   </tr>
@@ -342,12 +654,47 @@ export default function StorageAnalytics() {
 
       {/* Warehouses Tab */}
       {activeTab === "warehouses" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "1rem",
+          }}
+        >
           {Object.entries(data.warehouseBreakdown).map(([wh, val]) => (
-            <div key={wh} style={{ backgroundColor: "#fff", borderRadius: "14px", padding: "1.2rem", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", textAlign: "center" }}>
-              <p style={{ fontWeight: "700", color: "#1a1a1a", marginBottom: "0.5rem", marginTop: 0 }}>🏭 {wh}</p>
-              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: "#1565c0", margin: "0 0 0.3rem 0" }}>{val.totalQuantity}</p>
-              <p style={{ fontSize: "0.8rem", color: "#888", margin: 0 }}>{val.count} item types</p>
+            <div
+              key={wh}
+              style={{
+                backgroundColor: "#fff",
+                borderRadius: "14px",
+                padding: "1.2rem",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                textAlign: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontWeight: "700",
+                  color: "#1a1a1a",
+                  marginBottom: "0.5rem",
+                  marginTop: 0,
+                }}
+              >
+                🏭 {wh}
+              </p>
+              <p
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: "700",
+                  color: "#1565c0",
+                  margin: "0 0 0.3rem 0",
+                }}
+              >
+                {val.totalQuantity}
+              </p>
+              <p style={{ fontSize: "0.8rem", color: "#888", margin: 0 }}>
+                {val.count} item types
+              </p>
             </div>
           ))}
         </div>
@@ -356,5 +703,15 @@ export default function StorageAnalytics() {
   );
 }
 
-const th2 = { padding: "0.6rem 0.8rem", textAlign: "left", fontWeight: "600", color: "#444", backgroundColor: "rgba(0,0,0,0.03)" };
-const td2 = { padding: "0.55rem 0.8rem", color: "#333", borderBottom: "1px solid #f0f0f0" };
+const th2 = {
+  padding: "0.6rem 0.8rem",
+  textAlign: "left",
+  fontWeight: "600",
+  color: "#444",
+  backgroundColor: "rgba(0,0,0,0.03)",
+};
+const td2 = {
+  padding: "0.55rem 0.8rem",
+  color: "#333",
+  borderBottom: "1px solid #f0f0f0",
+};

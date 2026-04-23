@@ -11,7 +11,7 @@ const Adminvolunteers = () => {
 
   const fetchVolunteers = () => {
     axios
-      .get("http://localhost:3001/api/volunteers/all")
+      .get("https://resqreliefcheck.onrender.com/api/volunteers/all")
       .then((response) => {
         setVolunteers(response.data);
         setLoading(false);
@@ -23,7 +23,7 @@ const Adminvolunteers = () => {
   };
   const fetchAidRequests = () => {
     axios
-      .get("http://localhost:3001/api/admin/aid-requests")
+      .get("https://resqreliefcheck.onrender.com/api/admin/aid-requests")
       .then((response) => {
         setAidRequests(response.data);
         setAidRequestsLoading(false);
@@ -41,7 +41,7 @@ const Adminvolunteers = () => {
 
   const confirmVolunteer = (volunteerId) => {
     axios
-      .put(`http://localhost:3001/api/volunteer/confirm/${volunteerId}`)
+      .put(`https://resqreliefcheck.onrender.com/api/volunteer/confirm/${volunteerId}`)
       .then(() => {
         setVolunteers((prev) =>
           prev.map((vol) =>
@@ -60,7 +60,7 @@ const Adminvolunteers = () => {
     if (!confirmed) return;
 
     axios
-      .delete(`http://localhost:3001/api/volunteer/remove/${volunteerId}`)
+      .delete(`https://resqreliefcheck.onrender.com/api/volunteer/remove/${volunteerId}`)
       .then(() => {
         setVolunteers((prev) => prev.filter((vol) => vol._id !== volunteerId));
       })
@@ -73,7 +73,7 @@ const Adminvolunteers = () => {
     if (!confirmed) return;
 
     axios
-      .delete(`http://localhost:3001/api/admin/aid-requests/${requestId}`)
+      .delete(`https://resqreliefcheck.onrender.com/api/admin/aid-requests/${requestId}`)
       .then(() => {
         setAidRequests((prev) => prev.filter((r) => r._id !== requestId));
       })

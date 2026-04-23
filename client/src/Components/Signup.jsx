@@ -23,7 +23,7 @@ const Signup = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:3001/signup", formData);
+      const res = await axios.post("https://resqreliefcheck.onrender.com/signup", formData);
 
       alert("Signup successful!");
 

@@ -16,7 +16,7 @@ export default function DonorImpact() {
   const [imagePreview, setImagePreview] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/admin/donor-impact")
+    fetch("https://resqreliefcheck.onrender.com/admin/donor-impact")
       .then((r) => r.json())
       .then((d) => { setDonations(d); setLoading(false); })
       .catch(() => setLoading(false));
@@ -62,7 +62,7 @@ export default function DonorImpact() {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://localhost:3001/admin/donor-impact/${selected._id}`,
+        `https://resqreliefcheck.onrender.com/admin/donor-impact/${selected._id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -89,7 +89,7 @@ export default function DonorImpact() {
   const generateCertificate = async (donation) => {
     try {
       const res = await fetch(
-        `http://localhost:3001/admin/donor-impact/${donation._id}/certificate`,
+        `https://resqreliefcheck.onrender.com/admin/donor-impact/${donation._id}/certificate`,
         { method: "POST" }
       );
       const data = await res.json();
