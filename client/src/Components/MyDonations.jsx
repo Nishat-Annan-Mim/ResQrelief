@@ -9,7 +9,7 @@ export default function MyDonations() {
 
   useEffect(() => {
     if (!email) return;
-    fetch(`http://localhost:3001/my-donations/${email}`)
+    fetch(`https://resqrelief-fj7z.onrender.com/my-donations/${email}`)
       .then((r) => r.json())
       .then((d) => { setDonations(d); setLoading(false); })
       .catch(() => setLoading(false));

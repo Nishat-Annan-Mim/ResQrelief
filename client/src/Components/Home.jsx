@@ -8,7 +8,7 @@ const Home = () => {
   const [stats, setStats] = useState({ volunteerCount: null, availableFunds: null });
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/stats")
+    axios.get("https://resqrelief-fj7z.onrender.com/api/stats")
       .then((res) => setStats(res.data))
       .catch(() => {});
   }, []);

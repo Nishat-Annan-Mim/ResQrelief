@@ -12,7 +12,7 @@ const VolunteerDirectory = () => {
     const fetchVolunteers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3001/volunteers/grouped-by-zone",
+          "https://resqrelief-fj7z.onrender.com/volunteers/grouped-by-zone",
         );
         setGroupedVolunteers(response.data);
       } catch (error) {

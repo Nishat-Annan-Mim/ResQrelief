@@ -35,7 +35,7 @@ const VolunteerRegister = () => {
       if (!user?.email) return;
       try {
         const res = await axios.get(
-          `http://localhost:3001/volunteer/check/${user.email}`,
+          `https://resqrelief-fj7z.onrender.com/volunteer/check/${user.email}`,
         );
         if (res.data.isVolunteer) {
           // Already registered — navigate to the onboarding page
@@ -53,7 +53,9 @@ const VolunteerRegister = () => {
   useEffect(() => {
     const fetchValidNids = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/valid-nids");
+        const response = await axios.get(
+          "https://resqrelief-fj7z.onrender.com/valid-nids",
+        );
         setValidNidNumbers(response.data); // Store fetched NIDs
         console.log("Fetched NID numbers:", response.data);
       } catch (error) {
@@ -157,7 +159,7 @@ const VolunteerRegister = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3001/volunteer/register", // Backend registration route
+        "https://resqrelief-fj7z.onrender.com/volunteer/register", // Backend registration route
         {
           userId: user?.id, // Include the user ID
           fullName: formData.fullName,

@@ -33,17 +33,17 @@ const AdminOperations = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3001/api/volunteers/all")
+      .get("https://resqrelief-fj7z.onrender.com/api/volunteers/all")
       .then((res) => setVolunteers(res.data));
     axios
-      .get("http://localhost:3001/api/inventory")
+      .get("https://resqrelief-fj7z.onrender.com/api/inventory")
       .then((res) => setInventoryItems(res.data));
     fetchOperations();
   }, []);
 
   const fetchOperations = () => {
     axios
-      .get("http://localhost:3001/api/operations")
+      .get("https://resqrelief-fj7z.onrender.com/api/operations")
       .then((res) => setOperations(res.data));
   };
 
@@ -184,7 +184,7 @@ const AdminOperations = () => {
     if (isToday(form.scheduledDate) && !form.departureTime) {
       return alert("⚠️ Departure time is required for today's operation.");
     }
-    await axios.post("http://localhost:3001/api/operations", {
+    await axios.post("https://resqrelief-fj7z.onrender.com/api/operations", {
       operationName: form.operationName,
       volunteers: form.selectedVolunteers,
       supplyPickupPoint: form.supplyPickupPoint,
@@ -211,7 +211,9 @@ const AdminOperations = () => {
 
   const deleteOperation = async (id) => {
     if (!window.confirm("Delete this operation?")) return;
-    await axios.delete(`http://localhost:3001/api/operations/${id}`);
+    await axios.delete(
+      `https://resqrelief-fj7z.onrender.com/api/operations/${id}`,
+    );
     fetchOperations();
   };
 

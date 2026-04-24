@@ -18,7 +18,7 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     if (!email) return;
     try {
-      const res = await axios.get(`http://localhost:3001/api/notifications/${email}`);
+      const res = await axios.get(`https://resqrelief-fj7z.onrender.com/api/notifications/${email}`);
       setNotifications(res.data);
     } catch (err) {
       console.log(err);
@@ -30,7 +30,7 @@ const NotificationBell = () => {
 
     // ✅ Connect socket for real-time
     if (email) {
-      socketRef.current = io("http://localhost:3001", {
+      socketRef.current = io("https://resqrelief-fj7z.onrender.com", {
         transports: ["websocket", "polling"],
       });
 
@@ -65,7 +65,7 @@ const NotificationBell = () => {
 
     // Mark all as read when opening
     if (!open && unreadCount > 0) {
-      await axios.put(`http://localhost:3001/api/notifications/read-all/${email}`);
+      await axios.put(`https://resqrelief-fj7z.onrender.com/api/notifications/read-all/${email}`);
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     }
   };
@@ -73,7 +73,7 @@ const NotificationBell = () => {
   const handleClick = async (notif) => {
     // Mark individual as read
     try {
-      await axios.put(`http://localhost:3001/api/notifications/read/${notif._id}`);
+      await axios.put(`https://resqrelief-fj7z.onrender.com/api/notifications/read/${notif._id}`);
     } catch (err) {
       console.log(err);
     }
@@ -133,7 +133,7 @@ const NotificationBell = () => {
               <button
                 className="notif-clear-btn"
                 onClick={async () => {
-                  await axios.put(`http://localhost:3001/api/notifications/read-all/${email}`);
+                  await axios.put(`https://resqrelief-fj7z.onrender.com/api/notifications/read-all/${email}`);
                   setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
                 }}
               >

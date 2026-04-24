@@ -4,16 +4,16 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "./AdminHome.css";
 
 const TABS = [
-  { label: " AI Prioritized", value: "all"       },
-  { label: " Verified",        value: "verified"  },
-  { label: " Pending",         value: "pending"   },
-  { label: " Fraud / Banned",  value: "fraud"     },
+  { label: " AI Prioritized", value: "all" },
+  { label: " Verified", value: "verified" },
+  { label: " Pending", value: "pending" },
+  { label: " Fraud / Banned", value: "fraud" },
 ];
 
 const AdminRequests = () => {
-  const [requests, setRequests]   = useState([]);
-  const [banned, setBanned]       = useState([]);
-  const [loading, setLoading]     = useState(true);
+  const [requests, setRequests] = useState([]);
+  const [banned, setBanned] = useState([]);
+  const [loading, setLoading] = useState(true);
   // AFTER
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.tab || "all");
@@ -27,15 +27,21 @@ const AdminRequests = () => {
     setLoading(true);
     try {
       if (tab === "all") {
-        const res = await axios.get("http://localhost:3001/api/requests/ai-prioritized");
+        const res = await axios.get(
+          "https://resqrelief-fj7z.onrender.com/api/requests/ai-prioritized",
+        );
         setRequests(res.data);
       } else if (tab === "fraud") {
-        const res = await axios.get("http://localhost:3001/api/banned");
+        const res = await axios.get(
+          "https://resqrelief-fj7z.onrender.com/api/banned",
+        );
         setBanned(res.data);
         setRequests([]);
       } else {
         // works for: verified, pending
-        const res = await axios.get(`http://localhost:3001/api/requests/by-status/${tab}`);
+        const res = await axios.get(
+          `https://resqrelief-fj7z.onrender.com/api/requests/by-status/${tab}`,
+        );
         setRequests(res.data);
       }
     } catch {
@@ -46,24 +52,26 @@ const AdminRequests = () => {
   };
 
   const getPriorityClass = (priority) => {
-    if (priority === "HIGH")   return "priority-high";
+    if (priority === "HIGH") return "priority-high";
     if (priority === "MEDIUM") return "priority-medium";
     return "priority-low";
   };
 
   const timeAgo = (dateString) => {
     const diff = Math.floor((Date.now() - new Date(dateString)) / 60000);
-    if (diff < 60)   return `${diff}m ago`;
+    if (diff < 60) return `${diff}m ago`;
     if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
     return `${Math.floor(diff / 1440)}d ago`;
   };
-  
+
   // 1. Add handleDelete function (inside the component, before return)
   const handleDelete = async (e, id) => {
     e.stopPropagation(); // prevent row navigate
     if (!window.confirm("Delete this request? This cannot be undone.")) return;
     try {
-      await axios.delete(`http://localhost:3001/api/requests/${id}/remove`);
+      await axios.delete(
+        `https://resqrelief-fj7z.onrender.com/api/requests/${id}/remove`,
+      );
       setRequests((prev) => prev.filter((r) => r._id !== id));
     } catch {
       alert("Failed to delete request.");
@@ -71,25 +79,39 @@ const AdminRequests = () => {
   };
 
   const statusColor = (s) =>
-    s === "pending"        ? "#c0392b" :
-    s === "verified"       ? "#1d4ed8" :
-    s === "in_progress"    ? "#b45309" :
-    s === "volunteer_done" ? "#16a34a" :
-    s === "completed"      ? "#4338ca" : "#888";
+    s === "pending"
+      ? "#c0392b"
+      : s === "verified"
+        ? "#1d4ed8"
+        : s === "in_progress"
+          ? "#b45309"
+          : s === "volunteer_done"
+            ? "#16a34a"
+            : s === "completed"
+              ? "#4338ca"
+              : "#888";
 
   const statusLabel = (s) =>
-    s === "in_progress"    ? "In Progress" :
-    s === "volunteer_done" ? "Vol. Done"   :
-    s === "completed"      ? "Completed"   : s;
+    s === "in_progress"
+      ? "In Progress"
+      : s === "volunteer_done"
+        ? "Vol. Done"
+        : s === "completed"
+          ? "Completed"
+          : s;
 
   return (
     <div className="admin-dashboard-container">
       {/* SIDEBAR */}
       <aside className="admin-sidebar">
         <ul className="sidebar-nav">
-          <li className="sidebar-item" onClick={() => navigate("/admin-home")}>Dashboard</li>
+          <li className="sidebar-item" onClick={() => navigate("/admin-home")}>
+            Dashboard
+          </li>
           <li className="sidebar-item active">Requests</li>
-          <li className="sidebar-item" onClick={() => navigate("/inventory")}>Inventory</li>
+          <li className="sidebar-item" onClick={() => navigate("/inventory")}>
+            Inventory
+          </li>
         </ul>
       </aside>
 
@@ -112,13 +134,16 @@ const AdminRequests = () => {
 
           {loading ? (
             <p style={{ color: "#aaa", padding: "20px 0" }}>
-              {activeTab === "all" ? "AI is analyzing requests..." : "Loading..."}
+              {activeTab === "all"
+                ? "AI is analyzing requests..."
+                : "Loading..."}
             </p>
-
           ) : activeTab === "fraud" ? (
             /* BANNED TABLE */
             banned.length === 0 ? (
-              <p style={{ color: "#aaa", padding: "20px 0" }}>No banned entries yet.</p>
+              <p style={{ color: "#aaa", padding: "20px 0" }}>
+                No banned entries yet.
+              </p>
             ) : (
               <table className="inv-table">
                 <thead>
@@ -132,7 +157,9 @@ const AdminRequests = () => {
                 <tbody>
                   {banned.map((b) => (
                     <tr key={b._id}>
-                      <td style={{ color: "#c0392b", fontWeight: 700 }}>{b.phone}</td>
+                      <td style={{ color: "#c0392b", fontWeight: 700 }}>
+                        {b.phone}
+                      </td>
                       <td>{b.email}</td>
                       <td>
                         <span className="priority-label priority-high">
@@ -145,9 +172,10 @@ const AdminRequests = () => {
                 </tbody>
               </table>
             )
-
           ) : requests.length === 0 ? (
-            <p style={{ color: "#aaa", padding: "20px 0" }}>No requests found.</p>
+            <p style={{ color: "#aaa", padding: "20px 0" }}>
+              No requests found.
+            </p>
           ) : (
             /* ALL / VERIFIED / PENDING TABLE */
             <table className="inv-table">
@@ -168,23 +196,46 @@ const AdminRequests = () => {
                   <tr
                     key={req._id}
                     style={{ cursor: "pointer" }}
-                    onClick={() => navigate(`/admin-requests/${req._id}`, { state: { req } })}
+                    onClick={() =>
+                      navigate(`/admin-requests/${req._id}`, { state: { req } })
+                    }
                   >
                     <td>#{1000 + index}</td>
-                    <td>{req.district}{req.fullAddress ? `, ${req.fullAddress}` : ""}</td>
+                    <td>
+                      {req.district}
+                      {req.fullAddress ? `, ${req.fullAddress}` : ""}
+                    </td>
                     <td>{req.aidTypes?.join(" + ") || "—"}</td>
                     <td>
-                      <span className={`priority-label ${getPriorityClass(req.priority)}`}>
+                      <span
+                        className={`priority-label ${getPriorityClass(req.priority)}`}
+                      >
                         {req.priority}
                       </span>
                     </td>
                     <td>{req.peopleAffected}</td>
-                    <td style={{ textTransform: "capitalize", fontWeight: 600, color: statusColor(req.status) }}>
-                      {req.status === "volunteer_done"
-                        ? <span style={{ background: "#d1fae5", color: "#065f46", padding: "2px 10px", borderRadius: "999px", fontSize: "12px" }}>
-                            Vol. Done ✅
-                          </span>
-                        : statusLabel(req.status)}
+                    <td
+                      style={{
+                        textTransform: "capitalize",
+                        fontWeight: 600,
+                        color: statusColor(req.status),
+                      }}
+                    >
+                      {req.status === "volunteer_done" ? (
+                        <span
+                          style={{
+                            background: "#d1fae5",
+                            color: "#065f46",
+                            padding: "2px 10px",
+                            borderRadius: "999px",
+                            fontSize: "12px",
+                          }}
+                        >
+                          Vol. Done ✅
+                        </span>
+                      ) : (
+                        statusLabel(req.status)
+                      )}
                     </td>
                     <td>{timeAgo(req.createdAt)}</td>
                     <td onClick={(e) => e.stopPropagation()}>
@@ -200,8 +251,12 @@ const AdminRequests = () => {
                           borderRadius: "6px",
                           transition: "background 0.2s",
                         }}
-                        onMouseOver={(e) => (e.currentTarget.style.background = "#fde8e8")}
-                        onMouseOut={(e) => (e.currentTarget.style.background = "none")}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.background = "#fde8e8")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.background = "none")
+                        }
                         title="Delete request"
                       >
                         Remove
@@ -213,8 +268,17 @@ const AdminRequests = () => {
             </table>
           )}
 
-          <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
-            <button className="btn-admin" onClick={() => navigate("/admin-home")}>
+          <div
+            style={{
+              marginTop: "24px",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <button
+              className="btn-admin"
+              onClick={() => navigate("/admin-home")}
+            >
               Admin Dashboard
             </button>
           </div>

@@ -9,7 +9,7 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     if (tranId) {
-      fetch(`http://localhost:3001/donation/status/${tranId}`)
+      fetch(`https://resqrelief-fj7z.onrender.com/donation/status/${tranId}`)
         .then((r) => r.json())
         .then(setInfo)
         .catch(() => {});
@@ -17,35 +17,40 @@ export default function PaymentSuccess() {
   }, [tranId]);
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      backgroundColor: "#f5f5f0",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontFamily: "Segoe UI, sans-serif",
-    }}>
-      <div style={{
-        backgroundColor: "#ffffff",
-        borderRadius: "24px",
-        padding: "4rem 3rem",
-        width: "100%",
-        maxWidth: "460px",
-        textAlign: "center",
-        boxShadow: "0 4px 32px rgba(0,0,0,0.08)",
-      }}>
-
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f5f5f0",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "Segoe UI, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "24px",
+          padding: "4rem 3rem",
+          width: "100%",
+          maxWidth: "460px",
+          textAlign: "center",
+          boxShadow: "0 4px 32px rgba(0,0,0,0.08)",
+        }}
+      >
         {/* Green circle with SVG checkmark */}
-        <div style={{
-          width: "110px",
-          height: "110px",
-          borderRadius: "50%",
-          backgroundColor: "#22c55e",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "0 auto 2rem auto",
-        }}>
+        <div
+          style={{
+            width: "110px",
+            height: "110px",
+            borderRadius: "50%",
+            backgroundColor: "#22c55e",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 2rem auto",
+          }}
+        >
           <svg
             width="55"
             height="55"
@@ -63,13 +68,15 @@ export default function PaymentSuccess() {
           </svg>
         </div>
 
-        <h2 style={{
-          fontSize: "1.6rem",
-          fontWeight: "600",
-          color: "#1a1a1a",
-          marginBottom: "0.5rem",
-          marginTop: 0,
-        }}>
+        <h2
+          style={{
+            fontSize: "1.6rem",
+            fontWeight: "600",
+            color: "#1a1a1a",
+            marginBottom: "0.5rem",
+            marginTop: 0,
+          }}
+        >
           Payment Successful
         </h2>
 
@@ -78,16 +85,18 @@ export default function PaymentSuccess() {
         </p>
 
         {info && (
-          <div style={{
-            marginTop: "1.5rem",
-            backgroundColor: "#f9fafb",
-            borderRadius: "12px",
-            padding: "1.2rem",
-            textAlign: "left",
-            fontSize: "0.9rem",
-            color: "#444",
-            lineHeight: "1.8",
-          }}>
+          <div
+            style={{
+              marginTop: "1.5rem",
+              backgroundColor: "#f9fafb",
+              borderRadius: "12px",
+              padding: "1.2rem",
+              textAlign: "left",
+              fontSize: "0.9rem",
+              color: "#444",
+              lineHeight: "1.8",
+            }}
+          >
             <p style={{ margin: "0 0 0.4rem 0" }}>
               <strong>Donor:</strong> {info.donorName}
             </p>
@@ -120,7 +129,6 @@ export default function PaymentSuccess() {
         >
           Back to Home
         </button>
-
       </div>
     </div>
   );

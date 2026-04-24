@@ -58,7 +58,7 @@ const VolunteerTasks = () => {
   const fetchTasks = async (email) => {
     try {
       const res = await axios.get(
-        `http://localhost:3001/api/tasks/volunteer/${email}`
+        `https://resqrelief-fj7z.onrender.com/api/tasks/volunteer/${email}`
       );
       setTasks(res.data);
     } catch (err) {
@@ -79,7 +79,7 @@ const VolunteerTasks = () => {
       return;
     }
     try {
-      await axios.put(`http://localhost:3001/api/tasks/${taskId}/status`, { status });
+      await axios.put(`https://resqrelief-fj7z.onrender.com/api/tasks/${taskId}/status`, { status });
       showMsg("Task marked as in progress!");
       const user = JSON.parse(localStorage.getItem("user"));
       fetchTasks(user.email);
@@ -91,7 +91,7 @@ const VolunteerTasks = () => {
   const handleCompleteWithNote = async () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
-      await axios.put(`http://localhost:3001/api/tasks/${noteModal}/status`, {
+      await axios.put(`https://resqrelief-fj7z.onrender.com/api/tasks/${noteModal}/status`, {
         status: "completed",
         completionNote: note,
       });

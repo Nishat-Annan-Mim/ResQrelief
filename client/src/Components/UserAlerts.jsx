@@ -7,25 +7,27 @@ const UserAlerts = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const fetchAlerts = async () => {
-    try {
-      const res = await axios.get("http://localhost:3001/api/alerts");
+    const fetchAlerts = async () => {
+      try {
+        const res = await axios.get(
+          "https://resqrelief-fj7z.onrender.com/api/alerts",
+        );
 
-      const sorted = res.data
-        .sort((a, b) => new Date(b.dateSent) - new Date(a.dateSent))
-        .slice(0, 30);
+        const sorted = res.data
+          .sort((a, b) => new Date(b.dateSent) - new Date(a.dateSent))
+          .slice(0, 30);
 
-      setActiveAlerts(sorted.filter((a) => a.status !== "expired"));
-      setExpiredAlerts(sorted.filter((a) => a.status === "expired"));
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setActiveAlerts(sorted.filter((a) => a.status !== "expired"));
+        setExpiredAlerts(sorted.filter((a) => a.status === "expired"));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchAlerts();
-}, []);
+    fetchAlerts();
+  }, []);
   if (loading) return <p style={{ padding: "40px" }}>Loading alerts...</p>;
 
   const renderAlert = (alert, expired = false) => (
@@ -83,7 +85,13 @@ const UserAlerts = () => {
           {expiredAlerts.length > 0 && (
             <>
               <hr style={{ margin: "30px 0", borderColor: "#eee" }} />
-              <p style={{ color: "#aaa", fontSize: "13px", marginBottom: "15px" }}>
+              <p
+                style={{
+                  color: "#aaa",
+                  fontSize: "13px",
+                  marginBottom: "15px",
+                }}
+              >
                 Past / Expired Alerts
               </p>
               {expiredAlerts.map((a) => renderAlert(a, true))}

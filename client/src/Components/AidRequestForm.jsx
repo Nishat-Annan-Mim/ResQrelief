@@ -11,34 +11,84 @@ const AID_OPTIONS = [
   { value: "Other", label: "Other", emoji: "✏️" },
 ];
 
-
 const BANGLADESH_DISTRICTS = [
-"Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogura",
-"Brahmanbaria", "Chandpur", "Chattogram", "Chuadanga", "Cox's Bazar",
-"Cumilla", "Dhaka", "Dinajpur", "Faridpur", "Feni", "Gaibandha",
-"Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore", "Jhalokathi",
-"Jhenaidah", "Joypurhat", "Khagrachhari", "Khulna", "Kishoreganj",
-"Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur",
-"Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj",
-"Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi",
-"Natore", "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh",
-"Patuakhali", "Pirojpur", "Rajbari", "Rajshahi", "Rangamati",
-"Rangpur", "Satkhira", "Shariatpur", "Sherpur", "Sirajganj", "Sunamganj",
-"Sylhet", "Tangail", "Thakurgaon"
-]
-
+  "Bagerhat",
+  "Bandarban",
+  "Barguna",
+  "Barishal",
+  "Bhola",
+  "Bogura",
+  "Brahmanbaria",
+  "Chandpur",
+  "Chattogram",
+  "Chuadanga",
+  "Cox's Bazar",
+  "Cumilla",
+  "Dhaka",
+  "Dinajpur",
+  "Faridpur",
+  "Feni",
+  "Gaibandha",
+  "Gazipur",
+  "Gopalganj",
+  "Habiganj",
+  "Jamalpur",
+  "Jashore",
+  "Jhalokathi",
+  "Jhenaidah",
+  "Joypurhat",
+  "Khagrachhari",
+  "Khulna",
+  "Kishoreganj",
+  "Kurigram",
+  "Kushtia",
+  "Lakshmipur",
+  "Lalmonirhat",
+  "Madaripur",
+  "Magura",
+  "Manikganj",
+  "Meherpur",
+  "Moulvibazar",
+  "Munshiganj",
+  "Mymensingh",
+  "Naogaon",
+  "Narail",
+  "Narayanganj",
+  "Narsingdi",
+  "Natore",
+  "Netrokona",
+  "Nilphamari",
+  "Noakhali",
+  "Pabna",
+  "Panchagarh",
+  "Patuakhali",
+  "Pirojpur",
+  "Rajbari",
+  "Rajshahi",
+  "Rangamati",
+  "Rangpur",
+  "Satkhira",
+  "Shariatpur",
+  "Sherpur",
+  "Sirajganj",
+  "Sunamganj",
+  "Sylhet",
+  "Tangail",
+  "Thakurgaon",
+];
 
 const AidRequestForm = () => {
   const [coords, setCoords] = useState({ latitude: null, longitude: null });
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setCoords({
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
-        }),
+        (pos) =>
+          setCoords({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          }),
         () => {},
-        { timeout: 5000 }
+        { timeout: 5000 },
       );
     }
   }, []);
@@ -46,7 +96,7 @@ const AidRequestForm = () => {
     fullName: "",
     phoneNumber: "",
     district: "",
-    fullAddress: "",       
+    fullAddress: "",
     peopleAffected: "",
     selectedAidTypes: [],
     additionalDetails: "",
@@ -84,19 +134,22 @@ const AidRequestForm = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3001/api/requests", {
-        fullName: formData.fullName,
-        phoneNumber: formData.phoneNumber,
-        district: formData.district,
-        fullAddress: formData.fullAddress,     
-        peopleAffected: formData.peopleAffected,
-        aidTypes: formData.selectedAidTypes,
-        additionalDetails: formData.additionalDetails,
-        otherDetails: otherText,
-        latitude: coords.latitude,   // ← missing
-        longitude: coords.longitude,
-        email: sessionStorage.getItem("email"), 
-      });
+      const response = await axios.post(
+        "https://resqrelief-fj7z.onrender.com/api/requests",
+        {
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+          district: formData.district,
+          fullAddress: formData.fullAddress,
+          peopleAffected: formData.peopleAffected,
+          aidTypes: formData.selectedAidTypes,
+          additionalDetails: formData.additionalDetails,
+          otherDetails: otherText,
+          latitude: coords.latitude, // ← missing
+          longitude: coords.longitude,
+          email: sessionStorage.getItem("email"),
+        },
+      );
 
       if (response.data.duplicate) {
         setModal({ message: "This number has already requested" });
@@ -104,15 +157,18 @@ const AidRequestForm = () => {
       }
 
       setSubmitted(true);
-} catch (error) {
-  if (error.response?.status === 409) {
-    setModal({ message: "This number has already requested" });
-  } else if (error.response?.status === 403) {   // ✅ ADD THIS
-    setModal({ message: "This number has been banned due to a fraudulent request." });
-  } else {
-    setModal({ message: "Something went wrong. Please try again." });
-  }
-}
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setModal({ message: "This number has already requested" });
+      } else if (error.response?.status === 403) {
+        // ✅ ADD THIS
+        setModal({
+          message: "This number has been banned due to a fraudulent request.",
+        });
+      } else {
+        setModal({ message: "Something went wrong. Please try again." });
+      }
+    }
   };
 
   const handleReset = () => {
@@ -120,7 +176,7 @@ const AidRequestForm = () => {
       fullName: "",
       phoneNumber: "",
       district: "",
-      fullAddress: "",       
+      fullAddress: "",
       peopleAffected: "",
       selectedAidTypes: [],
       additionalDetails: "",
@@ -135,7 +191,8 @@ const AidRequestForm = () => {
         <div className="arf-success-card">
           <span className="arf-success-icon">✅</span>
           <p className="arf-success-text">
-            Thank you for submitting your aid request. Our team will review and verify it shortly.
+            Thank you for submitting your aid request. Our team will review and
+            verify it shortly.
           </p>
           <button className="arf-another-btn" onClick={handleReset}>
             Submit Another Request
@@ -227,9 +284,13 @@ const AidRequestForm = () => {
                 onChange={handleChange}
                 required
               >
-                <option value="" disabled>Select your district</option>
+                <option value="" disabled>
+                  Select your district
+                </option>
                 {BANGLADESH_DISTRICTS.map((d) => (
-                  <option key={d} value={d}>{d}</option>
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
                 ))}
               </select>
             </div>

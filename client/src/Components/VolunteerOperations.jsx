@@ -14,7 +14,7 @@ const VolunteerOperations = () => {
   useEffect(() => {
     if (user?.email) {
       axios
-        .get(`http://localhost:3001/api/operations/volunteer/${user.email}`)
+        .get(`https://resqrelief-fj7z.onrender.com/api/operations/volunteer/${user.email}`)
         .then((res) => {
           setOperations(res.data);
           setLoading(false);
@@ -27,7 +27,7 @@ const VolunteerOperations = () => {
     const currentIndex = STATUS_FLOW.indexOf(currentStatus);
     if (currentIndex === STATUS_FLOW.length - 1) return;
     const nextStatus = STATUS_FLOW[currentIndex + 1];
-    await axios.put(`http://localhost:3001/api/operations/${id}/status`, {
+    await axios.put(`https://resqrelief-fj7z.onrender.com/api/operations/${id}/status`, {
       status: nextStatus,
     });
     setOperations((prev) =>
@@ -41,7 +41,7 @@ const VolunteerOperations = () => {
     const opName = encodeURIComponent(op.operationName);
     const opId = op._id;
     const volunteerEmail = encodeURIComponent(user?.email || "");
-    const url = `http://localhost:3001/routemap.html?locations=${locationNames}&op=${opName}&opId=${opId}&email=${volunteerEmail}`;
+    const url = `https://resqrelief-fj7z.onrender.com/routemap.html?locations=${locationNames}&op=${opName}&opId=${opId}&email=${volunteerEmail}`;
     window.open(url, "_blank");
   };
 

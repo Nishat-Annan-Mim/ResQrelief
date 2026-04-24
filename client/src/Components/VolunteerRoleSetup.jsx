@@ -28,7 +28,7 @@ const VolunteerRoleSetup = () => {
     const fetchVolunteer = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/volunteer/profile/${user.email}`,
+          `https://resqrelief-fj7z.onrender.com/volunteer/profile/${user.email}`,
         );
 
         setSelectedRole(response.data.volunteerRole || "");
@@ -60,7 +60,7 @@ const VolunteerRoleSetup = () => {
 
     try {
       await axios.put(
-        `http://localhost:3001/volunteer/role-setup/${user.email}`,
+        `https://resqrelief-fj7z.onrender.com/volunteer/role-setup/${user.email}`,
         {
           volunteerRole: selectedRole,
           skillsExperience,

@@ -71,7 +71,7 @@ const NGORegister = () => {
     }
     setLoading(true);
     try {
-      await axios.post("http://localhost:3001/api/ngo/register", form);
+      await axios.post("https://resqrelief-fj7z.onrender.com/api/ngo/register", form);
       alert("Registration submitted! An admin will verify your agency shortly.");
       navigate("/collaboration-portal");
     } catch (err) {

@@ -19,7 +19,9 @@ const VolunteerDashboard = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await axios.get("http://localhost:3001/api/alerts");
+        const res = await axios.get(
+          "https://resqrelief-fj7z.onrender.com/api/alerts",
+        );
         const volunteerAlerts = res.data.filter((a) =>
           a.audience.includes("volunteers"),
         );
@@ -35,7 +37,7 @@ const VolunteerDashboard = () => {
     const fetchVolunteer = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/volunteer/profile/${user.email}`,
+          `https://resqrelief-fj7z.onrender.com/volunteer/profile/${user.email}`,
         );
         setVolunteer(response.data);
       } catch (error) {
@@ -51,10 +53,13 @@ const VolunteerDashboard = () => {
   // Handle password submission
   const handlePasswordSubmit = async () => {
     try {
-      const res = await axios.post("http://localhost:3001/volunteer/login", {
-        email: user.email,
-        password: password,
-      });
+      const res = await axios.post(
+        "https://resqrelief-fj7z.onrender.com/volunteer/login",
+        {
+          email: user.email,
+          password: password,
+        },
+      );
 
       if (res.status === 200) {
         // Successfully verified the password, remove the needPassword flag
@@ -78,9 +83,12 @@ const VolunteerDashboard = () => {
 
   const saveEdit = async () => {
     try {
-      await axios.put(`http://localhost:3001/volunteer/update/${user.email}`, {
-        [editingField]: editValue,
-      });
+      await axios.put(
+        `https://resqrelief-fj7z.onrender.com/volunteer/update/${user.email}`,
+        {
+          [editingField]: editValue,
+        },
+      );
 
       setVolunteer((prev) => ({
         ...prev,

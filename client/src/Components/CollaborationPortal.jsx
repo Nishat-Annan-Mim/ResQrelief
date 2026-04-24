@@ -28,7 +28,15 @@ const POST_TYPE_COLORS = {
 };
 
 const RESOURCE_TAGS = [
-  "Medical", "Food", "Water", "Shelter", "Transport", "Volunteers", "Funding", "Rescue", "Communication",
+  "Medical",
+  "Food",
+  "Water",
+  "Shelter",
+  "Transport",
+  "Volunteers",
+  "Funding",
+  "Rescue",
+  "Communication",
 ];
 
 const CollaborationPortal = () => {
@@ -70,7 +78,9 @@ const CollaborationPortal = () => {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/collab/posts");
+      const res = await axios.get(
+        "https://resqrelief-fj7z.onrender.com/api/collab/posts",
+      );
       setPosts(res.data);
     } catch (err) {
       console.error(err);
@@ -81,7 +91,9 @@ const CollaborationPortal = () => {
 
   const fetchAgencies = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/ngo/agencies");
+      const res = await axios.get(
+        "https://resqrelief-fj7z.onrender.com/api/ngo/agencies",
+      );
       setAgencies(res.data);
     } catch (err) {
       console.error(err);
@@ -91,7 +103,10 @@ const CollaborationPortal = () => {
   const handleNGOLogin = async () => {
     setLoginError("");
     try {
-      const res = await axios.post("http://localhost:3001/api/ngo/login", loginForm);
+      const res = await axios.post(
+        "https://resqrelief-fj7z.onrender.com/api/ngo/login",
+        loginForm,
+      );
       sessionStorage.setItem("ngoAgency", JSON.stringify(res.data.agency));
       setNgoSession(res.data.agency);
     } catch (err) {
@@ -110,20 +125,40 @@ const CollaborationPortal = () => {
       return;
     }
     const poster = isAdmin
-      ? { agencyName: "ResQRelief Admin", agencyType: "Government", district: "National" }
-      : { agencyId: ngoSession._id, agencyName: ngoSession.agencyName, agencyType: ngoSession.agencyType, district: ngoSession.district };
+      ? {
+          agencyName: "ResQRelief Admin",
+          agencyType: "Government",
+          district: "National",
+        }
+      : {
+          agencyId: ngoSession._id,
+          agencyName: ngoSession.agencyName,
+          agencyType: ngoSession.agencyType,
+          district: ngoSession.district,
+        };
 
     try {
-      await axios.post("http://localhost:3001/api/collab/posts", {
-        postedBy: poster,
-        postType: postForm.postType,
-        title: postForm.title,
-        content: postForm.content,
-        resourceTags: postForm.resourceTags,
-        targetDistricts: postForm.targetDistricts ? postForm.targetDistricts.split(",").map((s) => s.trim()) : [],
-      });
+      await axios.post(
+        "https://resqrelief-fj7z.onrender.com/api/collab/posts",
+        {
+          postedBy: poster,
+          postType: postForm.postType,
+          title: postForm.title,
+          content: postForm.content,
+          resourceTags: postForm.resourceTags,
+          targetDistricts: postForm.targetDistricts
+            ? postForm.targetDistricts.split(",").map((s) => s.trim())
+            : [],
+        },
+      );
       setShowNewPost(false);
-      setPostForm({ postType: "", title: "", content: "", resourceTags: [], targetDistricts: "" });
+      setPostForm({
+        postType: "",
+        title: "",
+        content: "",
+        resourceTags: [],
+        targetDistricts: "",
+      });
       fetchPosts();
     } catch (err) {
       alert("Failed to create post.");
@@ -134,13 +169,19 @@ const CollaborationPortal = () => {
     if (!replyText.trim()) return;
     const responder = isAdmin
       ? { respondedByAgency: "ResQRelief Admin", respondedByType: "Government" }
-      : { respondedByAgency: ngoSession.agencyName, respondedByType: ngoSession.agencyType };
+      : {
+          respondedByAgency: ngoSession.agencyName,
+          respondedByType: ngoSession.agencyType,
+        };
 
     try {
-      await axios.post(`http://localhost:3001/api/collab/posts/${postId}/respond`, {
-        ...responder,
-        message: replyText,
-      });
+      await axios.post(
+        `https://resqrelief-fj7z.onrender.com/api/collab/posts/${postId}/respond`,
+        {
+          ...responder,
+          message: replyText,
+        },
+      );
       setReplyText("");
       fetchPosts();
     } catch (err) {
@@ -149,13 +190,18 @@ const CollaborationPortal = () => {
   };
 
   const handleAgencyStatus = async (id, status) => {
-    await axios.put(`http://localhost:3001/api/ngo/agencies/${id}/status`, { status });
+    await axios.put(
+      `https://resqrelief-fj7z.onrender.com/api/ngo/agencies/${id}/status`,
+      { status },
+    );
     fetchAgencies();
   };
 
   const handleDeletePost = async (id) => {
     if (!window.confirm("Delete this post?")) return;
-    await axios.delete(`http://localhost:3001/api/collab/posts/${id}`);
+    await axios.delete(
+      `https://resqrelief-fj7z.onrender.com/api/collab/posts/${id}`,
+    );
     fetchPosts();
   };
 
@@ -169,7 +215,10 @@ const CollaborationPortal = () => {
   };
 
   const canPost = isAdmin || ngoSession;
-  const filtered = filterType === "all" ? posts : posts.filter((p) => p.postType === filterType);
+  const filtered =
+    filterType === "all"
+      ? posts
+      : posts.filter((p) => p.postType === filterType);
 
   // If not admin and not NGO logged in → show login/register
   if (!isAdmin && !ngoSession) {
@@ -178,7 +227,10 @@ const CollaborationPortal = () => {
         <div className="cp-gate-card">
           <div className="cp-gate-header">
             <h1>🤝 NGO & Authority Collaboration Portal</h1>
-            <p>A secure space for verified agencies to coordinate relief efforts, share resources, and jointly plan operations.</p>
+            <p>
+              A secure space for verified agencies to coordinate relief efforts,
+              share resources, and jointly plan operations.
+            </p>
           </div>
 
           <div className="cp-gate-body">
@@ -188,22 +240,34 @@ const CollaborationPortal = () => {
               <input
                 placeholder="Agency email"
                 value={loginForm.email}
-                onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                onChange={(e) =>
+                  setLoginForm({ ...loginForm, email: e.target.value })
+                }
               />
               <input
                 type="password"
                 placeholder="Password"
                 value={loginForm.password}
-                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                onChange={(e) =>
+                  setLoginForm({ ...loginForm, password: e.target.value })
+                }
               />
-              <button className="cp-btn-login" onClick={handleNGOLogin}>Access Portal →</button>
+              <button className="cp-btn-login" onClick={handleNGOLogin}>
+                Access Portal →
+              </button>
             </div>
 
             <div className="cp-gate-divider">or</div>
 
             <div className="cp-register-prompt">
-              <p>New agency? Register to request verification and join the network.</p>
-              <button className="cp-btn-register" onClick={() => navigate("/ngo-register")}>
+              <p>
+                New agency? Register to request verification and join the
+                network.
+              </p>
+              <button
+                className="cp-btn-register"
+                onClick={() => navigate("/ngo-register")}
+              >
                 Register Your Agency
               </button>
             </div>
@@ -227,12 +291,17 @@ const CollaborationPortal = () => {
         </div>
         <div className="cp-header-actions">
           {canPost && (
-            <button className="cp-btn-new-post" onClick={() => setShowNewPost(true)}>
+            <button
+              className="cp-btn-new-post"
+              onClick={() => setShowNewPost(true)}
+            >
               + New Post
             </button>
           )}
           {!isAdmin && (
-            <button className="cp-btn-logout" onClick={handleNGOLogout}>Logout Agency</button>
+            <button className="cp-btn-logout" onClick={handleNGOLogout}>
+              Logout Agency
+            </button>
           )}
         </div>
       </div>
@@ -240,10 +309,16 @@ const CollaborationPortal = () => {
       {/* Admin Tabs */}
       {isAdmin && (
         <div className="cp-tabs">
-          <button className={`cp-tab ${activeTab === "posts" ? "active" : ""}`} onClick={() => setActiveTab("posts")}>
+          <button
+            className={`cp-tab ${activeTab === "posts" ? "active" : ""}`}
+            onClick={() => setActiveTab("posts")}
+          >
             📋 Posts & Updates
           </button>
-          <button className={`cp-tab ${activeTab === "agencies" ? "active" : ""}`} onClick={() => setActiveTab("agencies")}>
+          <button
+            className={`cp-tab ${activeTab === "agencies" ? "active" : ""}`}
+            onClick={() => setActiveTab("agencies")}
+          >
             🏢 Agencies ({agencies.length})
           </button>
         </div>
@@ -254,7 +329,10 @@ const CollaborationPortal = () => {
         <div className="cp-agencies-section">
           <div className="cp-agencies-grid">
             {agencies.map((a) => (
-              <div key={a._id} className={`cp-agency-card cp-status-${a.status}`}>
+              <div
+                key={a._id}
+                className={`cp-agency-card cp-status-${a.status}`}
+              >
                 <div className="cp-agency-top">
                   <div>
                     <h3>{a.agencyName}</h3>
@@ -272,7 +350,9 @@ const CollaborationPortal = () => {
                   {a.resourcesAvailable?.length > 0 && (
                     <div className="cp-agency-resources">
                       {a.resourcesAvailable.map((r) => (
-                        <span key={r} className="cp-resource-chip">{r}</span>
+                        <span key={r} className="cp-resource-chip">
+                          {r}
+                        </span>
                       ))}
                     </div>
                   )}
@@ -280,10 +360,16 @@ const CollaborationPortal = () => {
 
                 {a.status === "pending" && (
                   <div className="cp-agency-actions">
-                    <button className="cp-btn-verify" onClick={() => handleAgencyStatus(a._id, "verified")}>
+                    <button
+                      className="cp-btn-verify"
+                      onClick={() => handleAgencyStatus(a._id, "verified")}
+                    >
                       ✓ Verify
                     </button>
-                    <button className="cp-btn-reject" onClick={() => handleAgencyStatus(a._id, "rejected")}>
+                    <button
+                      className="cp-btn-reject"
+                      onClick={() => handleAgencyStatus(a._id, "rejected")}
+                    >
                       ✗ Reject
                     </button>
                   </div>
@@ -299,7 +385,10 @@ const CollaborationPortal = () => {
         <>
           {/* Filter bar */}
           <div className="cp-filter-bar">
-            <button className={`cp-filter-btn ${filterType === "all" ? "active" : ""}`} onClick={() => setFilterType("all")}>
+            <button
+              className={`cp-filter-btn ${filterType === "all" ? "active" : ""}`}
+              onClick={() => setFilterType("all")}
+            >
               All
             </button>
             {POST_TYPES.map((t) => (
@@ -307,7 +396,14 @@ const CollaborationPortal = () => {
                 key={t}
                 className={`cp-filter-btn ${filterType === t ? "active" : ""}`}
                 onClick={() => setFilterType(t)}
-                style={filterType === t ? { background: POST_TYPE_COLORS[t], borderColor: POST_TYPE_COLORS[t] } : {}}
+                style={
+                  filterType === t
+                    ? {
+                        background: POST_TYPE_COLORS[t],
+                        borderColor: POST_TYPE_COLORS[t],
+                      }
+                    : {}
+                }
               >
                 {POST_TYPE_ICONS[t]} {t}
               </button>
@@ -317,23 +413,39 @@ const CollaborationPortal = () => {
           {loadingPosts ? (
             <div className="cp-loading">Loading posts...</div>
           ) : filtered.length === 0 ? (
-            <div className="cp-empty">No posts yet. Be the first to share an update!</div>
+            <div className="cp-empty">
+              No posts yet. Be the first to share an update!
+            </div>
           ) : (
             <div className="cp-posts-list">
               {filtered.map((post) => (
                 <div key={post._id} className="cp-post-card">
                   <div className="cp-post-top">
-                    <div className="cp-post-type-pill" style={{ background: POST_TYPE_COLORS[post.postType] }}>
+                    <div
+                      className="cp-post-type-pill"
+                      style={{ background: POST_TYPE_COLORS[post.postType] }}
+                    >
                       {POST_TYPE_ICONS[post.postType]} {post.postType}
                     </div>
                     <div className="cp-post-meta">
-                      <span className="cp-post-agency">{post.postedBy?.agencyName}</span>
+                      <span className="cp-post-agency">
+                        {post.postedBy?.agencyName}
+                      </span>
                       <span className="cp-post-dot">·</span>
-                      <span className="cp-post-district">{post.postedBy?.district}</span>
+                      <span className="cp-post-district">
+                        {post.postedBy?.district}
+                      </span>
                       <span className="cp-post-dot">·</span>
-                      <span className="cp-post-time">{new Date(post.createdAt).toLocaleDateString()}</span>
+                      <span className="cp-post-time">
+                        {new Date(post.createdAt).toLocaleDateString()}
+                      </span>
                       {isAdmin && (
-                        <button className="cp-btn-del-post" onClick={() => handleDeletePost(post._id)}>✕</button>
+                        <button
+                          className="cp-btn-del-post"
+                          onClick={() => handleDeletePost(post._id)}
+                        >
+                          ✕
+                        </button>
                       )}
                     </div>
                   </div>
@@ -344,7 +456,9 @@ const CollaborationPortal = () => {
                   {post.resourceTags?.length > 0 && (
                     <div className="cp-post-tags">
                       {post.resourceTags.map((t) => (
-                        <span key={t} className="cp-tag-chip">{t}</span>
+                        <span key={t} className="cp-tag-chip">
+                          {t}
+                        </span>
                       ))}
                     </div>
                   )}
@@ -359,21 +473,31 @@ const CollaborationPortal = () => {
                   {post.responses?.length > 0 && (
                     <div className="cp-responses">
                       <p className="cp-responses-label">
-                        💬 {post.responses.length} response{post.responses.length > 1 ? "s" : ""}
+                        💬 {post.responses.length} response
+                        {post.responses.length > 1 ? "s" : ""}
                       </p>
                       {expandedPost === post._id &&
                         post.responses.map((r, i) => (
                           <div key={i} className="cp-response-item">
                             <strong>{r.respondedByAgency}</strong>
-                            <span className="cp-resp-type"> ({r.respondedByType})</span>
+                            <span className="cp-resp-type">
+                              {" "}
+                              ({r.respondedByType})
+                            </span>
                             <p>{r.message}</p>
                           </div>
                         ))}
                       <button
                         className="cp-toggle-responses"
-                        onClick={() => setExpandedPost(expandedPost === post._id ? null : post._id)}
+                        onClick={() =>
+                          setExpandedPost(
+                            expandedPost === post._id ? null : post._id,
+                          )
+                        }
                       >
-                        {expandedPost === post._id ? "Hide responses ▲" : "View responses ▼"}
+                        {expandedPost === post._id
+                          ? "Hide responses ▲"
+                          : "View responses ▼"}
                       </button>
                     </div>
                   )}
@@ -415,7 +539,14 @@ const CollaborationPortal = () => {
                   <div
                     key={t}
                     className={`cp-type-option ${postForm.postType === t ? "selected" : ""}`}
-                    style={postForm.postType === t ? { background: POST_TYPE_COLORS[t], borderColor: POST_TYPE_COLORS[t] } : {}}
+                    style={
+                      postForm.postType === t
+                        ? {
+                            background: POST_TYPE_COLORS[t],
+                            borderColor: POST_TYPE_COLORS[t],
+                          }
+                        : {}
+                    }
                     onClick={() => setPostForm({ ...postForm, postType: t })}
                   >
                     {POST_TYPE_ICONS[t]} {t}
@@ -428,7 +559,9 @@ const CollaborationPortal = () => {
               <label>TITLE *</label>
               <input
                 value={postForm.title}
-                onChange={(e) => setPostForm({ ...postForm, title: e.target.value })}
+                onChange={(e) =>
+                  setPostForm({ ...postForm, title: e.target.value })
+                }
                 placeholder="Brief, descriptive title"
               />
             </div>
@@ -438,7 +571,9 @@ const CollaborationPortal = () => {
               <textarea
                 rows={4}
                 value={postForm.content}
-                onChange={(e) => setPostForm({ ...postForm, content: e.target.value })}
+                onChange={(e) =>
+                  setPostForm({ ...postForm, content: e.target.value })
+                }
                 placeholder="Describe your resource offer, request, or update in detail..."
               />
             </div>
@@ -462,14 +597,23 @@ const CollaborationPortal = () => {
               <label>TARGET DISTRICTS (comma-separated)</label>
               <input
                 value={postForm.targetDistricts}
-                onChange={(e) => setPostForm({ ...postForm, targetDistricts: e.target.value })}
+                onChange={(e) =>
+                  setPostForm({ ...postForm, targetDistricts: e.target.value })
+                }
                 placeholder="e.g. Feni, Noakhali, Cox's Bazar"
               />
             </div>
 
             <div className="cp-modal-actions">
-              <button className="cp-btn-modal-cancel" onClick={() => setShowNewPost(false)}>Cancel</button>
-              <button className="cp-btn-modal-save" onClick={handleCreatePost}>Publish Post</button>
+              <button
+                className="cp-btn-modal-cancel"
+                onClick={() => setShowNewPost(false)}
+              >
+                Cancel
+              </button>
+              <button className="cp-btn-modal-save" onClick={handleCreatePost}>
+                Publish Post
+              </button>
             </div>
           </div>
         </div>

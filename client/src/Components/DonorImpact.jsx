@@ -16,9 +16,12 @@ export default function DonorImpact() {
   const [imagePreview, setImagePreview] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/admin/donor-impact")
+    fetch("https://resqrelief-fj7z.onrender.com/admin/donor-impact")
       .then((r) => r.json())
-      .then((d) => { setDonations(d); setLoading(false); })
+      .then((d) => {
+        setDonations(d);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -62,17 +65,17 @@ export default function DonorImpact() {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://localhost:3001/admin/donor-impact/${selected._id}`,
+        `https://resqrelief-fj7z.onrender.com/admin/donor-impact/${selected._id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editForm),
-        }
+        },
       );
       const data = await res.json();
       if (res.ok) {
         setDonations((prev) =>
-          prev.map((d) => (d._id === selected._id ? { ...d, ...editForm } : d))
+          prev.map((d) => (d._id === selected._id ? { ...d, ...editForm } : d)),
         );
         setMessage("✅ Impact saved successfully!");
         setSelected(null);
@@ -119,13 +122,17 @@ export default function DonorImpact() {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(13);
     doc.setFont("helvetica", "bold");
-    doc.text("RESQRELIEF — Disaster Relief Organization", pageWidth / 2, 23, { align: "center" });
+    doc.text("RESQRELIEF — Disaster Relief Organization", pageWidth / 2, 23, {
+      align: "center",
+    });
 
     // Certificate title
     doc.setTextColor(184, 134, 11);
     doc.setFontSize(28);
     doc.setFont("helvetica", "bold");
-    doc.text("Certificate of Appreciation", pageWidth / 2, 48, { align: "center" });
+    doc.text("Certificate of Appreciation", pageWidth / 2, 48, {
+      align: "center",
+    });
 
     // Decorative line
     doc.setDrawColor(200, 169, 110);
@@ -136,7 +143,9 @@ export default function DonorImpact() {
     doc.setTextColor(100, 100, 100);
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    doc.text("This is to proudly certify that", pageWidth / 2, 63, { align: "center" });
+    doc.text("This is to proudly certify that", pageWidth / 2, 63, {
+      align: "center",
+    });
 
     // Donor name
     doc.setTextColor(26, 26, 26);
@@ -148,18 +157,26 @@ export default function DonorImpact() {
     const nameWidth = doc.getTextWidth(donation.donorName);
     doc.setDrawColor(200, 169, 110);
     doc.setLineWidth(0.5);
-    doc.line(pageWidth / 2 - nameWidth / 2, 81, pageWidth / 2 + nameWidth / 2, 81);
+    doc.line(
+      pageWidth / 2 - nameWidth / 2,
+      81,
+      pageWidth / 2 + nameWidth / 2,
+      81,
+    );
 
     // Donation text
     doc.setTextColor(100, 100, 100);
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    doc.text("has made a generous donation of", pageWidth / 2, 91, { align: "center" });
+    doc.text("has made a generous donation of", pageWidth / 2, 91, {
+      align: "center",
+    });
 
     // Donation amount
-    const donationValue = donation.donationType === "money"
-      ? `BDT ${donation.amount?.toLocaleString()}`
-      : donation.supplies?.map((s) => `${s.item} x${s.quantity}`).join(", ");
+    const donationValue =
+      donation.donationType === "money"
+        ? `BDT ${donation.amount?.toLocaleString()}`
+        : donation.supplies?.map((s) => `${s.item} x${s.quantity}`).join(", ");
 
     doc.setTextColor(26, 26, 26);
     doc.setFontSize(18);
@@ -172,7 +189,9 @@ export default function DonorImpact() {
     doc.setFont("helvetica", "normal");
     doc.text(
       "Your generous contribution has made a meaningful difference to disaster-affected communities in Bangladesh.",
-      pageWidth / 2, 113, { align: "center", maxWidth: pageWidth - 80 }
+      pageWidth / 2,
+      113,
+      { align: "center", maxWidth: pageWidth - 80 },
     );
 
     // Served area
@@ -190,11 +209,10 @@ export default function DonorImpact() {
       doc.setFontSize(10);
       doc.setFont("helvetica", "italic");
       doc.setTextColor(80, 80, 80);
-      doc.text(
-        `"${donation.impactSummary}"`,
-        pageWidth / 2, 133,
-        { align: "center", maxWidth: pageWidth - 80 }
-      );
+      doc.text(`"${donation.impactSummary}"`, pageWidth / 2, 133, {
+        align: "center",
+        maxWidth: pageWidth - 80,
+      });
     }
 
     // Seal
@@ -210,11 +228,18 @@ export default function DonorImpact() {
 
     // Issue date
     const issueDate = donation.certificateData?.issuedAt
-      ? new Date(donation.certificateData.issuedAt).toLocaleDateString("en-GB", {
-          day: "numeric", month: "long", year: "numeric",
-        })
+      ? new Date(donation.certificateData.issuedAt).toLocaleDateString(
+          "en-GB",
+          {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          },
+        )
       : new Date().toLocaleDateString("en-GB", {
-          day: "numeric", month: "long", year: "numeric",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
         });
 
     doc.setFontSize(10);
@@ -226,8 +251,9 @@ export default function DonorImpact() {
     if (donation.certificateData?.certificateId) {
       doc.text(
         `Certificate ID: ${donation.certificateData.certificateId}`,
-        pageWidth - 40, 163,
-        { align: "right" }
+        pageWidth - 40,
+        163,
+        { align: "right" },
       );
     }
 
@@ -237,19 +263,22 @@ export default function DonorImpact() {
       doc.setTextColor(150, 150, 150);
       doc.text(
         `Transaction ID: ${donation.transactionId}`,
-        pageWidth / 2, 170,
-        { align: "center" }
+        pageWidth / 2,
+        170,
+        { align: "center" },
       );
     }
 
-    doc.save(`RESQRELIEF-Certificate-${donation.donorName}-${new Date().toISOString().split("T")[0]}.pdf`);
+    doc.save(
+      `RESQRELIEF-Certificate-${donation.donorName}-${new Date().toISOString().split("T")[0]}.pdf`,
+    );
   };
 
   const generateCertificate = async (donation) => {
     try {
       const res = await fetch(
-        `http://localhost:3001/admin/donor-impact/${donation._id}/certificate`,
-        { method: "POST" }
+        `https://resqrelief-fj7z.onrender.com/admin/donor-impact/${donation._id}/certificate`,
+        { method: "POST" },
       );
       const data = await res.json();
       if (res.ok) {
@@ -264,8 +293,8 @@ export default function DonorImpact() {
         await downloadCertificate(updatedDonation);
         setDonations((prev) =>
           prev.map((d) =>
-            d._id === donation._id ? { ...d, certificateGenerated: true } : d
-          )
+            d._id === donation._id ? { ...d, certificateGenerated: true } : d,
+          ),
         );
       }
     } catch {
@@ -280,11 +309,22 @@ export default function DonorImpact() {
     margin: "0 auto",
   };
 
-  if (loading) return <div style={s}><p>Loading donor impact data...</p></div>;
+  if (loading)
+    return (
+      <div style={s}>
+        <p>Loading donor impact data...</p>
+      </div>
+    );
 
   return (
     <div style={s}>
-      <h1 style={{ fontSize: "1.8rem", fontWeight: "700", marginBottom: "0.5rem" }}>
+      <h1
+        style={{
+          fontSize: "1.8rem",
+          fontWeight: "700",
+          marginBottom: "0.5rem",
+        }}
+      >
         🏅 Donor Impact Tracker
       </h1>
       <p style={{ color: "#666", marginBottom: "1.5rem" }}>
@@ -292,62 +332,167 @@ export default function DonorImpact() {
       </p>
 
       {message && (
-        <div style={{ padding: "0.8rem 1rem", borderRadius: "8px", backgroundColor: "#f0fff4", border: "1px solid #68d391", marginBottom: "1rem" }}>
+        <div
+          style={{
+            padding: "0.8rem 1rem",
+            borderRadius: "8px",
+            backgroundColor: "#f0fff4",
+            border: "1px solid #68d391",
+            marginBottom: "1rem",
+          }}
+        >
           {message}
         </div>
       )}
 
       {/* Edit Impact Modal */}
       {selected && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, overflowY: "auto" }}>
-          <div style={{ backgroundColor: "#fff", borderRadius: "16px", padding: "2rem", width: "100%", maxWidth: "540px", boxShadow: "0 8px 32px rgba(0,0,0,0.2)", margin: "2rem auto" }}>
-            <h3 style={{ marginTop: 0 }}>Edit Impact for {selected.donorName}</h3>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            overflowY: "auto",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "16px",
+              padding: "2rem",
+              width: "100%",
+              maxWidth: "540px",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+              margin: "2rem auto",
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>
+              Edit Impact for {selected.donorName}
+            </h3>
 
             <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontWeight: "600", marginBottom: "0.4rem" }}>Impact Summary</label>
+              <label
+                style={{
+                  display: "block",
+                  fontWeight: "600",
+                  marginBottom: "0.4rem",
+                }}
+              >
+                Impact Summary
+              </label>
               <textarea
                 value={editForm.impactSummary}
-                onChange={(e) => setEditForm({ ...editForm, impactSummary: e.target.value })}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, impactSummary: e.target.value })
+                }
                 rows={4}
-                style={{ width: "100%", padding: "0.7rem", borderRadius: "8px", border: "1.5px solid #ddd", boxSizing: "border-box", fontSize: "0.9rem" }}
+                style={{
+                  width: "100%",
+                  padding: "0.7rem",
+                  borderRadius: "8px",
+                  border: "1.5px solid #ddd",
+                  boxSizing: "border-box",
+                  fontSize: "0.9rem",
+                }}
                 placeholder="Describe how this donation was used..."
               />
             </div>
 
             <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontWeight: "600", marginBottom: "0.4rem" }}>Served Area</label>
+              <label
+                style={{
+                  display: "block",
+                  fontWeight: "600",
+                  marginBottom: "0.4rem",
+                }}
+              >
+                Served Area
+              </label>
               <input
                 value={editForm.servedArea}
-                onChange={(e) => setEditForm({ ...editForm, servedArea: e.target.value })}
-                style={{ width: "100%", padding: "0.7rem", borderRadius: "8px", border: "1.5px solid #ddd", boxSizing: "border-box" }}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, servedArea: e.target.value })
+                }
+                style={{
+                  width: "100%",
+                  padding: "0.7rem",
+                  borderRadius: "8px",
+                  border: "1.5px solid #ddd",
+                  boxSizing: "border-box",
+                }}
                 placeholder="e.g. Sylhet, Cox's Bazar"
               />
             </div>
 
             <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: "block", fontWeight: "600", marginBottom: "0.4rem" }}>Utilized Amount (৳)</label>
+                <label
+                  style={{
+                    display: "block",
+                    fontWeight: "600",
+                    marginBottom: "0.4rem",
+                  }}
+                >
+                  Utilized Amount (৳)
+                </label>
                 <input
                   type="number"
                   value={editForm.utilizedAmount}
-                  onChange={(e) => setEditForm({ ...editForm, utilizedAmount: Number(e.target.value) })}
-                  style={{ width: "100%", padding: "0.7rem", borderRadius: "8px", border: "1.5px solid #ddd", boxSizing: "border-box" }}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      utilizedAmount: Number(e.target.value),
+                    })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "0.7rem",
+                    borderRadius: "8px",
+                    border: "1.5px solid #ddd",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "1.5rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  marginTop: "1.5rem",
+                }}
+              >
                 <input
                   type="checkbox"
                   checked={editForm.isUtilized}
-                  onChange={(e) => setEditForm({ ...editForm, isUtilized: e.target.checked })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, isUtilized: e.target.checked })
+                  }
                   id="isUtilized"
                 />
-                <label htmlFor="isUtilized" style={{ fontWeight: "600" }}>Fully Utilized</label>
+                <label htmlFor="isUtilized" style={{ fontWeight: "600" }}>
+                  Fully Utilized
+                </label>
               </div>
             </div>
 
             {/* Image Upload */}
             <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontWeight: "600", marginBottom: "0.4rem" }}>Impact Images</label>
+              <label
+                style={{
+                  display: "block",
+                  fontWeight: "600",
+                  marginBottom: "0.4rem",
+                }}
+              >
+                Impact Images
+              </label>
               <input
                 type="file"
                 accept="image/*"
@@ -356,17 +501,40 @@ export default function DonorImpact() {
                 style={{ marginBottom: "0.8rem" }}
               />
               {imagePreview.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                <div
+                  style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}
+                >
                   {imagePreview.map((img, i) => (
                     <div key={i} style={{ position: "relative" }}>
                       <img
                         src={img}
                         alt={`preview-${i}`}
-                        style={{ width: "80px", height: "60px", objectFit: "cover", borderRadius: "6px", border: "1.5px solid #ddd" }}
+                        style={{
+                          width: "80px",
+                          height: "60px",
+                          objectFit: "cover",
+                          borderRadius: "6px",
+                          border: "1.5px solid #ddd",
+                        }}
                       />
                       <button
                         onClick={() => removeImage(i)}
-                        style={{ position: "absolute", top: "-6px", right: "-6px", background: "#e63946", color: "#fff", border: "none", borderRadius: "50%", width: "18px", height: "18px", cursor: "pointer", fontSize: "0.7rem", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        style={{
+                          position: "absolute",
+                          top: "-6px",
+                          right: "-6px",
+                          background: "#e63946",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "18px",
+                          height: "18px",
+                          cursor: "pointer",
+                          fontSize: "0.7rem",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
                         ✕
                       </button>
@@ -380,13 +548,29 @@ export default function DonorImpact() {
               <button
                 onClick={saveImpact}
                 disabled={saving}
-                style={{ flex: 1, padding: "0.8rem", backgroundColor: "#1a1a1a", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600" }}
+                style={{
+                  flex: 1,
+                  padding: "0.8rem",
+                  backgroundColor: "#1a1a1a",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
               >
                 {saving ? "Saving..." : "Save Impact"}
               </button>
               <button
                 onClick={() => setSelected(null)}
-                style={{ flex: 1, padding: "0.8rem", backgroundColor: "#f0f0f0", border: "none", borderRadius: "8px", cursor: "pointer" }}
+                style={{
+                  flex: 1,
+                  padding: "0.8rem",
+                  backgroundColor: "#f0f0f0",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
               >
                 Cancel
               </button>
@@ -400,7 +584,13 @@ export default function DonorImpact() {
         <p style={{ color: "#aaa" }}>No successful donations found.</p>
       ) : (
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: "0.88rem",
+            }}
+          >
             <thead>
               <tr style={{ backgroundColor: "#f5f5f5" }}>
                 <th style={th}>Donor</th>
@@ -417,46 +607,97 @@ export default function DonorImpact() {
               {donations.map((d) => (
                 <tr key={d._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
                   <td style={td}>
-                    <p style={{ margin: 0, fontWeight: "600" }}>{d.donorName}</p>
-                    <p style={{ margin: 0, fontSize: "0.78rem", color: "#888" }}>{d.donorEmail}</p>
+                    <p style={{ margin: 0, fontWeight: "600" }}>
+                      {d.donorName}
+                    </p>
+                    <p
+                      style={{ margin: 0, fontSize: "0.78rem", color: "#888" }}
+                    >
+                      {d.donorEmail}
+                    </p>
                   </td>
                   <td style={td}>
-                    <span style={{ padding: "0.2rem 0.6rem", borderRadius: "12px", backgroundColor: d.donationType === "money" ? "#e8f5e9" : "#e3f0ff", color: d.donationType === "money" ? "#2e7d32" : "#1565c0", fontWeight: "600", fontSize: "0.78rem" }}>
+                    <span
+                      style={{
+                        padding: "0.2rem 0.6rem",
+                        borderRadius: "12px",
+                        backgroundColor:
+                          d.donationType === "money" ? "#e8f5e9" : "#e3f0ff",
+                        color:
+                          d.donationType === "money" ? "#2e7d32" : "#1565c0",
+                        fontWeight: "600",
+                        fontSize: "0.78rem",
+                      }}
+                    >
                       {d.donationType}
                     </span>
                   </td>
                   <td style={td}>
                     {d.donationType === "money"
                       ? `৳${d.amount?.toLocaleString()}`
-                      : d.supplies?.map((s) => `${s.item} x${s.quantity}`).join(", ")}
-                  </td>
-                  <td style={td}>{d.servedArea || <span style={{ color: "#ccc" }}>—</span>}</td>
-                  <td style={td}>
-                    {d.impactSummary
-                      ? <span style={{ color: "#2e7d32" }}>✅ Added</span>
-                      : <span style={{ color: "#f57f17" }}>⏳ Pending</span>}
+                      : d.supplies
+                          ?.map((s) => `${s.item} x${s.quantity}`)
+                          .join(", ")}
                   </td>
                   <td style={td}>
-                    {d.impactImages && d.impactImages.length > 0
-                      ? <span style={{ color: "#2e7d32" }}>🖼️ {d.impactImages.length}</span>
-                      : <span style={{ color: "#ccc" }}>—</span>}
+                    {d.servedArea || <span style={{ color: "#ccc" }}>—</span>}
                   </td>
                   <td style={td}>
-                    {d.certificateGenerated
-                      ? <span style={{ color: "#2e7d32" }}>✅ Issued</span>
-                      : <span style={{ color: "#aaa" }}>Not issued</span>}
+                    {d.impactSummary ? (
+                      <span style={{ color: "#2e7d32" }}>✅ Added</span>
+                    ) : (
+                      <span style={{ color: "#f57f17" }}>⏳ Pending</span>
+                    )}
                   </td>
                   <td style={td}>
-                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {d.impactImages && d.impactImages.length > 0 ? (
+                      <span style={{ color: "#2e7d32" }}>
+                        🖼️ {d.impactImages.length}
+                      </span>
+                    ) : (
+                      <span style={{ color: "#ccc" }}>—</span>
+                    )}
+                  </td>
+                  <td style={td}>
+                    {d.certificateGenerated ? (
+                      <span style={{ color: "#2e7d32" }}>✅ Issued</span>
+                    ) : (
+                      <span style={{ color: "#aaa" }}>Not issued</span>
+                    )}
+                  </td>
+                  <td style={td}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "0.5rem",
+                        flexWrap: "wrap",
+                      }}
+                    >
                       <button
                         onClick={() => openEdit(d)}
-                        style={{ padding: "0.3rem 0.7rem", backgroundColor: "#1a1a1a", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "0.78rem" }}
+                        style={{
+                          padding: "0.3rem 0.7rem",
+                          backgroundColor: "#1a1a1a",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "0.78rem",
+                        }}
                       >
                         Edit Impact
                       </button>
                       <button
                         onClick={() => generateCertificate(d)}
-                        style={{ padding: "0.3rem 0.7rem", backgroundColor: "#b8860b", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "0.78rem" }}
+                        style={{
+                          padding: "0.3rem 0.7rem",
+                          backgroundColor: "#b8860b",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "0.78rem",
+                        }}
                       >
                         {d.certificateGenerated ? "Re-issue" : "Generate Cert"}
                       </button>
@@ -472,5 +713,11 @@ export default function DonorImpact() {
   );
 }
 
-const th = { padding: "0.7rem 1rem", textAlign: "left", fontWeight: "600", color: "#444", whiteSpace: "nowrap" };
+const th = {
+  padding: "0.7rem 1rem",
+  textAlign: "left",
+  fontWeight: "600",
+  color: "#444",
+  whiteSpace: "nowrap",
+};
 const td = { padding: "0.65rem 1rem", color: "#333", verticalAlign: "middle" };

@@ -14,7 +14,7 @@ const NotificationListener = () => {
       return;
     }
 
-    socketRef.current = io("http://localhost:3001", {
+    socketRef.current = io("https://resqrelief-fj7z.onrender.com", {
       transports: ["websocket", "polling"],
     });
 

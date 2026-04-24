@@ -21,7 +21,7 @@ const WAREHOUSE_OPTIONS = [
   "Warehouse D",
 ];
 
-const BASE_URL = "http://localhost:3001/api";
+const BASE_URL = "https://resqrelief-fj7z.onrender.com/api";
 
 const getStatus = (qty, expiry) => {
   const today = new Date();

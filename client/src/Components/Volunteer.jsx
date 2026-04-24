@@ -19,7 +19,7 @@ const Volunteer = () => {
         }
 
         const response = await axios.get(
-          `http://localhost:3001/volunteer/check/${user.email}`,
+          `https://resqrelief-fj7z.onrender.com/volunteer/check/${user.email}`,
         );
 
         if (response.data.isVolunteer) {

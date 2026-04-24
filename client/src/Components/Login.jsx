@@ -18,7 +18,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3001/login", formData);
+      const res = await axios.post(
+        "https://resqrelief-fj7z.onrender.com/login",
+        formData,
+      );
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("user", JSON.stringify(res.data.user));
       sessionStorage.setItem("role", res.data.user.role);
@@ -34,7 +37,9 @@ const Login = () => {
         alert("⚠️ Admin accounts must log in through the Admin Login portal.");
         navigate("/admin-login");
       } else if (data?.banned) {
-        alert("🚫 Your account has been suspended due to a fraudulent request. You cannot log in.");
+        alert(
+          "🚫 Your account has been suspended due to a fraudulent request. You cannot log in.",
+        );
       } else {
         alert(data?.message || "Login failed");
       }
