@@ -40,7 +40,7 @@ const Home = () => {
 
           <div className="home-actions">
             <button className="btn-request" onClick={() => navigate("/request-aid")}>Request Aid</button>
-            <button className="btn-donate">Donate</button>
+            <button className="btn-donate" onClick={() => navigate("/donate")}>Donate</button>
           </div>
         </div>
 

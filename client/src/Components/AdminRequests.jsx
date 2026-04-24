@@ -255,7 +255,7 @@ const AdminRequests = () => {
                           (e.currentTarget.style.background = "#fde8e8")
                         }
                         onMouseOut={(e) =>
-                          (e.currentTarget.style.background = "none")
+                          (e.currentTarget.style.background = "#c0392b")
                         }
                         title="Delete request"
                       >
