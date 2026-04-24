@@ -81,9 +81,9 @@
 /* Login + Signup hover (blue) */
 .login-btn:hover,
 .signup-btn:hover {
-    background: #007bff;
+    background: #5392b5;
     color: white;
-    border-color: #007bff;
+    border-color: #5392b5;
 }
 
 /* Logout hover (red) */
