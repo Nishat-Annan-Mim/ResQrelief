@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./AdminHome.css";
+import AdminLayout from "./AdminLayout";
 
 const TABS = [
   { label: " AI Prioritized", value: "all" },
@@ -101,19 +102,9 @@ const AdminRequests = () => {
           : s;
 
   return (
+    <AdminLayout>
     <div className="admin-dashboard-container">
-      {/* SIDEBAR */}
-      <aside className="admin-sidebar">
-        <ul className="sidebar-nav">
-          <li className="sidebar-item" onClick={() => navigate("/admin-home")}>
-            Dashboard
-          </li>
-          <li className="sidebar-item active">Requests</li>
-          <li className="sidebar-item" onClick={() => navigate("/inventory")}>
-            Inventory
-          </li>
-        </ul>
-      </aside>
+      
 
       <main className="admin-main-content">
         <div className="inv-card">
@@ -285,6 +276,7 @@ const AdminRequests = () => {
         </div>
       </main>
     </div>
+    </AdminLayout>
   );
 };
 

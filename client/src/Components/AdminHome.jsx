@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import AdminLayout from "./AdminLayout";
 import "./AdminHome.css";
 
 const AdminHome = () => {
@@ -47,67 +48,22 @@ const AdminHome = () => {
   };
 
   return (
-    <div className="admin-dashboard-container">
-      {/* SIDEBAR */}
-      <aside className="admin-sidebar">
-        <ul className="sidebar-nav">
-          <li className="sidebar-item active">Dashboard</li>
+    <AdminLayout>
+      <div className="ah-main">
+        {/* INVENTORY SECTION */}
+        <section className="ah-section">
+          <div className="ah-section-header">
+            <h2 className="ah-section-title">Inventory Overview (Top 5)</h2>
+            <button onClick={() => navigate("/inventory")} className="ah-show-all-btn">
+              Show All
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12">
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
+              </svg>
+            </button>
+          </div>
 
-          <li
-            className="sidebar-item"
-            onClick={() => navigate("/admin-requests")}
-          >
-            Requests
-          </li>
-          <li className="sidebar-item" onClick={() => navigate("/inventory")}>
-            Inventory
-          </li>
-          <li
-            className="sidebar-item"
-            onClick={() => navigate("/admin-volunteers")}
-          >
-            Volunteers
-          </li>
-          <li
-            className="sidebar-item"
-            onClick={() => navigate("/admin-operations")}
-          >
-            Relief Operations
-          </li>
-          <li
-            className="sidebar-item"
-            onClick={() => navigate("/admin-alerts")}
-          >
-            Alerts
-          </li>
-
-          <li className="sidebar-item" onClick={() => navigate("/admin-tasks")}>
-            Task Management
-          </li>
-          <li
-            className="sidebar-item"
-            onClick={() => navigate("/collaboration-portal")}
-          >
-            NGO Collaboration
-          </li>
-        </ul>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="admin-main-content">
-        {/* TOP HALF — Inventory */}
-        <div className="admin-top-half">
-          <div className="inv-card" style={{ height: "100%" }}>
-            <div className="admin-header">
-              <h2> Inventory Overview (Top 5)</h2>
-              <button
-                onClick={() => navigate("/inventory")}
-                className="btn-admin"
-              >
-                Show All →
-              </button>
-            </div>
-            <table className="inv-table">
+          <div className="ah-table-wrap">
+            <table className="ah-table">
               <thead>
                 <tr>
                   <th>Item</th>
@@ -119,13 +75,11 @@ const AdminHome = () => {
               <tbody>
                 {topItems.map((item) => (
                   <tr key={item._id}>
-                    <td>{item.itemName}</td>
-                    <td>{item.category}</td>
-                    <td>{item.quantity}</td>
+                    <td className="ah-td-bold">{item.itemName}</td>
+                    <td className="ah-td-muted">{item.category}</td>
+                    <td className="ah-td-mono">{item.quantity}</td>
                     <td>
-                      <span
-                        className={`status-pill ${getStatusClass(item.status)}`}
-                      >
+                      <span className={`ah-status-pill ${getStatusClass(item.status)}`}>
                         {item.status}
                       </span>
                     </td>
@@ -134,79 +88,79 @@ const AdminHome = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </section>
 
-        {/* BOTTOM HALF — AI Prioritized Requests */}
-        <div
-          className="admin-bottom-half"
-          style={{ display: "block", padding: "25px" }}
-        >
-          <div className="admin-header">
-            <h2> AI-Prioritized Requests (Top 5)</h2>
-            <button
-              onClick={() => navigate("/admin-requests")}
-              className="btn-admin"
-            >
-              Show All →
+        {/* AI PRIORITIZED REQUESTS SECTION */}
+        <section className="ah-section">
+          <div className="ah-section-header">
+            <div className="ah-section-title-group">
+              <h2 className="ah-section-title">AI-Prioritized Requests (Top 5)</h2>
+              <span className="ah-ai-badge">AI Assisted</span>
+            </div>
+            <button onClick={() => navigate("/admin-requests")} className="ah-show-all-btn">
+              Show All
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12">
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
+              </svg>
             </button>
           </div>
 
           {loadingRequests ? (
-            <p style={{ color: "#aaa" }}>Analyzing requests with AI...</p>
+            <p className="ah-loading-text">Analyzing requests with AI...</p>
           ) : (
-            <table className="inv-table">
-              <thead>
-                <tr>
-                  <th>Location</th>
-                  <th>Aid Type</th>
-                  <th>Priority</th>
-                  <th>People</th>
-                  <th>Status</th>
-                  <th>Submitted</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topRequests.map((req) => (
-                  <tr
-                    key={req._id}
-                    style={{ cursor: "pointer" }}
-                    onClick={() =>
-                      navigate(`/admin-requests/${req._id}`, { state: { req } })
-                    }
-                  >
-                    <td>{req.district}</td>
-                    <td>{req.aidTypes?.join(" + ") || "—"}</td>
-                    <td>
-                      <span
-                        className={`priority-label ${getPriorityClass(req.priority)}`}
-                      >
-                        {req.priority}
-                      </span>
-                    </td>
-                    <td>{req.peopleAffected}</td>
-                    <td
-                      style={{
-                        textTransform: "capitalize", // capitalize first letter
-                        fontWeight: 600, // make it bold
-                        color:
-                          req.status === "pending"
-                            ? "#c0392b" // red for pending
-                            : req.status === "verified"
-                              ? "#16a34a" // green for verified
-                              : "#888", // gray for other statuses
-                      }}
-                    >
-                      {req.status}
-                    </td>
-                    <td>{timeAgo(req.createdAt)}</td>
+            <div className="ah-table-wrap">
+              <table className="ah-table">
+                <thead>
+                  <tr>
+                    <th>Location</th>
+                    <th>Aid Type</th>
+                    <th className="ah-th-center">Priority</th>
+                    <th>People</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {topRequests.map((req) => (
+                    <tr
+                      key={req._id}
+                      className="ah-tr-clickable"
+                      onClick={() =>
+                        navigate(`/admin-requests/${req._id}`, { state: { req } })
+                      }
+                    >
+                      <td className="ah-td-bold">{req.district}</td>
+                      <td className="ah-td-muted">{req.aidTypes?.join(" + ") || "—"}</td>
+                      <td className="ah-td-center">
+                        <span className={`ah-priority-label ${getPriorityClass(req.priority)}`}>
+                          {req.priority}
+                        </span>
+                      </td>
+                      <td className="ah-td-mono">{req.peopleAffected}</td>
+                      <td>
+                        <span
+                          className={`ah-req-status ${
+                            req.status === "pending"
+                              ? "ah-req-pending"
+                              : req.status === "verified"
+                              ? "ah-req-verified"
+                              : "ah-req-other"
+                          }`}
+                        >
+                          <span className="ah-status-dot" />
+                          {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="ah-td-time">{timeAgo(req.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
-      </main>
-    </div>
+        </section>
+      </div>
+    </AdminLayout>
   );
 };
 

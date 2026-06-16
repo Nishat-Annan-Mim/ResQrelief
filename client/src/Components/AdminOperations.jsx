@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./AdminHome.css";
 import "./Adminvolunteers.css";
 import "./AdminOperations.css";
+import AdminLayout from "./AdminLayout";
 
 const AdminOperations = () => {
   const navigate = useNavigate();
@@ -279,37 +280,9 @@ const AdminOperations = () => {
   };
 
   return (
+    <AdminLayout>
     <div className="admin-dashboard-container">
-      {/* SIDEBAR */}
-      <aside className="admin-sidebar">
-        <ul className="sidebar-nav">
-          <li className="sidebar-item" onClick={() => navigate("/admin-home")}>
-            Dashboard
-          </li>
-          <li
-            className="sidebar-item"
-            onClick={() => navigate("/admin-requests")}
-          >
-            Requests
-          </li>
-          <li className="sidebar-item" onClick={() => navigate("/inventory")}>
-            Inventory
-          </li>
-          <li
-            className="sidebar-item"
-            onClick={() => navigate("/admin-volunteers")}
-          >
-            Volunteers
-          </li>
-          <li className="sidebar-item active">Relief Operations</li>
-          <li
-            className="sidebar-item"
-            onClick={() => navigate("/admin-alerts")}
-          >
-            Alerts
-          </li>
-        </ul>
-      </aside>
+      
 
       <main className="admin-main-content op-main-padding">
         <div className="admin-header">
@@ -838,6 +811,7 @@ const AdminOperations = () => {
         </div>
       </main>
     </div>
+    </AdminLayout>
   );
 };
 

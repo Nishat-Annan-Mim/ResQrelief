@@ -1,6 +1,6 @@
 .notif-bell-wrapper {
   position: relative;
-  top: -6px;
+  top: 0;
 }
 
 .notif-bell-btn {
@@ -15,6 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  
 }
 
 .notif-bell-btn:hover {

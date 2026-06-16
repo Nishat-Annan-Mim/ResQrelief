@@ -1,5 +1,407 @@
-/* Reuse existing Inventory.css styles + add these */
+/* =============================================
+   AdminHome.css — Redesigned UI
+   All original classes (priority-*, btn-verify,
+   btn-fraud, ar-tabs, detail-*) are preserved
+   below for other pages that depend on them.
+   New AdminHome uses ah-* namespace.
+   ============================================= */
+
 @import "./Inventory.css";
+
+/* ─── LAYOUT ROOT ─────────────────────────────── */
+.ah-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f7f5f2;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ─── TOP NAVBAR ──────────────────────────────── */
+.ah-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px 24px;
+}
+
+.ah-topbar-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ah-brand {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+.ah-brand-resq {
+  color: #111;
+}
+
+.ah-brand-relief {
+  color: #c53030;
+}
+
+.ah-brand-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin-left: 6px;
+  vertical-align: super;
+}
+
+.ah-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ah-notif-btn {
+  position: relative;
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: color 0.2s;
+}
+
+.ah-notif-btn:hover {
+  color: #4b5563;
+}
+
+.ah-notif-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.ah-notif-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: #c53030;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.ah-logout-btn {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #c53030;
+  border: 2px solid #c53030;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.ah-logout-btn:hover {
+  background: #c53030;
+  color: #fff;
+}
+
+/* ─── BODY (SIDEBAR + MAIN) ───────────────────── */
+.ah-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────── */
+.ah-sidebar {
+  width: 220px;
+  background: #ede9e3;
+  border-right: 1px solid #e0dbd4;
+  padding: 24px 12px;
+  flex-shrink: 0;
+}
+
+.ah-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ah-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.ah-nav-item:hover {
+  background: rgba(255, 255, 255, 0.4);
+  color: #1a1a1a;
+}
+
+.ah-nav-active {
+  background: rgba(255, 255, 255, 0.6);
+  color: #c53030;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* ─── MAIN CONTENT ────────────────────────────── */
+.ah-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─── SECTION CARD ────────────────────────────── */
+.ah-section {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #f0ece7;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.ah-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #f0ece7;
+  background: rgba(249,246,243,0.5);
+}
+
+.ah-section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ah-section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.ah-ai-badge {
+  padding: 2px 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ah-show-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  background: #c53030;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ah-show-all-btn:hover {
+  background: #9b2c2c;
+}
+
+/* ─── TABLE ───────────────────────────────────── */
+.ah-table-wrap {
+  overflow-x: auto;
+}
+
+.ah-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.ah-table thead tr {
+  background: rgba(249,246,243,0.4);
+}
+
+.ah-table th {
+  padding: 12px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ah-table tbody tr {
+  border-top: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.ah-table tbody tr:hover {
+  background: #fafaf9;
+}
+
+.ah-table td {
+  padding: 14px 20px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.ah-tr-clickable {
+  cursor: pointer;
+}
+
+.ah-td-bold {
+  font-weight: 600;
+  color: #111827 !important;
+}
+
+.ah-td-muted {
+  color: #6b7280 !important;
+}
+
+.ah-td-mono {
+  font-family: 'Courier New', monospace;
+  color: #4b5563 !important;
+}
+
+.ah-td-center {
+  text-align: center;
+}
+
+.ah-th-center {
+  text-align: center !important;
+}
+
+.ah-td-time {
+  font-size: 12px !important;
+  color: #9ca3af !important;
+}
+
+/* ─── STATUS PILLS (inventory) ────────────────── */
+.ah-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Map existing getStatusClass() returns to new pill colours */
+.ah-status-pill.status-ok {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.ah-status-pill.status-low {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.ah-status-pill.status-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ─── PRIORITY LABELS (requests) ──────────────── */
+.ah-priority-label {
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Reuse getPriorityClass() colour names */
+.ah-priority-label.priority-high  { color: #c0392b; }
+.ah-priority-label.priority-medium { color: #d97706; }
+.ah-priority-label.priority-low   { color: #16a34a; }
+
+/* ─── REQUEST STATUS PILL ─────────────────────── */
+.ah-req-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ah-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ah-req-verified {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.ah-req-verified .ah-status-dot {
+  background: #16a34a;
+}
+
+.ah-req-pending {
+  background: #fff1f1;
+  color: #c0392b;
+}
+
+.ah-req-pending .ah-status-dot {
+  background: #c0392b;
+}
+
+.ah-req-other {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.ah-req-other .ah-status-dot {
+  background: #9ca3af;
+}
+
+/* ─── LOADING TEXT ────────────────────────────── */
+.ah-loading-text {
+  padding: 24px 24px;
+  color: #9ca3af;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* =============================================
+   PRESERVED — Original classes used by other
+   pages (AdminRequests, detail pages, etc.)
+   ============================================= */
 
 /* Priority Labels */
 .priority-label {
@@ -7,17 +409,9 @@
   font-size: 14px;
 }
 
-.priority-high {
-  color: #c0392b;
-}
-
-.priority-medium {
-  color: #d97706;
-}
-
-.priority-low {
-  color: #16a34a;
-}
+.priority-high  { color: #c0392b; }
+.priority-medium { color: #d97706; }
+.priority-low   { color: #16a34a; }
 
 /* Detail Page */
 .detail-page {
@@ -41,9 +435,7 @@
   align-items: flex-start;
 }
 
-.detail-left {
-  flex: 1.2;
-}
+.detail-left  { flex: 1.2; }
 
 .detail-right {
   flex: 0.8;
@@ -94,9 +486,7 @@
   transition: background 0.2s;
 }
 
-.btn-verify:hover {
-  background: #15803d;
-}
+.btn-verify:hover { background: #15803d; }
 
 .btn-fraud {
   flex: 1;
@@ -111,9 +501,7 @@
   transition: background 0.2s;
 }
 
-.btn-fraud:hover {
-  background: #a93226;
-}
+.btn-fraud:hover { background: #a93226; }
 
 /* Request Portal Tabs */
 .ar-tabs {
@@ -144,37 +532,4 @@
   background: #1a1a2e;
   border-color: #1a1a2e;
   color: #fff;
-}
-
-/* Ensure btn-verify and btn-fraud exist */
-.btn-verify {
-  padding: 11px 20px;
-  background: #16a34a;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.btn-verify:hover {
-  opacity: 0.85;
-}
-
-.btn-fraud {
-  padding: 11px 20px;
-  background: #c0392b;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.btn-fraud:hover {
-  opacity: 0.85;
 }

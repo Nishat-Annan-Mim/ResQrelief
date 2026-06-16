@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./AdminAlerts.css";
+import AdminLayout from "./AdminLayout";
 
 const AdminAlerts = () => {
   const [title, setTitle] = useState("");
@@ -83,6 +84,7 @@ const AdminAlerts = () => {
   };
 
   return (
+    <AdminLayout>
     <div className="alert-page">
       <h1 className="main-title">Emergency Notification System</h1>
 
@@ -238,6 +240,7 @@ const AdminAlerts = () => {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 };
 

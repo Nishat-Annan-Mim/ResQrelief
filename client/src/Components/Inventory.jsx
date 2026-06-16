@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Inventory.css";
+import AdminLayout from "./AdminLayout";
 
 const CATEGORY_OPTIONS = [
   "Food",
@@ -66,6 +67,7 @@ const ComboBox = ({ value, onChange, options, placeholder }) => {
   );
 
   return (
+    // FIX: Removed AdminLayout from here so it doesn't duplicate the sidebar inside inputs
     <div style={{ position: "relative" }}>
       <input
         value={inputVal}
@@ -194,7 +196,6 @@ const AddItemModal = ({ onClose, onAdded }) => {
             </div>
           </div>
 
-          {/* Preview status */}
           {form.quantity && (
             <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 14px", borderRadius: "8px", background: "#f7f4ee", border: "1px solid #e8e4dc" }}>
               <span style={{ fontSize: "13px", color: "#888" }}>Auto-computed status:</span>
@@ -406,9 +407,6 @@ const Inventory = () => {
     fetchInventory();
   };
 
-  // Derive unique categories from items + preset options
-  const allCategories = ["All", ...Array.from(new Set([...CATEGORY_OPTIONS, ...items.map((i) => i.category).filter(Boolean)]))];
-
   const filtered = items.filter((item) => {
     const matchSearch =
       !search ||
@@ -420,134 +418,136 @@ const Inventory = () => {
     return matchSearch && matchCat;
   });
 
-  // Summary
   const totalItems = items.length;
   const lowStock = items.filter((i) => i.quantity < 100).length;
   const expiring = items.filter((i) => i.status === "Expiring").length;
   const warehouses = [...new Set(items.map((i) => i.warehouseLocation).filter(Boolean))].length;
 
   return (
-    <div className="inv-page">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h1 className="inv-title" style={{ margin: 0 }}>Inventory Management</h1>
-        <button
-          onClick={() => setShowAddModal(true)}
-          style={{ background: "#2b7cff", color: "#fff", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
-        >
-          ➕ Add Item
-        </button>
-      </div>
-
-      {/* Summary */}
-      <div className="inv-summary">
-        <div><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: "#1a1a2e" }}>{totalItems}</span>Total Items</div>
-        <div style={{ color: lowStock > 0 ? "#e67e22" : undefined }}><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: lowStock > 0 ? "#e67e22" : "#1a1a2e" }}>{lowStock}</span>Low Stock</div>
-        <div style={{ color: expiring > 0 ? "#2980b9" : undefined }}><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: expiring > 0 ? "#2980b9" : "#1a1a2e" }}>{expiring}</span>Expiring Soon</div>
-        <div><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: "#1a1a2e" }}>{warehouses}</span>Warehouses</div>
-      </div>
-
-      <div className="inv-card">
-        {/* Search & Filter Bar */}
-        <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
-          <div style={{ flex: 1, minWidth: "200px", position: "relative" }}>
-            <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: "16px" }}>🔍</span>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by item name, category, warehouse..."
-              style={{ width: "100%", padding: "10px 14px 10px 36px", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box", outline: "none" }}
-            />
-          </div>
-          <CategoryDropdown
-            value={categoryFilter}
-            onChange={setCategoryFilter}
-            categories={CATEGORY_OPTIONS}
-          />
+    // FIX: Wrapped the entire main page view safely within the structural template shell
+    <AdminLayout>
+      <div className="inv-page">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1 className="inv-title" style={{ margin: 0 }}>Inventory Management</h1>
+          <button
+            onClick={() => setShowAddModal(true)}
+            style={{ background: "#2b7cff", color: "#fff", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+          >
+            ➕ Add Item
+          </button>
         </div>
 
-        {/* Results count */}
-        <p style={{ fontSize: "13px", color: "#aaa", marginBottom: "12px" }}>
-          Showing {filtered.length} of {items.length} items
-          {search && ` for "${search}"`}
-          {categoryFilter !== "All" && ` in ${categoryFilter}`}
-        </p>
+        {/* Summary */}
+        <div className="inv-summary">
+          <div><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: "#1a1a2e" }}>{totalItems}</span>Total Items</div>
+          <div style={{ color: lowStock > 0 ? "#e67e22" : undefined }}><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: lowStock > 0 ? "#e67e22" : "#1a1a2e" }}>{lowStock}</span>Low Stock</div>
+          <div style={{ color: expiring > 0 ? "#2980b9" : undefined }}><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: expiring > 0 ? "#2980b9" : "#1a1a2e" }}>{expiring}</span>Expiring Soon</div>
+          <div><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: "#1a1a2e" }}>{warehouses}</span>Warehouses</div>
+        </div>
 
-        {/* Table */}
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "48px 0", color: "#aaa" }}>
-            <div style={{ fontSize: "40px", marginBottom: "12px" }}>📭</div>
-            <p style={{ margin: 0, fontSize: "15px" }}>No items found.</p>
-            {(search || categoryFilter !== "All") && (
-              <p style={{ margin: "6px 0 0", fontSize: "13px" }}>Try clearing the search or filter.</p>
-            )}
+        <div className="inv-card">
+          {/* Search & Filter Bar */}
+          <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
+            <div style={{ flex: 1, minWidth: "200px", position: "relative" }}>
+              <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: "16px" }}>🔍</span>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by item name, category, warehouse..."
+                style={{ width: "100%", padding: "10px 14px 10px 36px", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box", outline: "none" }}
+              />
+            </div>
+            <CategoryDropdown
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              categories={CATEGORY_OPTIONS}
+            />
           </div>
-        ) : (
-          <table className="inv-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Category</th>
-                <th>Warehouse</th>
-                <th>Qty</th>
-                <th>Expiry</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((item) => {
-                const st = STATUS_STYLES[item.status] || {};
-                return (
-                  <tr key={item._id}>
-                    <td style={{ fontWeight: 600 }}>{item.itemName}</td>
-                    <td>{item.category || "—"}</td>
-                    <td>{item.warehouseLocation || "—"}</td>
-                    <td style={{ fontWeight: 600, color: item.quantity < 100 ? "#e67e22" : undefined }}>{item.quantity}</td>
-                    <td>{item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : "N/A"}</td>
-                    <td>
-                      <span style={{ padding: "3px 10px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, ...st }}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td style={{ display: "flex", gap: "8px" }}>
-                      <button
-                        onClick={() => setEditItem(item)}
-                        style={{ background: "#2b7cff", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deleteItem(item._id)}
-                        style={{ background: "#c0392b", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+
+          {/* Results count */}
+          <p style={{ fontSize: "13px", color: "#aaa", marginBottom: "12px" }}>
+            Showing {filtered.length} of {items.length} items
+            {search && ` for "${search}"`}
+            {categoryFilter !== "All" && ` in ${categoryFilter}`}
+          </p>
+
+          {/* Table */}
+          {filtered.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "48px 0", color: "#aaa" }}>
+              <div style={{ fontSize: "40px", marginBottom: "12px" }}>📭</div>
+              <p style={{ margin: 0, fontSize: "15px" }}>No items found.</p>
+              {(search || categoryFilter !== "All") && (
+                <p style={{ margin: "6px 0 0", fontSize: "13px" }}>Try clearing the search or filter.</p>
+              )}
+            </div>
+          ) : (
+            <table className="inv-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Category</th>
+                  <th>Warehouse</th>
+                  <th>Qty</th>
+                  <th>Expiry</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((item) => {
+                  const st = STATUS_STYLES[item.status] || {};
+                  return (
+                    <tr key={item._id}>
+                      <td style={{ fontWeight: 600 }}>{item.itemName}</td>
+                      <td>{item.category || "—"}</td>
+                      <td>{item.warehouseLocation || "—"}</td>
+                      <td style={{ fontWeight: 600, color: item.quantity < 100 ? "#e67e22" : undefined }}>{item.quantity}</td>
+                      <td>{item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : "N/A"}</td>
+                      <td>
+                        <span style={{ padding: "3px 10px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, ...st }}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td style={{ display: "flex", gap: "8px" }}>
+                        <button
+                          onClick={() => setEditItem(item)}
+                          style={{ background: "#2b7cff", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteItem(item._id)}
+                          style={{ background: "#c0392b", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Add Item Modal */}
+        {showAddModal && (
+          <AddItemModal
+            onClose={() => setShowAddModal(false)}
+            onAdded={fetchInventory}
+          />
+        )}
+
+        {/* Edit Item Modal */}
+        {editItem && (
+          <EditItemModal
+            item={editItem}
+            onClose={() => setEditItem(null)}
+            onUpdated={fetchInventory}
+          />
         )}
       </div>
-
-      {/* Add Item Modal */}
-      {showAddModal && (
-        <AddItemModal
-          onClose={() => setShowAddModal(false)}
-          onAdded={fetchInventory}
-        />
-      )}
-
-      {/* Edit Item Modal */}
-      {editItem && (
-        <EditItemModal
-          item={editItem}
-          onClose={() => setEditItem(null)}
-          onUpdated={fetchInventory}
-        />
-      )}
-    </div>
+    </AdminLayout>
   );
 };
 

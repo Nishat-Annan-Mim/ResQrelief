@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Adminvolunteers.css";
+import AdminLayout from "./AdminLayout";
 
 const Adminvolunteers = () => {
   const [volunteers, setVolunteers] = useState([]);

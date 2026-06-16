@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminLayout from "./AdminLayout";
 
 export default function StorageAnalytics() {
   const [data, setData] = useState(null);
@@ -312,6 +313,7 @@ export default function StorageAnalytics() {
   const itemColors = ["#1565c0", "#2e7d32", "#b45309", "#be123c", "#7c3aed"];
 
   return (
+    <AdminLayout>
     <div style={s}>
       <div
         style={{
@@ -786,6 +788,7 @@ export default function StorageAnalytics() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

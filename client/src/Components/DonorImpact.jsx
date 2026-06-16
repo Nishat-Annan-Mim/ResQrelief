@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminLayout from "./AdminLayout";
 
 export default function DonorImpact() {
   const [donations, setDonations] = useState([]);
@@ -317,6 +318,7 @@ export default function DonorImpact() {
     );
 
   return (
+    <AdminLayout>
     <div style={s}>
       <h1
         style={{
@@ -710,6 +712,7 @@ export default function DonorImpact() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }
 

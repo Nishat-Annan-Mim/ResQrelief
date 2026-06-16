@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./CollaborationPortal.css";
+import AdminLayout from "./AdminLayout";
 
 const POST_TYPES = [
   "Resource Offer",

@@ -4,6 +4,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import "./AdminHome.css";
 import "./AdminRequestDetail.css";
+import AdminLayout from "./AdminLayout";
 
 const BASE = "https://resqrelief-fj7z.onrender.com";
 
@@ -552,6 +553,7 @@ const AdminRequestDetail = () => {
   );
 
   return (
+    <AdminLayout>
     <div className="detail-page">
       {/* ── AI MODAL OVERLAY ── */}
       {showAiModal && (
@@ -2085,6 +2087,7 @@ const AdminRequestDetail = () => {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 };
 

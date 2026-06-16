@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminLayout from "./AdminLayout";
 
 const MONTH_NAMES = [
   "Jan",
@@ -78,6 +79,7 @@ export default function Transparency() {
   const itemColors = ["#5b21b6", "#16a34a", "#b45309", "#be123c", "#0369a1"];
 
   return (
+    <AdminLayout>
     <div
       style={{
         minHeight: "100vh",
@@ -424,5 +426,6 @@ export default function Transparency() {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 }

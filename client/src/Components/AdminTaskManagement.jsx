@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./AdminTaskManagement.css";
+import AdminLayout from "./AdminLayout";
 
 const TASK_TYPES = [
   "Food Distribution",
