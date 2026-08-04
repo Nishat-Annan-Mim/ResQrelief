@@ -1,5 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  ClipboardList,
+  Utensils,
+  Stethoscope,
+  Truck,
+  Tent,
+  SearchCheck,
+  Droplet,
+  RadioTower,
+  Package,
+  Pin,
+  MapPin,
+  Calendar,
+  Clock,
+  Check,
+  CircleCheck,
+  CircleAlert,
+  TriangleAlert,
+  Inbox,
+} from "lucide-react";
 import "./VolunteerTasks.css";
 
 const STATUS_LABELS = {
@@ -16,14 +36,20 @@ const PRIORITY_LABELS = {
 };
 
 const TASK_ICONS = {
-  "Food Distribution": "🍱",
-  "Medical Aid": "🏥",
-  "Transport Coordination": "🚛",
-  "Shelter Setup": "🏕️",
-  "Search & Rescue": "🔍",
-  "Water Supply": "💧",
-  "Communication": "📡",
-  "Logistics": "📦",
+  "Food Distribution": Utensils,
+  "Medical Aid": Stethoscope,
+  "Transport Coordination": Truck,
+  "Shelter Setup": Tent,
+  "Search & Rescue": SearchCheck,
+  "Water Supply": Droplet,
+  "Communication": RadioTower,
+  "Logistics": Package,
+};
+
+/** Renders the lucide icon for a task type, falling back to a generic pin. */
+const TaskTypeIcon = ({ type, size = 16 }) => {
+  const Icon = TASK_ICONS[type] || Pin;
+  return <Icon size={size} strokeWidth={2} />;
 };
 
 const TAB_LABELS = {
@@ -97,7 +123,7 @@ const VolunteerTasks = () => {
       });
       setNoteModal(null);
       setNote("");
-      showMsg("Task marked as complete! Great work 🎉");
+      showMsg("Task marked as complete. Great work!");
       fetchTasks(user.email);
     } catch (err) {
       showMsg("Failed to mark as complete. Please try again.", "error");
@@ -119,21 +145,29 @@ const VolunteerTasks = () => {
   return (
     <div className="vt-page">
       <div className="vt-header">
-        <h1>📋 My Tasks</h1>
+        <h1>
+          <ClipboardList size={22} strokeWidth={1.75} />
+          My Tasks
+        </h1>
         <p>View and manage tasks assigned to you by the admin.</p>
       </div>
 
       {/* Inline status feedback */}
       {statusMsg.text && (
         <div className={`vt-status-msg vt-status-msg-${statusMsg.type}`}>
-          {statusMsg.type === "error" ? "⚠️" : "✅"} {statusMsg.text}
+          {statusMsg.type === "error" ? (
+            <TriangleAlert size={15} strokeWidth={2} />
+          ) : (
+            <CircleCheck size={15} strokeWidth={2} />
+          )}{" "}
+          {statusMsg.text}
         </div>
       )}
 
       {/* Overdue warning banner */}
       {overdueCount > 0 && (
         <div className="vt-overdue-banner">
-          🚨 You have <strong>{overdueCount}</strong> overdue task{overdueCount > 1 ? "s" : ""}. Please action them as soon as possible.
+          <CircleAlert size={15} strokeWidth={2} /> You have <strong>{overdueCount}</strong> overdue task{overdueCount > 1 ? "s" : ""}. Please action them as soon as possible.
         </div>
       )}
 
@@ -177,12 +211,18 @@ const VolunteerTasks = () => {
         <div className="vt-loading">Loading your tasks...</div>
       ) : tasks.length === 0 ? (
         <div className="vt-empty">
-          <p>📭 No tasks assigned to you yet.</p>
+          <p>
+            <Inbox size={32} strokeWidth={1.5} />
+            No tasks assigned to you yet.
+          </p>
           <span>The admin will assign tasks here. Check back soon.</span>
         </div>
       ) : filteredTasks.length === 0 ? (
         <div className="vt-empty">
-          <p>✅ No tasks in this category.</p>
+          <p>
+            <CircleCheck size={32} strokeWidth={1.5} />
+            No tasks in this category.
+          </p>
         </div>
       ) : (
         <div className="vt-task-list">
@@ -198,7 +238,9 @@ const VolunteerTasks = () => {
                   onClick={() => setExpandedId(expandedId === task._id ? null : task._id)}
                 >
                   <div className="vt-task-left">
-                    <span className="vt-task-icon">{TASK_ICONS[task.taskType] || "📌"}</span>
+                    <span className="vt-task-icon">
+                      <TaskTypeIcon type={task.taskType} size={18} />
+                    </span>
                     <div>
                       <h3 className="vt-task-title">
                         {task.title}
@@ -229,14 +271,23 @@ const VolunteerTasks = () => {
                     <p className="vt-task-desc">{task.description}</p>
 
                     <div className="vt-task-meta">
-                      {task.zone && <span>📍 {task.zone}</span>}
+                      {task.zone && (
+                        <span>
+                          <MapPin size={12} strokeWidth={2} />
+                          {task.zone}
+                        </span>
+                      )}
                       {task.dueDate && (
                         <span style={overdue ? { color: "#c0392b", fontWeight: 700 } : {}}>
-                          📅 Due: {new Date(task.dueDate).toLocaleDateString()}
+                          <Calendar size={12} strokeWidth={2} />
+                          Due: {new Date(task.dueDate).toLocaleDateString()}
                           {overdue && " — OVERDUE"}
                         </span>
                       )}
-                      <span>🕐 Assigned: {new Date(task.createdAt).toLocaleDateString()}</span>
+                      <span>
+                        <Clock size={12} strokeWidth={2} />
+                        Assigned: {new Date(task.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
 
                     {task.completionNote && (
@@ -260,7 +311,8 @@ const VolunteerTasks = () => {
                             className="vt-btn-complete"
                             onClick={() => handleStatusUpdate(task._id, "completed")}
                           >
-                            ✓ Mark Complete
+                            <Check size={14} strokeWidth={2.5} />
+                            Mark Complete
                           </button>
                         )}
                       </div>
@@ -277,7 +329,10 @@ const VolunteerTasks = () => {
       {noteModal && (
         <div className="vt-modal-overlay" onClick={() => { setNoteModal(null); setNote(""); }}>
           <div className="vt-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>✓ Complete Task</h3>
+            <h3>
+              <Check size={17} strokeWidth={2.5} />
+              Complete Task
+            </h3>
             <p>Add a brief note about what was accomplished (optional):</p>
             <textarea
               value={note}

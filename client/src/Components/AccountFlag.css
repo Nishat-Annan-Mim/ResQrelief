@@ -1,0 +1,98 @@
+@import "./admin-theme.css";
+
+/* =============================================
+   AccountFlag.css
+   Yellow warning strip + restricted-feature
+   screen for accounts flagged as fraudulent.
+   ============================================= */
+
+.af-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--ad-warning-bg);
+  color: var(--ad-warning-text);
+  border-bottom: 1px solid #fcd9a0;
+  border-left: 4px solid var(--ad-warning);
+  font-family: var(--ad-font);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.af-banner svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--ad-warning);
+}
+
+.af-banner-text strong { font-weight: 800; }
+
+/* ── Restricted feature screen ─────────────── */
+.af-restricted {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 24px;
+  min-height: 100%;
+  background: var(--ad-bg);
+  font-family: var(--ad-font);
+}
+
+.af-restricted-card {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-top: 3px solid var(--ad-warning);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  padding: 36px 32px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+}
+
+.af-restricted-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--ad-warning-bg);
+  color: var(--ad-warning);
+  margin-bottom: 16px;
+}
+
+.af-restricted-card h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--ad-text);
+}
+
+.af-restricted-card p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ad-text-body);
+}
+
+.af-restricted-hint {
+  color: var(--ad-text-muted) !important;
+  font-size: 13px !important;
+  margin-bottom: 0 !important;
+}
+
+/* ── Responsive ────────────────────────────── */
+@media (max-width: 768px) {
+  .af-banner {
+    padding: 10px 14px;
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .af-restricted { padding: 28px 16px; }
+  .af-restricted-card { padding: 26px 18px; }
+  .af-restricted-card h2 { font-size: 18px; }
+}

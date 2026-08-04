@@ -2,6 +2,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import {
+  LayoutDashboard,
+  CircleCheck,
+  Hourglass,
+  UserRound,
+  Sparkles,
+  MapPin,
+  Target,
+  Clock,
+  Pencil,
+  Check,
+  X,
+  Map,
+  Truck,
+  CheckSquare,
+  Bell,
+  Users,
+  ChevronRight,
+} from "lucide-react";
 import "./VolunteerDashboard.css";
 
 const VolunteerDashboard = () => {
@@ -108,11 +127,64 @@ const VolunteerDashboard = () => {
     return <div className="volunteer-dashboard-page">Loading...</div>;
   }
 
+  /* Reusable inline-edit row so the three editable fields stay in sync. */
+  const EditableRow = ({ label, field, value }) => (
+    <div className="info-row">
+      <span className="info-label">{label}</span>
+      {editingField === field ? (
+        <div className="edit-inline-box">
+          <input
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+          />
+          <button className="save-btn" onClick={saveEdit}>
+            <Check size={13} strokeWidth={2.5} />
+            Save
+          </button>
+          <button className="cancel-btn" onClick={cancelEdit}>
+            <X size={13} strokeWidth={2.5} />
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <>
+          <span className="info-value">{value}</span>
+          <button
+            className="mini-edit-btn"
+            onClick={() => startEdit(field, value)}
+          >
+            <Pencil size={12} strokeWidth={2} />
+            Edit
+          </button>
+        </>
+      )}
+    </div>
+  );
+
+  const quickLinks = [
+    { label: "Edit Zone", icon: MapPin, onClick: () =>
+        navigate("/volunteer-zone-select", { state: { editMode: true } }) },
+    { label: "Edit Role & Availability", icon: Target, onClick: () =>
+        navigate("/volunteer-role-setup", { state: { editMode: true } }) },
+    { label: "View All Volunteers", icon: Users, onClick: () =>
+        navigate("/volunteer-directory") },
+    { label: "Live Map & Requests", icon: Map, onClick: () =>
+        navigate("/volunteer-map-board") },
+    { label: "My Relief Operations", icon: Truck, onClick: () =>
+        navigate("/volunteer-operations") },
+    { label: "My Assigned Tasks", icon: CheckSquare, onClick: () =>
+        navigate("/volunteer-tasks") },
+    { label: "Emergency Alerts", icon: Bell, onClick: () =>
+        navigate("/user-alerts") },
+  ];
+
   return (
     <div className="volunteer-dashboard-page">
-      {/* If password is required, prompt for the password */}
+      {/* Password prompt — unreachable while RequireVolunteerAuth guards
+          this route, but kept so the component still stands alone. */}
       {needPassword === "true" && (
-        <div>
+        <div className="vd-container">
           <h2>Enter Volunteer Password</h2>
           <input
             type="password"
@@ -125,228 +197,163 @@ const VolunteerDashboard = () => {
         </div>
       )}
 
-      {/* Dashboard content */}
       {needPassword !== "true" && (
-        <div>
+        <div className="vd-container">
+          {/* ── Header ── */}
           <div className="volunteer-dashboard-card">
-            <h1>Volunteer Dashboard</h1>
+            <h1>
+              <LayoutDashboard size={22} strokeWidth={1.75} />
+              Volunteer Dashboard
+            </h1>
             <p>
               Welcome back, {volunteer.fullName}. Your volunteer profile is
               active and ready.
             </p>
           </div>
+
+          {/* ── Approval status ── */}
           <div
-            className={`admin-confirmation-banner ${volunteer.status === "confirmed" ? "banner-confirmed" : "banner-pending"}`}
+            className={`admin-confirmation-banner ${
+              volunteer.status === "confirmed"
+                ? "banner-confirmed"
+                : "banner-pending"
+            }`}
           >
             {volunteer.status === "confirmed" ? (
               <>
-                ✅ <strong>Confirmed by Admin</strong> — Your volunteer
-                registration has been approved.
+                <CircleCheck size={15} strokeWidth={2} />
+                <span>
+                  <strong>Confirmed by Admin</strong> — Your volunteer
+                  registration has been approved.
+                </span>
               </>
             ) : (
               <>
-                ⏳ <strong>Not Confirmed by Admin Yet</strong> — Your
-                registration is under review.
+                <Hourglass size={15} strokeWidth={2} />
+                <span>
+                  <strong>Not Confirmed Yet</strong> — Your registration is
+                  under review.
+                </span>
               </>
             )}
           </div>
 
-          <div className="volunteer-info-card">
-            <h2>Volunteer Information</h2>
-
-            <div className="info-row">
-              <span className="info-label">Name:</span>
-              <span className="info-value">{volunteer.fullName}</span>
+          {/* ── Summary ── */}
+          <div className="vd-stats">
+            <div className="vd-stat-card">
+              <p>
+                <MapPin size={13} strokeWidth={2} />
+                Your Zone
+              </p>
+              <h3>{volunteer.preferredZone || "Not set"}</h3>
             </div>
-
-            <div className="info-row">
-              <span className="info-label">Email:</span>
-              <span className="info-value">{volunteer.email}</span>
+            <div className="vd-stat-card">
+              <p>
+                <Target size={13} strokeWidth={2} />
+                Your Role
+              </p>
+              <h3>{volunteer.volunteerRole || "Not set"}</h3>
             </div>
-
-            <div className="info-row">
-              <span className="info-label">Phone:</span>
-
-              {editingField === "phone" ? (
-                <div className="edit-inline-box">
-                  <input
-                    type="text"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                  />
-                  <button className="save-btn" onClick={saveEdit}>
-                    Save
-                  </button>
-                  <button className="cancel-btn" onClick={cancelEdit}>
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span className="info-value">{volunteer.phone}</span>
-                  <button
-                    className="mini-edit-btn"
-                    onClick={() => startEdit("phone", volunteer.phone)}
-                  >
-                    Edit
-                  </button>
-                </>
-              )}
-            </div>
-
-            <div className="info-row">
-              <span className="info-label">Address:</span>
-
-              {editingField === "address" ? (
-                <div className="edit-inline-box">
-                  <input
-                    type="text"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                  />
-                  <button className="save-btn" onClick={saveEdit}>
-                    Save
-                  </button>
-                  <button className="cancel-btn" onClick={cancelEdit}>
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span className="info-value">{volunteer.address}</span>
-                  <button
-                    className="mini-edit-btn"
-                    onClick={() => startEdit("address", volunteer.address)}
-                  >
-                    Edit
-                  </button>
-                </>
-              )}
-            </div>
-
-            <div className="info-row">
-              <span className="info-label">Emergency Contact:</span>
-
-              {editingField === "emergencyContact" ? (
-                <div className="edit-inline-box">
-                  <input
-                    type="text"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                  />
-                  <button className="save-btn" onClick={saveEdit}>
-                    Save
-                  </button>
-                  <button className="cancel-btn" onClick={cancelEdit}>
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span className="info-value">
-                    {volunteer.emergencyContact}
-                  </span>
-                  <button
-                    className="mini-edit-btn"
-                    onClick={() =>
-                      startEdit("emergencyContact", volunteer.emergencyContact)
-                    }
-                  >
-                    Edit
-                  </button>
-                </>
-              )}
-            </div>
-
-            <div className="info-row">
-              <span className="info-label">Preferred Zone:</span>
-              <span className="info-value">
-                {volunteer.preferredZone || "Not selected yet"}
-              </span>
-            </div>
-
-            <div className="info-row">
-              <span className="info-label">Role:</span>
-              <span className="info-value">
-                {volunteer.volunteerRole || "Not selected yet"}
-              </span>
-            </div>
-
-            <div className="info-row">
-              <span className="info-label">Preferred Time:</span>
-              <span className="info-value">
-                {volunteer.preferredTime || "Not selected yet"}
-              </span>
-            </div>
-
-            <div className="info-row">
-              <span className="info-label">Status:</span>
-              <span className="info-value">
-                {volunteer.isVerified ? "Verified Volunteer" : "Pending"}
-              </span>
-            </div>
-          </div>
-
-          <div className="volunteer-skills-card">
-            <h2>Skills & Experience</h2>
-            <p>
-              {volunteer.skillsExperience || "No skills/experience added yet."}
-            </p>
-          </div>
-
-          <div className="dashboard-stats">
-            <div className="stat-card">
-              <h3>{volunteer.preferredZone || "N/A"}</h3>
-              <p>Your Zone</p>
-            </div>
-
-            <div className="stat-card">
-              <h3>{volunteer.volunteerRole || "N/A"}</h3>
-              <p>Your Role</p>
-            </div>
-
-            <div className="stat-card">
+            <div className="vd-stat-card">
+              <p>
+                <Clock size={13} strokeWidth={2} />
+                Availability
+              </p>
               <h3>{volunteer.preferredTime || "Flexible"}</h3>
-              <p>Availability</p>
             </div>
           </div>
 
+          {/* ── Profile + skills ── */}
+          <div className="vd-grid">
+            <div className="volunteer-info-card">
+              <h2>
+                <UserRound size={16} strokeWidth={1.75} />
+                Volunteer Information
+              </h2>
+
+              <div className="info-row">
+                <span className="info-label">Name</span>
+                <span className="info-value">{volunteer.fullName}</span>
+              </div>
+
+              <div className="info-row">
+                <span className="info-label">Email</span>
+                <span className="info-value">{volunteer.email}</span>
+              </div>
+
+              <EditableRow
+                label="Phone"
+                field="phone"
+                value={volunteer.phone}
+              />
+              <EditableRow
+                label="Address"
+                field="address"
+                value={volunteer.address}
+              />
+              <EditableRow
+                label="Emergency Contact"
+                field="emergencyContact"
+                value={volunteer.emergencyContact}
+              />
+
+              <div className="info-row">
+                <span className="info-label">Preferred Zone</span>
+                <span className="info-value">
+                  {volunteer.preferredZone || "Not selected yet"}
+                </span>
+              </div>
+
+              <div className="info-row">
+                <span className="info-label">Role</span>
+                <span className="info-value">
+                  {volunteer.volunteerRole || "Not selected yet"}
+                </span>
+              </div>
+
+              <div className="info-row">
+                <span className="info-label">Preferred Time</span>
+                <span className="info-value">
+                  {volunteer.preferredTime || "Not selected yet"}
+                </span>
+              </div>
+
+              <div className="info-row">
+                <span className="info-label">Status</span>
+                <span
+                  className={`ad-pill ${
+                    volunteer.isVerified
+                      ? "ad-pill-success"
+                      : "ad-pill-warning"
+                  }`}
+                >
+                  {volunteer.isVerified ? "Verified Volunteer" : "Pending"}
+                </span>
+              </div>
+            </div>
+
+            <div className="volunteer-skills-card">
+              <h2>
+                <Sparkles size={16} strokeWidth={1.75} />
+                Skills &amp; Experience
+              </h2>
+              <p>
+                {volunteer.skillsExperience ||
+                  "No skills or experience added yet."}
+              </p>
+            </div>
+          </div>
+
+          {/* ── Quick links ── */}
+          <p className="vd-section-label">Quick Links</p>
           <div className="dashboard-buttons">
-            <button
-              onClick={() =>
-                navigate("/volunteer-zone-select", {
-                  state: { editMode: true },
-                })
-              }
-            >
-              Edit Zone ▶
-            </button>
-
-            <button
-              onClick={() =>
-                navigate("/volunteer-role-setup", { state: { editMode: true } })
-              }
-            >
-              Edit Role & Availability ▶
-            </button>
-
-            <button onClick={() => navigate("/volunteer-directory")}>
-              View All Volunteers ▶
-            </button>
-
-            <button onClick={() => navigate("/volunteer-map-board")}>
-              Open Live Map & Requests ▶
-            </button>
-            <button onClick={() => navigate("/volunteer-operations")}>
-              My Relief Operations ▶
-            </button>
-
-            <button onClick={() => navigate("/volunteer-tasks")}>
-              My Assigned Tasks ▶
-            </button>
-            <button onClick={() => navigate("/user-alerts")}>
-              Emergency Alerts ▶
-            </button>
+            {quickLinks.map(({ label, icon: Icon, onClick }) => (
+              <button key={label} onClick={onClick}>
+                <Icon size={17} strokeWidth={1.75} />
+                {label}
+                <ChevronRight size={15} strokeWidth={2} className="vd-chevron" />
+              </button>
+            ))}
           </div>
         </div>
       )}

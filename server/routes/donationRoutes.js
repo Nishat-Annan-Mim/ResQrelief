@@ -1,4 +1,5 @@
 const express = require("express");
+const blockIfBanned = require("../middleware/blockIfBanned");
 const router = express.Router();
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
@@ -11,7 +12,7 @@ const VALIDATE_URL = process.env.SSLCZ_VALIDATE_URL;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
 
-router.post("/donate/money", async (req, res) => {
+router.post("/donate/money", blockIfBanned, async (req, res) => {
   console.log("🔥 Request received:", req.body);
   try {
     const { donorName, donorEmail, donorPhone, donorAddress, amount } = req.body;
@@ -119,7 +120,7 @@ router.get("/donation/status/:transactionId", async (req, res) => {
   }
 });
 
-router.post("/donate/supplies", async (req, res) => {
+router.post("/donate/supplies", blockIfBanned, async (req, res) => {
   try {
     const { donorName, donorEmail, donorPhone, donorAddress, supplies, dropOffDate, dropOffLocation } = req.body;
     if (!supplies || supplies.length === 0) {

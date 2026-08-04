@@ -1,7 +1,34 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  Users,
+  ClipboardList,
+  Eye,
+  Check,
+  Trash2,
+  X,
+  MapPin,
+} from "lucide-react";
 import "./Adminvolunteers.css";
 import AdminLayout from "./AdminLayout";
+
+const SEVERITY_PILL = {
+  emergency: "ad-pill-danger",
+  medium: "ad-pill-warning",
+  low: "ad-pill-neutral",
+};
+
+const STATUS_PILL = {
+  need: "ad-pill-danger",
+  helping: "ad-pill-info",
+  helped: "ad-pill-success",
+};
+
+const STATUS_LABEL = {
+  need: "Needs Help",
+  helping: "Help Coming",
+  helped: "Helped",
+};
 
 const Adminvolunteers = () => {
   const [volunteers, setVolunteers] = useState([]);
@@ -96,10 +123,13 @@ const Adminvolunteers = () => {
   };
 
   return (
-    <>
+    <AdminLayout>
       <div className="table-wrapper">
-        <h1>Volunteer Registration Confirmation</h1>
-        <table>
+        <h1>
+          <Users size={18} strokeWidth={1.75} />
+          Volunteer Registration Confirmation
+        </h1>
+        <table className="ad-stack">
           <thead>
             <tr>
               <th>Name</th>
@@ -112,26 +142,31 @@ const Adminvolunteers = () => {
           <tbody>
             {volunteers.map((volunteer) => (
               <tr key={volunteer._id}>
-                <td>{volunteer.fullName}</td>
-                <td>{volunteer.email}</td>
-                <td>{volunteer.phone}</td>
-                <td>{volunteer.status || "pending"}</td>
-                <td className="action-buttons">
+                <td data-label="Name">{volunteer.fullName}</td>
+                <td data-label="Email">{volunteer.email}</td>
+                <td data-label="Phone">{volunteer.phone}</td>
+                <td data-label="Status">{volunteer.status || "pending"}</td>
+                <td className="action-buttons" data-label="Action">
                   {/* View Button — always visible */}
                   <button
                     className="view-btn"
                     onClick={() => openModal(volunteer)}
                   >
+                    <Eye size={14} strokeWidth={2} />
                     View
                   </button>
 
                   {volunteer.status === "confirmed" ? (
-                    <span className="confirmed-badge">✔ Confirmed</span>
+                    <span className="confirmed-badge">
+                      <Check size={13} strokeWidth={2.5} />
+                      Confirmed
+                    </span>
                   ) : (
                     <button
                       className="confirm-btn"
                       onClick={() => confirmVolunteer(volunteer._id)}
                     >
+                      <Check size={14} strokeWidth={2.5} />
                       Confirm
                     </button>
                   )}
@@ -141,6 +176,7 @@ const Adminvolunteers = () => {
                       removeVolunteer(volunteer._id, volunteer.fullName)
                     }
                   >
+                    <Trash2 size={14} strokeWidth={2} />
                     Remove
                   </button>
                 </td>
@@ -158,8 +194,12 @@ const Adminvolunteers = () => {
             >
               <div className="modal-header">
                 <h2>Volunteer Details</h2>
-                <button className="modal-close-btn" onClick={closeModal}>
-                  ✕
+                <button
+                  className="modal-close-btn"
+                  onClick={closeModal}
+                  aria-label="Close"
+                >
+                  <X size={18} strokeWidth={2} />
                 </button>
               </div>
 
@@ -284,14 +324,17 @@ const Adminvolunteers = () => {
       </div>
 
       {/* ── Aid Requests Table ── */}
-      <div className="table-wrapper" style={{ marginTop: "40px" }}>
-        <h1>Aid Requests from Map Board</h1>
+      <div className="table-wrapper">
+        <h1>
+          <ClipboardList size={18} strokeWidth={1.75} />
+          Aid Requests from Map Board
+        </h1>
         {aidRequestsLoading ? (
           <p>Loading aid requests...</p>
         ) : aidRequests.length === 0 ? (
           <p>No aid requests posted yet.</p>
         ) : (
-          <table>
+          <table className="ad-stack">
             <thead>
               <tr>
                 <th>#</th>
@@ -307,94 +350,55 @@ const Adminvolunteers = () => {
             <tbody>
               {aidRequests.map((request, index) => (
                 <tr key={request._id}>
-                  <td>{index + 1}</td>
-                  <td>{request.createdByVolunteerName || "Unknown"}</td>
-                  <td>{request.requestType}</td>
-                  <td>
+                  <td data-label="#">{index + 1}</td>
+                  <td data-label="Posted By">{request.createdByVolunteerName || "Unknown"}</td>
+                  <td data-label="Type">{request.requestType}</td>
+                  <td data-label="Severity">
                     <span
-                      style={{
-                        padding: "4px 10px",
-                        borderRadius: "12px",
-                        fontSize: "0.8rem",
-                        fontWeight: "700",
-                        color: "#fff",
-                        background:
-                          request.severity === "emergency"
-                            ? "#e63946"
-                            : request.severity === "medium"
-                              ? "#f4a261"
-                              : "#6c757d",
-                      }}
+                      className={`ad-pill ${
+                        SEVERITY_PILL[request.severity] || "ad-pill-neutral"
+                      }`}
                     >
                       {request.severity.charAt(0).toUpperCase() +
                         request.severity.slice(1)}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span
-                      style={{
-                        padding: "4px 10px",
-                        borderRadius: "12px",
-                        fontSize: "0.8rem",
-                        fontWeight: "700",
-                        color: "#fff",
-                        background:
-                          request.status === "helped"
-                            ? "#2d6a4f"
-                            : request.status === "helping"
-                              ? "#0077b6"
-                              : "#e63946",
-                      }}
+                      className={`ad-pill ${
+                        STATUS_PILL[request.status] || "ad-pill-neutral"
+                      }`}
                     >
-                      {request.status === "need"
-                        ? "Needs Help"
-                        : request.status === "helping"
-                          ? "Help Coming"
-                          : "Helped ✔"}
+                      <span className="ad-dot" />
+                      {STATUS_LABEL[request.status] || request.status}
                     </span>
                   </td>
-                  <td>
-                    {request.address ? (
-                      <a
-                        href={`https://www.google.com/maps?q=${request.latitude},${request.longitude}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          color: "#0077b6",
-                          fontWeight: "600",
-                          textDecoration: "none",
-                          fontSize: "0.85rem",
-                        }}
-                      >
-                        📍 {request.address.slice(0, 40)}...
-                      </a>
-                    ) : (
-                      <a
-                        href={`https://www.google.com/maps?q=${request.latitude},${request.longitude}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          color: "#0077b6",
-                          fontWeight: "600",
-                          textDecoration: "none",
-                        }}
-                      >
-                        📍 View on Map
-                      </a>
-                    )}
+                  <td data-label="Address / Location">
+                    <a
+                      className="map-link"
+                      href={`https://www.google.com/maps?q=${request.latitude},${request.longitude}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <MapPin size={14} strokeWidth={2} />
+                      {request.address
+                        ? `${request.address.slice(0, 40)}…`
+                        : "View on Map"}
+                    </a>
                   </td>
-                  <td>
+                  <td data-label="Posted At">
                     {new Date(request.createdAt).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
                     })}
                   </td>
-                  <td className="action-buttons">
+                  <td className="action-buttons" data-label="Action">
                     <button
                       className="remove-btn"
                       onClick={() => deleteAidRequest(request._id)}
                     >
+                      <Trash2 size={14} strokeWidth={2} />
                       Delete
                     </button>
                   </td>
@@ -404,7 +408,7 @@ const Adminvolunteers = () => {
           </table>
         )}
       </div>
-    </>
+    </AdminLayout>
   );
 };
 

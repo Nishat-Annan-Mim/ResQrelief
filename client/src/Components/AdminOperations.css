@@ -1,9 +1,12 @@
+@import "./admin-theme.css";
 /* AdminOperations.css */
 
 /* ── Form Container ── */
 .op-form-container {
-    background: #e8e3db;
-    border-radius: 12px;
+    background: var(--ad-surface);
+    border: 1px solid var(--ad-border);
+    border-radius: var(--ad-radius-lg);
+    box-shadow: var(--ad-shadow);
     padding: 24px;
     margin-bottom: 28px;
     overflow: visible;
@@ -11,7 +14,7 @@
 
 .op-form-container h3 {
     margin: 0 0 16px 0;
-    color: #1a1a2e;
+    color: var(--ad-text);
     font-size: 18px;
     font-weight: 700;
 }
@@ -31,9 +34,11 @@
 }
 
 .op-form-group label {
-    font-size: 13px;
-    color: #666;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ad-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .op-form-group input,
@@ -41,12 +46,12 @@
 .op-form-group textarea {
     width: 100%;
     padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+    border-radius: var(--ad-radius-sm);
+    border: 1px solid var(--ad-border-input);
     font-size: 14px;
-    background: #fff;
+    background: var(--ad-surface);
     box-sizing: border-box;
-    font-family: inherit;
+    font-family: var(--ad-font);
 }
 
 .op-form-group textarea {
@@ -62,20 +67,22 @@
 }
 
 .op-form-row label {
-    font-size: 13px;
-    color: #666;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ad-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
     display: block;
     margin-bottom: 8px;
-    font-weight: 500;
 }
 
 .op-form-row input {
     width: 100%;
     padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+    border-radius: var(--ad-radius-sm);
+    border: 1px solid var(--ad-border-input);
     font-size: 14px;
-    background: #fff;
+    background: var(--ad-surface);
     box-sizing: border-box;
 }
 
@@ -88,18 +95,18 @@
 
 .op-supply-chip {
     padding: 6px 12px;
-    border-radius: 20px;
-    border: 2px solid #ccc;
-    background: #fff;
-    color: #333;
+    border-radius: var(--ad-radius-pill);
+    border: 1px solid var(--ad-border-input);
+    background: var(--ad-surface);
+    color: var(--ad-text-body);
     cursor: pointer;
     font-size: 13px;
     transition: all 0.2s ease;
 }
 
 .op-supply-chip.selected {
-    border-color: #1a1a2e;
-    background: #1a1a2e;
+    border-color: var(--ad-primary);
+    background: var(--ad-primary);
     color: #fff;
 }
 
@@ -113,17 +120,17 @@
 .op-custom-supply-row input {
     flex: 1;
     padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+    border-radius: var(--ad-radius-sm);
+    border: 1px solid var(--ad-border-input);
     font-size: 14px;
-    background: #fff;
+    background: var(--ad-surface);
     box-sizing: border-box;
 }
 
 .op-selected-supplies {
     margin-top: 8px;
     font-size: 13px;
-    color: #444;
+    color: var(--ad-text-body);
 }
 
 /* ── Table ── */
@@ -132,44 +139,59 @@
     border-collapse: collapse;
 }
 
+.op-table thead tr {
+    background: rgba(249, 246, 243, 0.4);
+}
+
 .op-table th {
-    padding: 14px 16px;
+    padding: 12px 20px;
     text-align: left;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 11px;
+    color: var(--ad-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
 }
 
 .op-table td {
-    padding: 14px 16px;
+    padding: 14px 20px;
     font-size: 14px;
-    color: #333;
+    color: var(--ad-text-body);
     vertical-align: middle;
-    border-bottom: 1px solid #f0f0f0;
+    border-top: 1px solid #f3f4f6;
+    border-bottom: none;
 }
+
+.op-table tbody tr { transition: background 0.15s; }
+.op-table tbody tr:hover { background: var(--ad-surface-alt); }
 
 /* ── Status Badge ── */
 .op-status-badge {
-    font-weight: 700;
-    font-size: 13px;
-    background: #f5f5f5;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    font-size: 12px;
+    background: var(--ad-neutral-bg);
     padding: 3px 10px;
-    border-radius: 12px;
+    border-radius: var(--ad-radius-pill);
 }
 
 .op-status-pending {
-    color: #c0392b;
+    color: var(--ad-primary);
 }
 
 .op-status-ontheway {
-    color: #d97706;
+    color: var(--ad-warning);
 }
 
 .op-status-arrived {
-    color: #0077b6;
+    color: var(--ad-info);
 }
 
 .op-status-completed {
-    color: #16a34a;
+    color: var(--ad-success);
 }
 
 /* ── Main padding override ── */
@@ -190,9 +212,9 @@
 }
 
 .op-location-card {
-    background: #fff;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
+    background: var(--ad-surface-alt);
+    border: 1px solid var(--ad-border);
+    border-radius: var(--ad-radius);
     padding: 16px 18px;
 }
 
@@ -206,13 +228,13 @@
 .op-location-name {
     font-size: 15px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--ad-text);
 }
 
 .op-remove-location-btn {
     background: none;
     border: none;
-    color: #c0392b;
+    color: var(--ad-primary);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -228,7 +250,7 @@
 
 .op-supply-label {
     font-size: 12px;
-    color: #888;
+    color: var(--ad-text-faint);
     margin: 0 0 8px 0;
     font-weight: 600;
     text-transform: uppercase;
@@ -241,7 +263,7 @@
     flex-direction: column;
     margin-bottom: 6px;
     padding-bottom: 6px;
-    border-bottom: 1px dashed #eee;
+    border-bottom: 1px dashed var(--ad-border);
 }
 
 .op-table-location-row:last-child {
@@ -252,29 +274,29 @@
 .op-table-location-name {
     font-weight: 700;
     font-size: 13px;
-    color: #1a1a2e;
+    color: var(--ad-text);
 }
 
 .op-table-location-supplies {
     font-size: 12px;
-    color: #666;
+    color: var(--ad-text-muted);
     margin-top: 2px;
 }
 
 .op-field-hint {
     margin: 6px 0 0 0;
     font-size: 12px;
-    color: #999;
+    color: var(--ad-text-faint);
     font-style: italic;
 }
 
 /* ── Volunteer Checklist ── */
 .op-volunteer-checklist {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border: 1px solid var(--ad-border);
+    border-radius: var(--ad-radius-sm);
     max-height: 240px;
     overflow-y: auto;
-    background: #fff;
+    background: var(--ad-surface);
 }
 
 .op-volunteer-row {
@@ -282,7 +304,7 @@
     align-items: flex-start;
     gap: 12px;
     padding: 12px 14px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--ad-border);
     cursor: pointer;
     transition: background 0.15s ease;
 }
@@ -292,17 +314,17 @@
 }
 
 .op-volunteer-row:hover {
-    background: #f8f9ff;
+    background: var(--ad-surface-alt);
 }
 
 .op-volunteer-row.selected {
-    background: #eef2ff;
-    border-left: 3px solid #1a1a2e;
+    background: var(--ad-info-bg);
+    border-left: 3px solid var(--ad-primary);
 }
 
 .op-volunteer-checkbox {
     font-size: 18px;
-    color: #1a1a2e;
+    color: var(--ad-text);
     min-width: 20px;
     margin-top: 1px;
 }
@@ -316,12 +338,12 @@
 .op-volunteer-name {
     font-size: 14px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--ad-text);
 }
 
 .op-volunteer-meta {
     font-size: 12px;
-    color: #888;
+    color: var(--ad-text-faint);
 }
 
 /* ── Responsive ── */
@@ -329,4 +351,267 @@
     .op-form-grid {
         grid-template-columns: 1fr;
     }
+}
+/* ── Icon alignment for lucide glyphs ───────────── */
+.op-selected-supplies,
+.op-location-name,
+.op-table-location-name,
+.op-volunteer-checkbox,
+.op-remove-location-btn,
+.op-form-row > label,
+.op-suggestion-item,
+.op-table-volunteer-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.op-form-row > label { display: flex; }
+
+.op-volunteer-checkbox {
+  color: var(--ad-text-faint);
+}
+
+.op-volunteer-row.selected .op-volunteer-checkbox {
+  color: var(--ad-primary);
+}
+
+.op-selected-supplies { color: var(--ad-success); }
+
+.btn-admin,
+.confirm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--ad-font);
+}
+
+.op-form svg,
+.op-table svg,
+.op-locations-list svg { flex-shrink: 0; }
+
+/* =============================================
+   Page header + classes replacing the inline
+   styles that used to sit in AdminOperations.jsx
+   (including the gradient table header, which
+   overrode every rule in this file).
+   ============================================= */
+
+.op-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: var(--ad-gap);
+}
+
+.op-page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--ad-text);
+    margin: 0;
+}
+
+.op-page-title svg {
+    color: var(--ad-primary);
+    flex-shrink: 0;
+}
+
+.op-page-subtitle {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--ad-text-muted);
+}
+
+.op-form-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 18px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ad-text-heading);
+}
+
+.op-form-title svg {
+    color: var(--ad-text-faint);
+    flex-shrink: 0;
+}
+
+/* ── Table cells ────────────────────────────── */
+.op-table-empty {
+    text-align: center;
+    padding: 40px 24px !important;
+    color: var(--ad-text-faint);
+    font-size: 14px;
+}
+
+.op-table-volunteer-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--ad-text-body);
+    margin-bottom: 3px;
+}
+
+.op-table-departs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--ad-text-faint);
+    margin-top: 3px;
+}
+
+/* ── Form feedback text ─────────────────────── */
+.op-error-text {
+    color: var(--ad-primary);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.op-hint-text,
+.op-empty-text {
+    color: var(--ad-text-faint);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.op-empty-text {
+    font-size: 13px;
+    padding: 14px;
+    text-align: center;
+    margin: 0;
+}
+
+.op-input-error {
+    border-color: var(--ad-primary) !important;
+    box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1);
+}
+
+.op-label-note {
+    font-weight: 400;
+    color: var(--ad-text-faint);
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.op-district-filter {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--ad-radius-sm);
+    border: 1px solid var(--ad-border-input);
+    font-family: var(--ad-font);
+    font-size: 14px;
+    color: var(--ad-text-body);
+    background: var(--ad-surface);
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.op-district-filter:focus {
+    border-color: var(--ad-primary);
+    box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1);
+}
+
+/* ── Table shell ────────────────────────────── */
+.op-table-wrapper {
+    background: var(--ad-surface);
+    border: 1px solid var(--ad-border);
+    border-radius: var(--ad-radius-lg);
+    box-shadow: var(--ad-shadow);
+    overflow-x: auto;
+    padding: 0;
+}
+
+.op-table-wrapper .op-table {
+    margin: 0;
+}
+
+/* Delete button in the operations table */
+.op-table-wrapper .remove-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--ad-primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    border-radius: var(--ad-radius-sm);
+    font-family: var(--ad-font);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+
+.op-table-wrapper .remove-btn:hover {
+    background: var(--ad-primary-hover);
+}
+
+/* ── Primary actions ────────────────────────── */
+.btn-admin {
+    background: var(--ad-primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 9px 16px;
+    border-radius: var(--ad-radius-sm);
+    font-family: var(--ad-font);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+
+.btn-admin:hover { background: var(--ad-primary-hover); }
+
+.confirm-btn {
+    width: 100%;
+    background: var(--ad-primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 12px 18px;
+    border-radius: var(--ad-radius-sm);
+    font-family: var(--ad-font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.18s;
+}
+
+.confirm-btn:hover { background: var(--ad-primary-hover); }
+
+/* Page shell inherited from Inventory.css */
+.op-main-padding { padding: var(--ad-page-pad); }
+
+/* ── Responsive: collapse fixed grids (auto-added) ────── */
+@media (max-width: 768px) {
+  .op-form-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .op-page-header { flex-direction: column; align-items: stretch; }
+  .op-page-header .btn-admin { width: 100%; min-height: 44px; justify-content: center; }
+  .op-page-title { font-size: 20px; }
+  .op-form-container { padding: 16px; }
+  .op-form-group input, .op-form-group select,
+  .op-form-group textarea, .op-form-row input { font-size: 16px; min-height: 42px; }
+  .op-custom-supply-row { flex-direction: column; }
+  .op-custom-supply-row input, .op-custom-supply-row .btn-admin { width: 100%; }
+  .confirm-btn { min-height: 48px; }
+  .op-location-card-header { flex-wrap: wrap; gap: 8px; }
 }

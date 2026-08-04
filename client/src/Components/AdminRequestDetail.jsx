@@ -2,6 +2,24 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
+import {
+  Utensils,
+  Stethoscope,
+  Truck,
+  Tent,
+  SearchCheck,
+  Droplet,
+  RadioTower,
+  Package,
+  Pin,
+  ArrowLeft,
+  ArrowRight,
+  ClipboardList,
+  Flag,
+  Inbox,
+  TriangleAlert,
+  CircleCheck,
+} from "lucide-react";
 import "./AdminHome.css";
 import "./AdminRequestDetail.css";
 import AdminLayout from "./AdminLayout";
@@ -9,18 +27,24 @@ import AdminLayout from "./AdminLayout";
 const BASE = "https://resqrelief-fj7z.onrender.com";
 
 const TASK_ICONS = {
-  "Food Distribution": "🍱",
-  "Medical Aid": "🏥",
-  "Transport Coordination": "🚛",
-  "Shelter Setup": "🏕️",
-  "Search & Rescue": "🔍",
-  "Water Supply": "💧",
-  Communication: "📡",
-  Logistics: "📦",
+  "Food Distribution": Utensils,
+  "Medical Aid": Stethoscope,
+  "Transport Coordination": Truck,
+  "Shelter Setup": Tent,
+  "Search & Rescue": SearchCheck,
+  "Water Supply": Droplet,
+  Communication: RadioTower,
+  Logistics: Package,
+};
+
+/** Renders the lucide icon for a task type, falling back to a generic pin. */
+const TaskTypeIcon = ({ type, size = 16 }) => {
+  const Icon = TASK_ICONS[type] || Pin;
+  return <Icon size={size} strokeWidth={2} />;
 };
 
 const PRIORITY_COLORS = {
-  high: "#c0392b",
+  high: "#c53030",
   medium: "#e67e22",
   low: "#27ae60",
 };
@@ -372,7 +396,7 @@ const AdminRequestDetail = () => {
 
   const statusColor = (s) =>
     s === "pending"
-      ? "#c0392b"
+      ? "#c53030"
       : s === "verified"
         ? "#1d4ed8"
         : s === "in_progress"
@@ -389,7 +413,7 @@ const AdminRequestDetail = () => {
       : s === "volunteer_done"
         ? "Volunteer Done — Awaiting your review"
         : s === "completed"
-          ? "Completed 🏁"
+          ? "Completed"
           : s;
 
   if (!req)
@@ -415,7 +439,8 @@ const AdminRequestDetail = () => {
             className="btn-admin"
             onClick={() => navigate("/admin-requests")}
           >
-            ← Back to Dashboard
+            <ArrowLeft size={15} strokeWidth={2.5} />
+            Back to Dashboard
           </button>
         </div>
       </div>
@@ -431,12 +456,13 @@ const AdminRequestDetail = () => {
             style={{
               padding: "10px 18px",
               background: "#fff",
-              color: "#1a1a2e",
+              color: "#1f2937",
               border: "1.5px solid #ddd",
             }}
             onClick={() => navigate("/admin-requests")}
           >
-            ← Back
+            <ArrowLeft size={15} strokeWidth={2.5} />
+            Back
           </button>
           <h1 className="detail-title" style={{ margin: 0, fontSize: "32px" }}>
             {req.district}
@@ -454,7 +480,7 @@ const AdminRequestDetail = () => {
             margin: "0 auto",
           }}
         >
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>🏁</div>
+          <Flag size={44} strokeWidth={1.5} style={{ marginBottom: "16px", color: "var(--ad-text-faint)" }} />
           <h2 style={{ color: "#4338ca", marginBottom: "8px" }}>
             Request Completed
           </h2>
@@ -472,7 +498,8 @@ const AdminRequestDetail = () => {
             style={{ marginTop: "20px" }}
             onClick={() => navigate("/admin-requests")}
           >
-            ← Back to Requests
+            <ArrowLeft size={15} strokeWidth={2.5} />
+            Back to Requests
           </button>
         </div>
       </div>
@@ -542,7 +569,7 @@ const AdminRequestDetail = () => {
       setShowAiModal(false);
       setAiVolMatch(null);
       fetchRequestTasks();
-      alert(`✅ ${vol.fullName} has been assigned successfully!`);
+      alert(`${vol.fullName} has been assigned successfully.`);
     } catch (err) {
       alert("Failed to assign volunteer. Please try again.");
     }
@@ -722,7 +749,7 @@ const AdminRequestDetail = () => {
                                 marginTop: "12px",
                                 width: "100%",
                                 padding: "8px",
-                                background: "#c0392b",
+                                background: "#c53030",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "8px",
@@ -953,7 +980,10 @@ const AdminRequestDetail = () => {
             style={{ maxWidth: "620px", width: "95%" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ marginBottom: "16px" }}>📋 Assign New Task</h3>
+            <h3 className="ad-icon-inline" style={{ marginBottom: "16px" }}>
+              <ClipboardList size={17} strokeWidth={2} />
+              Assign New Task
+            </h3>
             {taskModalMsg.text && (
               <div
                 style={{
@@ -967,7 +997,11 @@ const AdminRequestDetail = () => {
                   fontWeight: 600,
                 }}
               >
-                {taskModalMsg.type === "error" ? "⚠️" : "✅"}{" "}
+                {taskModalMsg.type === "error" ? (
+                  <TriangleAlert size={15} strokeWidth={2} />
+                ) : (
+                  <CircleCheck size={15} strokeWidth={2} />
+                )}{" "}
                 {taskModalMsg.text}
               </div>
             )}
@@ -1103,7 +1137,7 @@ const AdminRequestDetail = () => {
                   {taskVolunteers.map((v) => (
                     <option key={v._id} value={v.email}>
                       {v.fullName} · {v.volunteerRole} · {v.preferredZone}
-                      {v.status === "confirmed" ? " ✓" : ""}
+                      {v.status === "confirmed" ? " (confirmed)" : ""}
                     </option>
                   ))}
                 </select>
@@ -1164,9 +1198,9 @@ const AdminRequestDetail = () => {
                     boxSizing: "border-box",
                   }}
                 >
-                  <option value="high">🔴 High — Urgent</option>
-                  <option value="medium">🟠 Medium — Important</option>
-                  <option value="low">🟢 Low — Schedulable</option>
+                  <option value="high">High — Urgent</option>
+                  <option value="medium">Medium — Important</option>
+                  <option value="low">Low — Schedulable</option>
                 </select>
               </div>
               <div>
@@ -1221,7 +1255,7 @@ const AdminRequestDetail = () => {
           style={{
             padding: "10px 18px",
             background: "#fff",
-            color: "#1a1a2e",
+            color: "#1f2937",
             border: "1.5px solid #ddd",
             display: "flex",
             alignItems: "center",
@@ -1230,8 +1264,8 @@ const AdminRequestDetail = () => {
           }}
           onClick={() => navigate("/admin-requests")}
         >
-          <span style={{ fontSize: "18px", lineHeight: 1 }}>←</span> Back to
-          Dashboard
+          <ArrowLeft size={16} strokeWidth={2.5} />
+          Back to Dashboard
         </button>
         <h1
           className="detail-title"
@@ -1329,7 +1363,7 @@ const AdminRequestDetail = () => {
                   <span
                     style={{
                       marginLeft: "8px",
-                      background: "#c0392b",
+                      background: "#c53030",
                       color: "#fff",
                       borderRadius: "999px",
                       fontSize: "13px",
@@ -1345,7 +1379,7 @@ const AdminRequestDetail = () => {
                 <button
                   onClick={openTaskModal}
                   style={{
-                    background: "#c0392b",
+                    background: "#c53030",
                     color: "#fff",
                     border: "none",
                     borderRadius: "6px",
@@ -1370,7 +1404,7 @@ const AdminRequestDetail = () => {
                   color: "#aaa",
                 }}
               >
-                <div style={{ fontSize: "36px", marginBottom: "10px" }}>📭</div>
+                <Inbox size={34} strokeWidth={1.5} style={{ marginBottom: "10px", color: "var(--ad-border-input)" }} />
                 <p style={{ margin: 0, fontSize: "15px" }}>
                   No volunteers assigned yet.
                 </p>
@@ -1431,7 +1465,7 @@ const AdminRequestDetail = () => {
                               margin: 0,
                               fontWeight: 700,
                               fontSize: "16px",
-                              color: "#1a1a2e",
+                              color: "#1f2937",
                             }}
                           >
                             {vol.name}
@@ -1485,8 +1519,11 @@ const AdminRequestDetail = () => {
                                 gap: "10px",
                               }}
                             >
-                              <span style={{ fontSize: "18px" }}>
-                                {TASK_ICONS[t.taskType] || "📌"}
+                              <span
+                                className="ad-icon-inline"
+                                style={{ color: "var(--ad-text-faint)" }}
+                              >
+                                <TaskTypeIcon type={t.taskType} size={17} />
                               </span>
                               <div>
                                 <p
@@ -1494,7 +1531,7 @@ const AdminRequestDetail = () => {
                                     margin: 0,
                                     fontSize: "14px",
                                     fontWeight: 600,
-                                    color: "#1a1a2e",
+                                    color: "#1f2937",
                                   }}
                                 >
                                   {t.title}
@@ -1596,8 +1633,8 @@ const AdminRequestDetail = () => {
                               ? "16px 16px 4px 16px"
                               : "16px 16px 16px 4px",
                           background:
-                            msg.from === "admin" ? "#c0392b" : "#f0ece4",
-                          color: msg.from === "admin" ? "#fff" : "#1a1a1a",
+                            msg.from === "admin" ? "#c53030" : "#f0ece7",
+                          color: msg.from === "admin" ? "#fff" : "#111827",
                           fontSize: "15px",
                           lineHeight: "1.6",
                         }}
@@ -1652,7 +1689,14 @@ const AdminRequestDetail = () => {
                   onClick={handleSendReply}
                   disabled={sendingReply || !replyText.trim()}
                 >
-                  {sendingReply ? "Sending..." : "Reply →"}
+                  {sendingReply ? (
+                    "Sending…"
+                  ) : (
+                    <>
+                      Reply
+                      <ArrowRight size={14} strokeWidth={2.5} />
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -1748,8 +1792,8 @@ const AdminRequestDetail = () => {
                   width: "100%",
                   padding: "10px",
                   background: "none",
-                  border: "1.5px solid #c0392b",
-                  color: "#c0392b",
+                  border: "1.5px solid #c53030",
+                  color: "#c53030",
                   borderRadius: "8px",
                   fontSize: "14px",
                   fontWeight: 600,
@@ -1778,9 +1822,9 @@ const AdminRequestDetail = () => {
                     boxSizing: "border-box",
                   }}
                 >
-                  <option value="HIGH">🔴 HIGH </option>
-                  <option value="MEDIUM">🟠 MEDIUM </option>
-                  <option value="LOW">🟢 LOW </option>
+                  <option value="HIGH">HIGH</option>
+                  <option value="MEDIUM">MEDIUM</option>
+                  <option value="LOW">LOW</option>
                 </select>
                 <textarea
                   placeholder="Reason for override (e.g. AI underestimated flood severity based on field report)"
@@ -1822,7 +1866,7 @@ const AdminRequestDetail = () => {
                     style={{
                       flex: 1,
                       padding: "9px",
-                      background: "#c0392b",
+                      background: "#c53030",
                       color: "#fff",
                       border: "none",
                       borderRadius: "8px",
@@ -1951,7 +1995,8 @@ const AdminRequestDetail = () => {
                     fontSize: "14px",
                   }}
                 >
-                  ⚠️ {assignError}
+                  <TriangleAlert size={15} strokeWidth={2} />
+                  {assignError}
                 </div>
               )}
 
@@ -2023,7 +2068,7 @@ const AdminRequestDetail = () => {
                     fontSize: "13px",
                     background:
                       aiAnalysis.verdict === "LIKELY_FRAUD"
-                        ? "#c0392b"
+                        ? "#c53030"
                         : aiAnalysis.verdict === "SUSPICIOUS"
                           ? "#b45309"
                           : "#16a34a",

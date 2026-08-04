@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {
+  Truck,
+  ClipboardList,
+  Calendar,
+  Users,
+  User,
+  Package,
+  MapPin,
+  FileText,
+  Map,
+  History,
+  CircleCheck,
+} from "lucide-react";
 import "./VolunteerOperations.css";
 
 const STATUS_FLOW = ["Pending", "On the way", "Arrived", "Completed"];
@@ -67,14 +80,18 @@ const VolunteerOperations = () => {
         ← Back to Dashboard
       </button>
 
-      <h1 className="vo-page-title">🚛 My Relief Operations</h1>
+      <h1 className="vo-page-title">
+        <Truck size={22} strokeWidth={1.75} />
+        My Relief Operations
+      </h1>
       <p className="vo-page-subtitle">
         View your assigned operations and update their status in real-time.
       </p>
 
       {/* ── ACTIVE OPERATIONS ── */}
       <h2 className="vo-section-heading">
-        📋 Active Operations ({active.length})
+        <ClipboardList size={17} strokeWidth={2} />
+        Active Operations ({active.length})
       </h2>
 
       {active.length === 0 && (
@@ -98,7 +115,8 @@ const VolunteerOperations = () => {
               <div>
                 <h3 className="vo-card-title">{op.operationName}</h3>
                 <p className="vo-card-meta">
-                  📅 {op.scheduledDate || "Date not set"}{" "}
+                  <Calendar size={13} strokeWidth={2} />
+                  {op.scheduledDate || "Date not set"}{" "}
                   {op.departureTime ? `— Departs at ${op.departureTime}` : ""}
                 </p>
               </div>
@@ -114,11 +132,13 @@ const VolunteerOperations = () => {
             {teammates?.length > 0 && (
               <div className="vo-teammates-box">
                 <p className="vo-teammates-label">
-                  👥 Team Members on This Operation
+                  <Users size={13} strokeWidth={2} />
+                  Team Members on This Operation
                 </p>
                 {teammates.map((t, i) => (
                   <p key={i} className="vo-teammate-name">
-                    👤 {t.volunteerName}
+                    <User size={12} strokeWidth={2} />
+                    {t.volunteerName}
                   </p>
                 ))}
               </div>
@@ -127,7 +147,9 @@ const VolunteerOperations = () => {
             {/* ── SUPPLY COLLECTION POINT ── */}
             {op.supplyPickupPoint && (
               <div className="vo-pickup-box">
-                <span className="vo-pickup-icon">📦</span>
+                <span className="vo-pickup-icon">
+                  <Package size={15} strokeWidth={2} />
+                </span>
                 <div>
                   <p className="vo-pickup-label">Supply Collection Point</p>
                   <p className="vo-pickup-value">{op.supplyPickupPoint}</p>
@@ -141,16 +163,23 @@ const VolunteerOperations = () => {
 
             {/* ── LOCATIONS + SUPPLIES PER LOCATION ── */}
             <div className="vo-destinations-section">
-              <p className="vo-label-style">📍 Destinations & Supplies</p>
+              <p className="vo-label-style">
+                <MapPin size={13} strokeWidth={2} />
+                Destinations &amp; Supplies
+              </p>
               {op.locations?.length > 0 ? (
                 op.locations.map((loc, i) => (
                   <div key={i} className="vo-location-card">
-                    <p className="vo-location-name">📍 {loc.name}</p>
+                    <p className="vo-location-name">
+                      <MapPin size={13} strokeWidth={2} />
+                      {loc.name}
+                    </p>
                     {loc.supplies?.length > 0 ? (
                       <div className="vo-supplies-row">
                         {loc.supplies.map((s, j) => (
                           <span key={j} className="vo-supply-chip">
-                            📦 {s}
+                            <Package size={12} strokeWidth={2} />
+                            {s}
                           </span>
                         ))}
                       </div>
@@ -167,7 +196,10 @@ const VolunteerOperations = () => {
             {/* ── ADMIN NOTES ── */}
             {op.notes && (
               <div className="vo-notes-box">
-                <p className="vo-label-style">📝 Admin Notes</p>
+                <p className="vo-label-style">
+                  <FileText size={13} strokeWidth={2} />
+                  Admin Notes
+                </p>
                 <p className="vo-notes-text">{op.notes}</p>
               </div>
             )}
@@ -175,7 +207,8 @@ const VolunteerOperations = () => {
             {/* ── BUTTONS ROW ── */}
             <div className="vo-action-row">
               <button className="vo-route-btn" onClick={() => openRouteMap(op)}>
-                🗺️ View Route Map
+                <Map size={15} strokeWidth={2} />
+                View Route Map
               </button>
 
               {nextStatus && (
@@ -193,7 +226,8 @@ const VolunteerOperations = () => {
 
       {/* ── TASK HISTORY ── */}
       <h2 className="vo-section-heading-history">
-        🗂️ Task History ({history.length})
+        <History size={17} strokeWidth={2} />
+        Task History ({history.length})
       </h2>
 
       {history.length === 0 && (
@@ -206,24 +240,30 @@ const VolunteerOperations = () => {
             <div>
               <h3 className="vo-history-title">{op.operationName}</h3>
               <p className="vo-history-meta">
-                📅 {op.scheduledDate || "—"}{" "}
+                <Calendar size={13} strokeWidth={2} />
+                {op.scheduledDate || "—"}{" "}
                 {op.departureTime ? `— Departed at ${op.departureTime}` : ""}{" "}
-                &nbsp;|&nbsp; 📍{" "}
+                &nbsp;|&nbsp; <MapPin size={13} strokeWidth={2} />{" "}
                 {op.locations?.map((l) => l.name).join(", ") || "—"}
               </p>
               {op.volunteers?.length > 1 && (
                 <p className="vo-history-team">
-                  👥 Team:{" "}
+                  <Users size={13} strokeWidth={2} /> Team:{" "}
                   {op.volunteers.map((v) => v.volunteerName).join(", ")}
                 </p>
               )}
             </div>
-            <span className="vo-completed-badge">✅ Completed</span>
+            <span className="vo-completed-badge">
+              <CircleCheck size={13} strokeWidth={2} />
+              Completed
+            </span>
           </div>
 
           {op.supplyPickupPoint && (
             <div className="vo-history-pickup-box">
-              <span className="vo-history-pickup-icon">📦</span>
+              <span className="vo-history-pickup-icon">
+                <Package size={13} strokeWidth={2} />
+              </span>
               <div>
                 <p className="vo-history-pickup-label">
                   Supply Collection Point
@@ -238,7 +278,9 @@ const VolunteerOperations = () => {
           <div className="vo-history-locations">
             {op.locations?.map((loc, i) => (
               <p key={i} className="vo-history-location-row">
-                <strong>📍 {loc.name}:</strong>{" "}
+                <strong>
+                  <MapPin size={12} strokeWidth={2} /> {loc.name}:
+                </strong>{" "}
                 {loc.supplies?.length > 0
                   ? loc.supplies.join(", ")
                   : "No supplies"}

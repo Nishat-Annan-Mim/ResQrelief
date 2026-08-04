@@ -1,3 +1,4 @@
+@import "./admin-theme.css";
 /* VolunteerOperations.css */
 
 /* ── Page Wrapper ── */
@@ -5,14 +6,14 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 30px 20px;
-  font-family: "Segoe UI", sans-serif;
+  font-family: var(--ad-font);
 }
 
 /* ── Back Button ── */
 .vo-back-btn {
   background: none;
   border: none;
-  color: #1a1a2e;
+  color: var(--ad-text);
   font-size: 14px;
   cursor: pointer;
   margin-bottom: 16px;
@@ -23,13 +24,13 @@
 .vo-page-title {
   font-size: 28px;
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--ad-text);
   margin-bottom: 6px;
 }
 
 /* ── Page Subtitle ── */
 .vo-page-subtitle {
-  color: #666;
+  color: var(--ad-text-muted);
   margin-bottom: 28px;
 }
 
@@ -38,32 +39,32 @@
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 14px;
-  color: #1a1a2e;
+  color: var(--ad-text);
 }
 
 .vo-section-heading-history {
   font-size: 18px;
   font-weight: 700;
   margin: 32px 0 14px;
-  color: #1a1a2e;
+  color: var(--ad-text);
 }
 
 /* ── Empty State Box ── */
 .vo-empty-box {
-  background: #f5f5f5;
-  border-radius: 10px;
+  background: var(--ad-neutral-bg);
+  border-radius: var(--ad-radius);
   padding: 24px;
   text-align: center;
-  color: #888;
+  color: var(--ad-text-faint);
   margin-bottom: 28px;
 }
 
 .vo-empty-box-history {
-  background: #f5f5f5;
-  border-radius: 10px;
+  background: var(--ad-neutral-bg);
+  border-radius: var(--ad-radius);
   padding: 24px;
   text-align: center;
-  color: #888;
+  color: var(--ad-text-faint);
 }
 
 /* ── Loading ── */
@@ -77,8 +78,8 @@
 ══════════════════════════════════════ */
 .vo-op-card {
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 14px;
+  border: 1px solid var(--ad-border-input);
+  border-radius: var(--ad-radius-lg);
   padding: 22px;
   margin-bottom: 18px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
@@ -96,19 +97,19 @@
 .vo-card-title {
   margin: 0;
   font-size: 18px;
-  color: #1a1a2e;
+  color: var(--ad-text);
 }
 
 .vo-card-meta {
   margin: 4px 0 0;
   font-size: 13px;
-  color: #888;
+  color: var(--ad-text-faint);
 }
 
 /* ── Status Badge ── */
 .vo-status-badge {
   padding: 5px 14px;
-  border-radius: 20px;
+  border-radius: var(--ad-radius-pill);
   font-weight: 700;
   font-size: 13px;
 }
@@ -118,7 +119,7 @@
   margin-top: 14px;
   background: #f0f4ff;
   border: 1px solid #c7d2fe;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   padding: 10px 14px;
 }
 
@@ -143,7 +144,7 @@
   margin-top: 16px;
   background: #fff8e1;
   border: 1px solid #f59e0b;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   padding: 12px 16px;
   display: flex;
   gap: 10px;
@@ -185,7 +186,7 @@
   margin: 0;
   font-size: 12px;
   font-weight: 700;
-  color: #888;
+  color: var(--ad-text-faint);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -193,17 +194,17 @@
 /* ── Location Card ── */
 .vo-location-card {
   background: #f9f6f0;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   padding: 12px 14px;
   margin-top: 10px;
-  border-left: 3px solid #1a1a2e;
+  border-left: 3px solid var(--ad-text);
 }
 
 .vo-location-name {
   margin: 0 0 6px 0;
   font-weight: 700;
   font-size: 14px;
-  color: #1a1a2e;
+  color: var(--ad-text);
 }
 
 .vo-supplies-row {
@@ -214,9 +215,9 @@
 
 .vo-supply-chip {
   background: #e8e3db;
-  color: #444;
+  color: var(--ad-text-body);
   padding: 3px 10px;
-  border-radius: 12px;
+  border-radius: var(--ad-radius);
   font-size: 12px;
   font-weight: 600;
 }
@@ -224,27 +225,27 @@
 .vo-no-supplies {
   margin: 0;
   font-size: 13px;
-  color: #aaa;
+  color: var(--ad-text-faint);
 }
 
 .vo-no-locations {
   margin: 8px 0 0;
   font-size: 13px;
-  color: #aaa;
+  color: var(--ad-text-faint);
 }
 
 /* ── Admin Notes Box ── */
 .vo-notes-box {
   margin-top: 14px;
   background: #f9f6f0;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   padding: 12px;
 }
 
 .vo-notes-text {
   margin: 0;
   font-size: 14px;
-  color: #444;
+  color: var(--ad-text-body);
 }
 
 /* ── Action Buttons Row ── */
@@ -257,10 +258,10 @@
 
 .vo-route-btn {
   padding: 10px 20px;
-  background: #0077b6;
+  background: var(--ad-info);
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -268,10 +269,10 @@
 
 .vo-status-btn {
   padding: 10px 24px;
-  background: linear-gradient(135deg, #1a1a2e, #e63946);
+  background: var(--ad-primary);
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -283,7 +284,7 @@
 .vo-history-card {
   background: #f9f9f9;
   border: 1px solid #e8e8e8;
-  border-radius: 12px;
+  border-radius: var(--ad-radius);
   padding: 18px;
   margin-bottom: 14px;
   opacity: 0.85;
@@ -299,13 +300,13 @@
 .vo-history-title {
   margin: 0;
   font-size: 16px;
-  color: #333;
+  color: var(--ad-text-body);
 }
 
 .vo-history-meta {
   margin: 4px 0 0;
   font-size: 13px;
-  color: #888;
+  color: var(--ad-text-faint);
 }
 
 .vo-history-team {
@@ -316,9 +317,9 @@
 
 .vo-completed-badge {
   background: #d8f3dc;
-  color: #2d6a4f;
+  color: var(--ad-success);
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: var(--ad-radius-pill);
   font-weight: 700;
   font-size: 13px;
   height: fit-content;
@@ -329,7 +330,7 @@
   margin-top: 12px;
   background: #fff8e1;
   border: 1px solid #f59e0b;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   padding: 10px 14px;
   display: flex;
   gap: 8px;
@@ -364,5 +365,35 @@
 .vo-history-location-row {
   margin: 4px 0;
   font-size: 13px;
-  color: #666;
+  color: var(--ad-text-muted);
+}
+.vo-status-btn:hover { background: var(--ad-primary-hover); }
+
+/* ── Icon alignment for lucide glyphs ───────────── */
+.vo-page-title,
+.vo-section-title,
+.vo-label-style,
+.vo-location-name,
+.vo-completed-badge,
+.vo-pickup-icon,
+.vo-history-pickup-icon,
+.vo-team-member,
+.vo-supply-chip,
+.vo-route-btn,
+.vo-status-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vo-page-title { display: flex; }
+.vo-page-title svg { color: var(--ad-primary); }
+.vo-route-btn, .vo-status-btn { justify-content: center; }
+.vo-page svg, .vo-card svg { flex-shrink: 0; }
+
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .vo-page-title { font-size: 20px; }
+  .vo-route-btn, .vo-status-btn { width: 100%; min-height: 44px; }
+  .vo-card { padding: 16px; }
 }

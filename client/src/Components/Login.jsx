@@ -26,6 +26,9 @@ const Login = () => {
       sessionStorage.setItem("user", JSON.stringify(res.data.user));
       sessionStorage.setItem("role", res.data.user.role);
       sessionStorage.setItem("email", res.data.user.email);
+      // Flagged accounts may sign in; the banner and per-action guards
+      // handle the restriction from here.
+      sessionStorage.setItem("isBanned", String(Boolean(res.data.user.isBanned)));
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("role", res.data.user.role);
@@ -34,12 +37,8 @@ const Login = () => {
     } catch (error) {
       const data = error.response?.data;
       if (data?.adminOnly) {
-        alert("⚠️ Admin accounts must log in through the Admin Login portal.");
+        alert("Admin accounts must log in through the Admin Login portal.");
         navigate("/admin-login");
-      } else if (data?.banned) {
-        alert(
-          "🚫 Your account has been suspended due to a fraudulent request. You cannot log in.",
-        );
       } else {
         alert(data?.message || "Login failed");
       }

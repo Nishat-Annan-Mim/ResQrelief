@@ -63,7 +63,7 @@ const AdminHome = () => {
           </div>
 
           <div className="ah-table-wrap">
-            <table className="ah-table">
+            <table className="ah-table ad-stack">
               <thead>
                 <tr>
                   <th>Item</th>
@@ -75,10 +75,10 @@ const AdminHome = () => {
               <tbody>
                 {topItems.map((item) => (
                   <tr key={item._id}>
-                    <td className="ah-td-bold">{item.itemName}</td>
-                    <td className="ah-td-muted">{item.category}</td>
-                    <td className="ah-td-mono">{item.quantity}</td>
-                    <td>
+                    <td className="ah-td-bold" data-label="Item">{item.itemName}</td>
+                    <td className="ah-td-muted" data-label="Category">{item.category}</td>
+                    <td className="ah-td-mono" data-label="Qty">{item.quantity}</td>
+                    <td data-label="Status">
                       <span className={`ah-status-pill ${getStatusClass(item.status)}`}>
                         {item.status}
                       </span>
@@ -109,7 +109,7 @@ const AdminHome = () => {
             <p className="ah-loading-text">Analyzing requests with AI...</p>
           ) : (
             <div className="ah-table-wrap">
-              <table className="ah-table">
+              <table className="ah-table ad-stack">
                 <thead>
                   <tr>
                     <th>Location</th>
@@ -129,15 +129,15 @@ const AdminHome = () => {
                         navigate(`/admin-requests/${req._id}`, { state: { req } })
                       }
                     >
-                      <td className="ah-td-bold">{req.district}</td>
-                      <td className="ah-td-muted">{req.aidTypes?.join(" + ") || "—"}</td>
-                      <td className="ah-td-center">
+                      <td className="ah-td-bold" data-label="Location">{req.district}</td>
+                      <td className="ah-td-muted" data-label="Aid Type">{req.aidTypes?.join(" + ") || "—"}</td>
+                      <td className="ah-td-center" data-label="Priority">
                         <span className={`ah-priority-label ${getPriorityClass(req.priority)}`}>
                           {req.priority}
                         </span>
                       </td>
-                      <td className="ah-td-mono">{req.peopleAffected}</td>
-                      <td>
+                      <td className="ah-td-mono" data-label="People">{req.peopleAffected}</td>
+                      <td data-label="Status">
                         <span
                           className={`ah-req-status ${
                             req.status === "pending"
@@ -151,7 +151,7 @@ const AdminHome = () => {
                           {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                         </span>
                       </td>
-                      <td className="ah-td-time">{timeAgo(req.createdAt)}</td>
+                      <td className="ah-td-time" data-label="Submitted">{timeAgo(req.createdAt)}</td>
                     </tr>
                   ))}
                 </tbody>

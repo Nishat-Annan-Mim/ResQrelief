@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useSidebar } from "./SidebarContext";
 import "./AdminLayout.css";
 
 const NAV_ITEMS = [
@@ -36,14 +37,19 @@ const AdminLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { mobileOpen, setMobileOpen } = useSidebar();
 
   return (
     <div className="al-root">
-      {!collapsed && (
-        <div className="al-overlay" onClick={() => setCollapsed(true)} />
+      {mobileOpen && (
+        <div className="al-overlay" onClick={() => setMobileOpen(false)} />
       )}
 
-      <aside className={`al-sidebar ${collapsed ? "al-sidebar--collapsed" : ""}`}>
+      <aside
+        className={`al-sidebar ${collapsed ? "al-sidebar--collapsed" : ""} ${
+          mobileOpen ? "al-sidebar--mobile-open" : ""
+        }`}
+      >
         <div className="al-sidebar-header">
           {!collapsed && (
             <span className="al-brand">
@@ -67,7 +73,10 @@ const AdminLayout = ({ children }) => {
               <button
                 key={path}
                 className={`al-nav-item ${isActive ? "al-nav-item--active" : ""}`}
-                onClick={() => navigate(path)}
+                onClick={() => {
+                  navigate(path);
+                  setMobileOpen(false);
+                }}
                 title={collapsed ? label : undefined}
               >
                 <span className="al-nav-icon">

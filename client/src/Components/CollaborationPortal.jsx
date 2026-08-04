@@ -1,8 +1,32 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {
+  Handshake,
+  PackagePlus,
+  PackageSearch,
+  Radio,
+  Route,
+  ChartColumn,
+  FileText,
+  ClipboardList,
+  Building2,
+  Plus,
+  LogOut,
+  X,
+  Check,
+  MapPin,
+  Mail,
+  User,
+  MessageSquareText,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight,
+} from "lucide-react";
 import "./CollaborationPortal.css";
 import AdminLayout from "./AdminLayout";
+import UserLayout from "./UserLayout";
+import { useAccount } from "./AccountContext";
 
 const POST_TYPES = [
   "Resource Offer",
@@ -13,19 +37,25 @@ const POST_TYPES = [
 ];
 
 const POST_TYPE_ICONS = {
-  "Resource Offer": "🟢",
-  "Resource Request": "🔴",
-  "Coordination Update": "🔵",
-  "Joint Plan": "🟡",
-  "Situation Report": "📊",
+  "Resource Offer": PackagePlus,
+  "Resource Request": PackageSearch,
+  "Coordination Update": Radio,
+  "Joint Plan": Route,
+  "Situation Report": ChartColumn,
+};
+
+/** Renders the lucide icon for a post type, falling back to a generic note. */
+const PostTypeIcon = ({ type, size = 13 }) => {
+  const Icon = POST_TYPE_ICONS[type] || FileText;
+  return <Icon size={size} strokeWidth={2} />;
 };
 
 const POST_TYPE_COLORS = {
-  "Resource Offer": "#27ae60",
-  "Resource Request": "#c0392b",
-  "Coordination Update": "#2980b9",
-  "Joint Plan": "#f39c12",
-  "Situation Report": "#8e44ad",
+  "Resource Offer": "var(--ad-success)",
+  "Resource Request": "var(--ad-primary)",
+  "Coordination Update": "var(--ad-info)",
+  "Joint Plan": "var(--ad-warning)",
+  "Situation Report": "#7c3aed",
 };
 
 const RESOURCE_TAGS = [
@@ -42,6 +72,7 @@ const RESOURCE_TAGS = [
 
 const CollaborationPortal = () => {
   const navigate = useNavigate();
+  const { isBanned } = useAccount();
   const role = sessionStorage.getItem("role");
   const isAdmin = role === "admin";
 
@@ -215,7 +246,7 @@ const CollaborationPortal = () => {
     }));
   };
 
-  const canPost = isAdmin || ngoSession;
+  const canPost = (isAdmin || ngoSession) && !isBanned;
   const filtered =
     filterType === "all"
       ? posts
@@ -224,10 +255,14 @@ const CollaborationPortal = () => {
   // If not admin and not NGO logged in → show login/register
   if (!isAdmin && !ngoSession) {
     return (
+      <UserLayout>
       <div className="cp-gate-page">
         <div className="cp-gate-card">
           <div className="cp-gate-header">
-            <h1>🤝 NGO & Authority Collaboration Portal</h1>
+            <h1>
+              <Handshake size={22} strokeWidth={1.75} />
+              NGO &amp; Authority Collaboration Portal
+            </h1>
             <p>
               A secure space for verified agencies to coordinate relief efforts,
               share resources, and jointly plan operations.
@@ -254,7 +289,8 @@ const CollaborationPortal = () => {
                 }
               />
               <button className="cp-btn-login" onClick={handleNGOLogin}>
-                Access Portal →
+                Access Portal
+                <ArrowRight size={15} strokeWidth={2.5} />
               </button>
             </div>
 
@@ -275,15 +311,23 @@ const CollaborationPortal = () => {
           </div>
         </div>
       </div>
+      </UserLayout>
     );
   }
 
+  // Admins get the admin sidebar; everyone else gets the user sidebar.
+  const Shell = isAdmin ? AdminLayout : UserLayout;
+
   return (
+    <Shell>
     <div className="cp-page">
       {/* Portal Header */}
       <div className="cp-portal-header">
         <div>
-          <h1>🤝 Collaboration Portal</h1>
+          <h1>
+            <Handshake size={22} strokeWidth={1.75} />
+            Collaboration Portal
+          </h1>
           <p>
             {isAdmin
               ? "Manage agencies and coordinate inter-agency relief operations."
@@ -296,11 +340,13 @@ const CollaborationPortal = () => {
               className="cp-btn-new-post"
               onClick={() => setShowNewPost(true)}
             >
-              + New Post
+              <Plus size={15} strokeWidth={2.5} />
+              New Post
             </button>
           )}
           {!isAdmin && (
             <button className="cp-btn-logout" onClick={handleNGOLogout}>
+              <LogOut size={14} strokeWidth={2} />
               Logout Agency
             </button>
           )}
@@ -314,13 +360,15 @@ const CollaborationPortal = () => {
             className={`cp-tab ${activeTab === "posts" ? "active" : ""}`}
             onClick={() => setActiveTab("posts")}
           >
-            📋 Posts & Updates
+            <ClipboardList size={15} strokeWidth={2} />
+            Posts &amp; Updates
           </button>
           <button
             className={`cp-tab ${activeTab === "agencies" ? "active" : ""}`}
             onClick={() => setActiveTab("agencies")}
           >
-            🏢 Agencies ({agencies.length})
+            <Building2 size={15} strokeWidth={2} />
+            Agencies ({agencies.length})
           </button>
         </div>
       )}
@@ -345,9 +393,18 @@ const CollaborationPortal = () => {
                 </div>
 
                 <div className="cp-agency-info">
-                  <p>👤 {a.contactPerson}</p>
-                  <p>📧 {a.email}</p>
-                  <p>📍 {a.district}</p>
+                  <p>
+                    <User size={13} strokeWidth={2} />
+                    {a.contactPerson}
+                  </p>
+                  <p>
+                    <Mail size={13} strokeWidth={2} />
+                    {a.email}
+                  </p>
+                  <p>
+                    <MapPin size={13} strokeWidth={2} />
+                    {a.district}
+                  </p>
                   {a.resourcesAvailable?.length > 0 && (
                     <div className="cp-agency-resources">
                       {a.resourcesAvailable.map((r) => (
@@ -365,13 +422,15 @@ const CollaborationPortal = () => {
                       className="cp-btn-verify"
                       onClick={() => handleAgencyStatus(a._id, "verified")}
                     >
-                      ✓ Verify
+                      <Check size={14} strokeWidth={2.5} />
+                      Verify
                     </button>
                     <button
                       className="cp-btn-reject"
                       onClick={() => handleAgencyStatus(a._id, "rejected")}
                     >
-                      ✗ Reject
+                      <X size={14} strokeWidth={2.5} />
+                      Reject
                     </button>
                   </div>
                 )}
@@ -406,7 +465,8 @@ const CollaborationPortal = () => {
                     : {}
                 }
               >
-                {POST_TYPE_ICONS[t]} {t}
+                <PostTypeIcon type={t} />
+                {t}
               </button>
             ))}
           </div>
@@ -426,7 +486,8 @@ const CollaborationPortal = () => {
                       className="cp-post-type-pill"
                       style={{ background: POST_TYPE_COLORS[post.postType] }}
                     >
-                      {POST_TYPE_ICONS[post.postType]} {post.postType}
+                      <PostTypeIcon type={post.postType} />
+                      {post.postType}
                     </div>
                     <div className="cp-post-meta">
                       <span className="cp-post-agency">
@@ -445,7 +506,7 @@ const CollaborationPortal = () => {
                           className="cp-btn-del-post"
                           onClick={() => handleDeletePost(post._id)}
                         >
-                          ✕
+                          <X size={14} strokeWidth={2.5} />
                         </button>
                       )}
                     </div>
@@ -466,7 +527,8 @@ const CollaborationPortal = () => {
 
                   {post.targetDistricts?.length > 0 && (
                     <p className="cp-post-districts">
-                      📍 Target areas: {post.targetDistricts.join(", ")}
+                      <MapPin size={13} strokeWidth={2} />
+                      Target areas: {post.targetDistricts.join(", ")}
                     </p>
                   )}
 
@@ -474,7 +536,8 @@ const CollaborationPortal = () => {
                   {post.responses?.length > 0 && (
                     <div className="cp-responses">
                       <p className="cp-responses-label">
-                        💬 {post.responses.length} response
+                        <MessageSquareText size={13} strokeWidth={2} />
+                        {post.responses.length} response
                         {post.responses.length > 1 ? "s" : ""}
                       </p>
                       {expandedPost === post._id &&
@@ -496,9 +559,17 @@ const CollaborationPortal = () => {
                           )
                         }
                       >
-                        {expandedPost === post._id
-                          ? "Hide responses ▲"
-                          : "View responses ▼"}
+                        {expandedPost === post._id ? (
+                          <>
+                            Hide responses
+                            <ChevronUp size={13} strokeWidth={2.5} />
+                          </>
+                        ) : (
+                          <>
+                            View responses
+                            <ChevronDown size={13} strokeWidth={2.5} />
+                          </>
+                        )}
                       </button>
                     </div>
                   )}
@@ -531,7 +602,10 @@ const CollaborationPortal = () => {
       {showNewPost && (
         <div className="cp-modal-overlay" onClick={() => setShowNewPost(false)}>
           <div className="cp-modal" onClick={(e) => e.stopPropagation()}>
-            <h2>📝 Create New Post</h2>
+            <h2>
+              <FileText size={18} strokeWidth={1.75} />
+              Create New Post
+            </h2>
 
             <div className="cp-modal-field">
               <label>POST TYPE *</label>
@@ -550,7 +624,8 @@ const CollaborationPortal = () => {
                     }
                     onClick={() => setPostForm({ ...postForm, postType: t })}
                   >
-                    {POST_TYPE_ICONS[t]} {t}
+                    <PostTypeIcon type={t} />
+                    {t}
                   </div>
                 ))}
               </div>
@@ -613,6 +688,7 @@ const CollaborationPortal = () => {
                 Cancel
               </button>
               <button className="cp-btn-modal-save" onClick={handleCreatePost}>
+                <Check size={15} strokeWidth={2.5} />
                 Publish Post
               </button>
             </div>
@@ -620,6 +696,7 @@ const CollaborationPortal = () => {
         </div>
       )}
     </div>
+    </Shell>
   );
 };
 

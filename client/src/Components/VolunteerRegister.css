@@ -1,13 +1,14 @@
+@import "./admin-theme.css";
 .volunteer-register-page {
-    min-height: 100vh;
-    background: #eceae3;
+    min-height: 100%;
+    background: var(--ad-bg);
     padding: 30px 25px 60px;
 }
 
 .volunteer-register-header h1 {
     font-size: 28px;
     margin-bottom: 10px;
-    color: #111;
+    color: var(--ad-text);
 }
 
 .volunteer-register-header p {
@@ -89,7 +90,7 @@
     width: 100%;
     padding: 16px;
     font-size: 18px;
-    border: 1px solid #bbb;
+    border: 1px solid var(--ad-text-faint);
     background: #f4f4f4;
     outline: none;
 }
@@ -123,7 +124,7 @@
     padding: 12px 16px;
     background: #ffe1e1;
     color: #cc0000;
-    border-radius: 8px;
+    border-radius: var(--ad-radius-sm);
     font-weight: 600;
     max-width: 600px;
 }
@@ -136,4 +137,8 @@
     .full-width {
         grid-column: span 1;
     }
+}
+/* ── Responsive: collapse fixed grids (auto-added) ────── */
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
 }

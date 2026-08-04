@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 
 export default function PaymentFail() {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function PaymentFail() {
             lineHeight: 1,
           }}
         >
-          ✕
+          <X size={40} strokeWidth={2.5} />
         </div>
         <h2
           style={{

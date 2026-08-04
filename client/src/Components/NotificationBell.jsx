@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { CircleCheck, HandHeart, CircleAlert, Bell } from "lucide-react";
 import "./NotificationBell.css";
 
 const NotificationBell = () => {
@@ -95,11 +96,14 @@ const NotificationBell = () => {
     return `${Math.floor(diff / 1440)}d ago`;
   };
 
-  const getIcon = (type) => {
-    if (type === "request_verified")  return "✅";
-    if (type === "volunteer_assigned") return "🙋";
-    if (type === "alert")             return "🚨";
-    return "🔔";
+  /** Lucide icon per notification type. */
+  const NotifIcon = ({ type }) => {
+    if (type === "request_verified")
+      return <CircleCheck size={16} strokeWidth={2} />;
+    if (type === "volunteer_assigned")
+      return <HandHeart size={16} strokeWidth={2} />;
+    if (type === "alert") return <CircleAlert size={16} strokeWidth={2} />;
+    return <Bell size={16} strokeWidth={2} />;
   };
 
   return (
@@ -152,7 +156,9 @@ const NotificationBell = () => {
                   className={`notif-item ${!notif.read ? "notif-unread" : ""}`}
                   onClick={() => handleClick(notif)}
                 >
-                  <div className="notif-icon">{getIcon(notif.type)}</div>
+                  <div className="notif-icon">
+                    <NotifIcon type={notif.type} />
+                  </div>
                   <div className="notif-content">
                     <p className="notif-title">{notif.title}</p>
                     <p className="notif-msg">{notif.message}</p>

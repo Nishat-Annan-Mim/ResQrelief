@@ -1,168 +1,229 @@
+@import "./admin-theme.css";
+
+/* =============================================
+   VolunteerDirectory.css
+
+   NOTE: the table wrapper is namespaced
+   `.vdir-table-wrap`, not the generic
+   `.table-wrapper`. Adminvolunteers.css also
+   styles `.table-wrapper thead th` at the same
+   specificity, and because Vite bundles all CSS
+   into one global scope it was overriding this
+   page's header text colour. Keep page-specific
+   classes prefixed.
+   ============================================= */
+
 .volunteer-directory-page {
-    min-height: 100vh;
-    background: #eceae3;
-    padding: 40px 24px 80px;
+  min-height: 100%;
+  background: var(--ad-bg);
+  padding: var(--ad-page-pad);
+  font-family: var(--ad-font);
+  color: var(--ad-text-body);
 }
 
+/* ─── HEADER ──────────────────────────────────── */
 .volunteer-directory-header {
-    max-width: 1000px;
-    margin: 0 auto 30px;
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 28px 30px;
-    text-align: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  max-width: 1200px;
+  margin: 0 auto var(--ad-gap);
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  text-align: left;
 }
 
 .volunteer-directory-header h1 {
-    margin: 0 0 12px;
-    font-size: 34px;
-    color: #111;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--ad-text);
+}
+
+.volunteer-directory-header h1 svg {
+  color: var(--ad-primary);
+  flex-shrink: 0;
 }
 
 .volunteer-directory-header p {
-    margin: 0;
-    font-size: 18px;
-    color: #444;
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--ad-text-muted);
 }
 
+/* ─── CONTROLS ────────────────────────────────── */
 .directory-controls {
-    max-width: 1200px;
-    margin: 0 auto 24px;
-    display: flex;
-    gap: 16px;
-    justify-content: space-between;
-    flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto var(--ad-gap);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .directory-search {
-    flex: 1;
-    min-width: 260px;
-}
-
-.directory-search input {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    outline: none;
-    background: #ffffff;
-}
-
-.directory-search input:focus {
-    border-color: #5392b5;
-    box-shadow: 0 0 0 3px rgba(83, 146, 181, 0.15);
+  flex: 1;
+  min-width: 240px;
 }
 
 .directory-filter {
-    min-width: 220px;
+  min-width: 200px;
 }
 
+.directory-search input,
 .directory-filter select {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    outline: none;
-    background: #ffffff;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--ad-radius-sm);
+  border: 1px solid var(--ad-border-input);
+  font-family: var(--ad-font);
+  font-size: 14px;
+  color: var(--ad-text-body);
+  background: var(--ad-surface);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
+.directory-filter select { cursor: pointer; }
+
+.directory-search input:focus,
 .directory-filter select:focus {
-    border-color: #5392b5;
-    box-shadow: 0 0 0 3px rgba(83, 146, 181, 0.15);
+  border-color: var(--ad-primary);
+  box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1);
 }
 
+/* ─── EMPTY STATE ─────────────────────────────── */
 .no-volunteers-box {
-    max-width: 800px;
-    margin: 30px auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 16px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: 600;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ad-text-faint);
 }
 
+/* ─── ZONE SECTION ────────────────────────────── */
 .zone-section {
-    max-width: 1200px;
-    margin: 0 auto 32px;
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 22px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  max-width: 1200px;
+  margin: 0 auto 16px;
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  padding: 0;
+  overflow: hidden;
 }
 
 .zone-heading {
-    margin: 0 0 18px;
-    font-size: 28px;
-    color: #2a2a2a;
-    border-left: 8px solid #5392b5;
-    padding-left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 14px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ad-text-heading);
+  border-left: 3px solid var(--ad-primary);
+  border-bottom: 1px solid var(--ad-border);
+  background: var(--ad-surface-header);
 }
 
-.table-wrapper {
-    overflow-x: auto;
+.zone-heading svg {
+  color: var(--ad-text-faint);
+  flex-shrink: 0;
+}
+
+.zone-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ad-text-faint);
+}
+
+/* ─── TABLE ───────────────────────────────────── */
+.vdir-table-wrap {
+  overflow-x: auto;
 }
 
 .volunteer-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 850px;
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+  text-align: left;
+  font-family: var(--ad-font);
 }
 
-.volunteer-table thead {
-    background: #5392b5;
+.volunteer-table thead tr {
+  background: rgba(249, 246, 243, 0.6);
 }
 
 .volunteer-table thead th {
-    color: white;
-    text-align: left;
-    padding: 14px 16px;
-    font-size: 16px;
+  color: var(--ad-text-faint);
+  text-align: left;
+  padding: 12px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--ad-border);
 }
 
-.volunteer-table tbody tr:nth-child(even) {
-    background: #f7fafc;
+.volunteer-table tbody tr {
+  border-top: 1px solid #f3f4f6;
+  transition: background 0.15s;
 }
+
+.volunteer-table tbody tr:first-child { border-top: none; }
 
 .volunteer-table tbody tr:hover {
-    background: #eef6fb;
+  background: var(--ad-surface-alt);
 }
 
 .volunteer-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid #e3e3e3;
-    font-size: 16px;
-    vertical-align: top;
+  padding: 14px 20px;
+  border-bottom: none;
+  font-size: 14px;
+  color: var(--ad-text-body);
+  vertical-align: middle;
+}
+
+.volunteer-table td:first-child {
+  font-weight: 600;
+  color: var(--ad-text);
 }
 
 .preferred-time-inline {
-    display: inline-block;
-    margin-top: 6px;
-    color: #555;
-    font-size: 14px;
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--ad-text-faint);
+  font-size: 12px;
 }
 
+/* ─── RESPONSIVE ──────────────────────────────── */
 @media (max-width: 768px) {
-    .volunteer-directory-header h1 {
-        font-size: 28px;
-    }
+  .volunteer-directory-header h1 { font-size: 20px; }
+  .directory-filter,
+  .directory-search { min-width: 100%; }
+  .volunteer-table th,
+  .volunteer-table td { padding: 12px 14px; }
+}
 
-    .zone-heading {
-        font-size: 22px;
-    }
-
-    .directory-controls {
-        flex-direction: column;
-    }
-
-    .directory-filter {
-        min-width: 100%;
-    }
-
-    .directory-search {
-        min-width: 100%;
-    }
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .directory-controls { flex-direction: column; }
+  .directory-search input, .directory-filter select { font-size: 16px; min-height: 44px; }
+  .zone-heading { padding: 12px 14px; font-size: 12px; }
+  .zone-count { display: block; margin-left: auto; }
 }

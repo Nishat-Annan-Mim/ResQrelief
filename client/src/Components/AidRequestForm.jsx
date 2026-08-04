@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {
+  Utensils,
+  Pill,
+  House,
+  Droplet,
+  Shirt,
+  Pencil,
+  CircleCheck,
+  TriangleAlert,
+} from "lucide-react";
 import "./AidRequestForm.css";
+import { useAccount } from "./AccountContext";
+import { RestrictedNotice } from "./AccountFlag";
 
 const AID_OPTIONS = [
-  { value: "Food", label: "Food", emoji: "🍱" },
-  { value: "Medical", label: "Medical", emoji: "💊" },
-  { value: "Shelter", label: "Shelter", emoji: "🏠" },
-  { value: "Water", label: "Water", emoji: "💧" },
-  { value: "Clothing", label: "Clothing", emoji: "👕" },
-  { value: "Other", label: "Other", emoji: "✏️" },
+  { value: "Food", label: "Food", Icon: Utensils },
+  { value: "Medical", label: "Medical", Icon: Pill },
+  { value: "Shelter", label: "Shelter", Icon: House },
+  { value: "Water", label: "Water", Icon: Droplet },
+  { value: "Clothing", label: "Clothing", Icon: Shirt },
+  { value: "Other", label: "Other", Icon: Pencil },
 ];
 
 const BANGLADESH_DISTRICTS = [
@@ -78,6 +90,7 @@ const BANGLADESH_DISTRICTS = [
 ];
 
 const AidRequestForm = () => {
+  const { isBanned } = useAccount();
   const [coords, setCoords] = useState({ latitude: null, longitude: null });
   useEffect(() => {
     if (navigator.geolocation) {
@@ -189,7 +202,9 @@ const AidRequestForm = () => {
     return (
       <div className="arf-page">
         <div className="arf-success-card">
-          <span className="arf-success-icon">✅</span>
+          <span className="arf-success-icon">
+            <CircleCheck size={44} strokeWidth={1.75} />
+          </span>
           <p className="arf-success-text">
             Thank you for submitting your aid request. Our team will review and
             verify it shortly.
@@ -202,13 +217,19 @@ const AidRequestForm = () => {
     );
   }
 
+  // Flagged accounts keep read access but cannot create anything.
+  if (isBanned) return <RestrictedNotice feature="the aid request form" />;
+
   return (
     <div className="arf-page">
       {modal && (
         <div className="arf-modal-overlay">
           <div className="arf-modal">
             <p className="arf-modal-text">
-              <span className="arf-modal-icon">⚠️</span> {modal.message}
+              <span className="arf-modal-icon">
+                <TriangleAlert size={17} strokeWidth={2} />
+              </span>{" "}
+              {modal.message}
             </p>
             <button className="arf-modal-ok" onClick={() => setModal(null)}>
               OK
@@ -223,14 +244,16 @@ const AidRequestForm = () => {
         <p className="arf-select-label">Select all that you need -</p>
 
         <div className="arf-aid-grid">
-          {AID_OPTIONS.map(({ value, label, emoji }) => (
+          {AID_OPTIONS.map(({ value, label, Icon }) => (
             <button
               key={value}
               type="button"
               className={`arf-aid-btn ${formData.selectedAidTypes.includes(value) ? "selected" : ""}`}
               onClick={() => toggleAidType(value)}
             >
-              <span className="arf-aid-emoji">{emoji}</span>
+              <span className="arf-aid-emoji">
+                <Icon size={22} strokeWidth={1.75} />
+              </span>
               <span className="arf-aid-label">{label}</span>
             </button>
           ))}

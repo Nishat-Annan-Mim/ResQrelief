@@ -5,6 +5,9 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import Navbar from "./Components/Navbar";
 import NavbarPrivate from "./Components/NavbarPrivate";
 import NavbarAdmin from "./Components/NavbarAdmin";
+import UserLayout from "./Components/UserLayout";
+import { SidebarProvider } from "./Components/SidebarContext";
+import { AccountProvider } from "./Components/AccountContext";
 import NotificationListener from "./Components/NotificationListener";
 import ErrorBoundary from "./Components/ErrorBoundary";
 
@@ -64,6 +67,21 @@ function RequireAdmin({ children }) {
   return role === "admin" ? children : <Navigate to="/login" replace />;
 }
 
+/*
+ * Volunteer pages sit behind the separate volunteer password. Login sets
+ * `needVolunteerPassword` to "true"; VolunteerPassword clears it and
+ * VolunteerDashboard sets it to "false", so anything other than "true"
+ * counts as unlocked.
+ */
+function RequireVolunteerAuth({ children }) {
+  const locked = localStorage.getItem("needVolunteerPassword") === "true";
+  return locked ? (
+    <Navigate to="/volunteer-dashboard-password" replace />
+  ) : (
+    children
+  );
+}
+
 /* ── Auth state watcher ── */
 function AuthWatcher({ setLogged, setRole }) {
   const { pathname } = useLocation();
@@ -97,6 +115,8 @@ function App() {
 
   return (
     <BrowserRouter>
+      <SidebarProvider>
+      <AccountProvider>
       {renderNavbar()}
       <AuthWatcher setLogged={setLogged} setRole={setRole} />
       {logged && <NotificationListener />}
@@ -114,24 +134,24 @@ function App() {
         <Route path="/payment/cancel" element={<PaymentCancel />} />
 
         {/* ── User/Auth Protected Routes ── */}
-        <Route path="/home" element={<RequireAuth><Home /></RequireAuth>} />
+        <Route path="/home" element={<RequireAuth><UserLayout><Home /></UserLayout></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
-        <Route path="/volunteer" element={<RequireAuth><Volunteer /></RequireAuth>} />
-        <Route path="/volunteer-register" element={<RequireAuth><ErrorBoundary><VolunteerRegister /></ErrorBoundary></RequireAuth>} />
-        <Route path="/volunteer-onboarding" element={<RequireAuth><VolunteerOnboarding /></RequireAuth>} />
-        <Route path="/volunteer-zone-select" element={<RequireAuth><VolunteerZoneSelect /></RequireAuth>} />
-        <Route path="/volunteer-role-setup" element={<RequireAuth><VolunteerRoleSetup /></RequireAuth>} />
-        <Route path="/volunteer-dashboard-password" element={<RequireAuth><VolunteerPassword /></RequireAuth>} />
-        <Route path="/volunteer-dashboard" element={<RequireAuth><VolunteerDashboard /></RequireAuth>} />
-        <Route path="/volunteer-directory" element={<RequireAuth><VolunteerDirectory /></RequireAuth>} />
-        <Route path="/volunteer-map-board" element={<RequireAuth><VolunteerMapBoard /></RequireAuth>} />
-        <Route path="/volunteer-operations" element={<RequireAuth><VolunteerOperations /></RequireAuth>} />
-        <Route path="/volunteer-tasks" element={<RequireAuth><VolunteerTasks /></RequireAuth>} />
-        <Route path="/request-aid" element={<RequireAuth><AidRequestForm /></RequireAuth>} />
-        <Route path="/donate" element={<RequireAuth><Donate /></RequireAuth>} />
-        <Route path="/my-donations" element={<RequireAuth><MyDonations /></RequireAuth>} />
+        <Route path="/volunteer" element={<RequireAuth><UserLayout><Volunteer /></UserLayout></RequireAuth>} />
+        <Route path="/volunteer-register" element={<RequireAuth><UserLayout><ErrorBoundary><VolunteerRegister /></ErrorBoundary></UserLayout></RequireAuth>} />
+        <Route path="/volunteer-onboarding" element={<RequireAuth><RequireVolunteerAuth><UserLayout><VolunteerOnboarding /></UserLayout></RequireVolunteerAuth></RequireAuth>} />
+        <Route path="/volunteer-zone-select" element={<RequireAuth><RequireVolunteerAuth><UserLayout><VolunteerZoneSelect /></UserLayout></RequireVolunteerAuth></RequireAuth>} />
+        <Route path="/volunteer-role-setup" element={<RequireAuth><RequireVolunteerAuth><UserLayout><VolunteerRoleSetup /></UserLayout></RequireVolunteerAuth></RequireAuth>} />
+        <Route path="/volunteer-dashboard-password" element={<RequireAuth><UserLayout><VolunteerPassword /></UserLayout></RequireAuth>} />
+        <Route path="/volunteer-dashboard" element={<RequireAuth><RequireVolunteerAuth><UserLayout><VolunteerDashboard /></UserLayout></RequireVolunteerAuth></RequireAuth>} />
+        <Route path="/volunteer-directory" element={<RequireAuth><RequireVolunteerAuth><UserLayout><VolunteerDirectory /></UserLayout></RequireVolunteerAuth></RequireAuth>} />
+        <Route path="/volunteer-map-board" element={<RequireAuth><RequireVolunteerAuth><UserLayout><VolunteerMapBoard /></UserLayout></RequireVolunteerAuth></RequireAuth>} />
+        <Route path="/volunteer-operations" element={<RequireAuth><RequireVolunteerAuth><UserLayout><VolunteerOperations /></UserLayout></RequireVolunteerAuth></RequireAuth>} />
+        <Route path="/volunteer-tasks" element={<RequireAuth><RequireVolunteerAuth><UserLayout><VolunteerTasks /></UserLayout></RequireVolunteerAuth></RequireAuth>} />
+        <Route path="/request-aid" element={<RequireAuth><UserLayout><AidRequestForm /></UserLayout></RequireAuth>} />
+        <Route path="/donate" element={<RequireAuth><UserLayout><Donate /></UserLayout></RequireAuth>} />
+        <Route path="/my-donations" element={<RequireAuth><UserLayout><MyDonations /></UserLayout></RequireAuth>} />
         <Route path="/collaboration-portal" element={<RequireAuth><CollaborationPortal /></RequireAuth>} />
-        <Route path="/user-alerts" element={<RequireAuth><UserAlerts /></RequireAuth>} />
+        <Route path="/user-alerts" element={<RequireAuth><UserLayout><UserAlerts /></UserLayout></RequireAuth>} />
         <Route path="/volunteer-assignment/:id" element={<VolunteerAssignment />} />
 
         {/* ── Admin Protected Routes ── */}
@@ -147,6 +167,8 @@ function App() {
         <Route path="/donor-impact" element={<RequireAdmin><DonorImpact /></RequireAdmin>} />
         <Route path="/storage-analytics" element={<RequireAdmin><StorageAnalytics /></RequireAdmin>} />
       </Routes>
+      </AccountProvider>
+      </SidebarProvider>
     </BrowserRouter>
   );
 }

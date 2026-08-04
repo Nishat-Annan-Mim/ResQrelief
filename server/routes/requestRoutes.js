@@ -1,4 +1,5 @@
 const express = require("express");
+const blockIfBanned = require("../middleware/blockIfBanned");
 const router = express.Router();
 const RequestModel = require("../model/Request");
 const VolunteerModel = require("../model/Volunteer");
@@ -14,7 +15,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin1@resqrelief.com";
    ================================================================ */
 
 /* ---------------- Submit New Request (AI Priority auto-assigned) ---------------- */
-router.post("/api/requests", async (req, res) => {
+router.post("/api/requests", blockIfBanned, async (req, res) => {
   try {
     const requestData = req.body;
 

@@ -1,4 +1,5 @@
 const express = require("express");
+const blockIfBanned = require("../middleware/blockIfBanned");
 const router = express.Router();
 const VolunteerTaskModel = require("../model/VolunteerTask");
 const OperationModel = require("../model/Operation");
@@ -261,7 +262,7 @@ router.get("/api/collab/posts", async (req, res) => {
   }
 });
 
-router.post("/api/collab/posts", async (req, res) => {
+router.post("/api/collab/posts", blockIfBanned, async (req, res) => {
   try {
     const post = new CollabPostModel(req.body);
     await post.save();
@@ -271,7 +272,7 @@ router.post("/api/collab/posts", async (req, res) => {
   }
 });
 
-router.post("/api/collab/posts/:id/respond", async (req, res) => {
+router.post("/api/collab/posts/:id/respond", blockIfBanned, async (req, res) => {
   try {
     const post = await CollabPostModel.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });

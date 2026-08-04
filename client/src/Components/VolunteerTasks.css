@@ -1,10 +1,11 @@
+@import "./admin-theme.css";
 /* VolunteerTasks.css */
 
 .vt-page {
   padding: 28px 32px;
   background: #f5f0eb;
   min-height: calc(100vh - 70px);
-  font-family: 'Segoe UI', sans-serif;
+  font-family: var(--ad-font);
 }
 
 .vt-header {
@@ -13,12 +14,12 @@
 
 .vt-header h1 {
   font-size: 1.8rem;
-  color: #2c2c2c;
+  color: var(--ad-text);
   margin: 0 0 6px;
 }
 
 .vt-header p {
-  color: #888;
+  color: var(--ad-text-faint);
   margin: 0;
   font-size: 0.95rem;
 }
@@ -33,7 +34,7 @@
 
 .vt-stat {
   background: #fff;
-  border-radius: 10px;
+  border-radius: var(--ad-radius);
   padding: 16px 24px;
   display: flex;
   flex-direction: column;
@@ -42,19 +43,19 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   border-top: 4px solid #c8b8a2;
   font-size: 0.82rem;
-  color: #777;
+  color: var(--ad-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
 
-.vt-stat-pending { border-top-color: #e67e22; }
-.vt-stat-inprogress { border-top-color: #2980b9; }
-.vt-stat-done { border-top-color: #27ae60; }
+.vt-stat-pending { border-top-color: var(--ad-warning); }
+.vt-stat-inprogress { border-top-color: var(--ad-info); }
+.vt-stat-done { border-top-color: var(--ad-success); }
 
 .vt-stat-num {
   font-size: 1.9rem;
   font-weight: 700;
-  color: #2c2c2c;
+  color: var(--ad-text);
   line-height: 1;
 }
 
@@ -68,10 +69,10 @@
 
 .vt-tab {
   padding: 8px 18px;
-  border-radius: 20px;
-  border: 1.5px solid #ddd;
+  border-radius: var(--ad-radius-pill);
+  border: 1.5px solid var(--ad-border-input);
   background: #fff;
-  color: #555;
+  color: var(--ad-text-body);
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
@@ -79,13 +80,13 @@
 }
 
 .vt-tab:hover {
-  border-color: #b04a2f;
-  color: #b04a2f;
+  border-color: var(--ad-primary);
+  color: var(--ad-primary);
 }
 
 .vt-tab-active {
-  background: #b04a2f;
-  border-color: #b04a2f;
+  background: var(--ad-primary);
+  border-color: var(--ad-primary);
   color: #fff !important;
 }
 
@@ -98,7 +99,7 @@
 
 .vt-task-card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--ad-radius);
   box-shadow: 0 2px 10px rgba(0,0,0,0.07);
   overflow: hidden;
   border-left: 5px solid #c8b8a2;
@@ -106,9 +107,9 @@
 }
 
 .vt-task-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
-.vt-priority-high { border-left-color: #c0392b; }
-.vt-priority-medium { border-left-color: #e67e22; }
-.vt-priority-low { border-left-color: #27ae60; }
+.vt-priority-high { border-left-color: var(--ad-primary); }
+.vt-priority-medium { border-left-color: var(--ad-warning); }
+.vt-priority-low { border-left-color: var(--ad-success); }
 
 .vt-task-header {
   display: flex;
@@ -134,13 +135,13 @@
 .vt-task-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #2c2c2c;
+  color: var(--ad-text);
   margin: 0 0 3px;
 }
 
 .vt-task-type {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--ad-text-faint);
   font-weight: 500;
 }
 
@@ -154,7 +155,7 @@
 .vt-priority-badge {
   color: #fff;
   padding: 3px 10px;
-  border-radius: 12px;
+  border-radius: var(--ad-radius);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -163,7 +164,7 @@
 .vt-status-badge {
   border: 1.5px solid;
   padding: 3px 10px;
-  border-radius: 12px;
+  border-radius: var(--ad-radius);
   font-size: 0.78rem;
   font-weight: 700;
   background: transparent;
@@ -171,7 +172,7 @@
 
 .vt-expand-arrow {
   font-size: 0.78rem;
-  color: #bbb;
+  color: var(--ad-text-faint);
 }
 
 /* Task Body */
@@ -181,7 +182,7 @@
 }
 
 .vt-task-desc {
-  color: #555;
+  color: var(--ad-text-body);
   font-size: 0.92rem;
   line-height: 1.6;
   margin: 16px 0 12px;
@@ -196,17 +197,17 @@
 
 .vt-task-meta span {
   font-size: 0.82rem;
-  color: #888;
+  color: var(--ad-text-faint);
   background: #f5f0eb;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--ad-radius-sm);
 }
 
 .vt-completion-note {
   background: #f0faf3;
-  border-left: 3px solid #27ae60;
+  border-left: 3px solid var(--ad-success);
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: var(--ad-radius-sm);
   font-size: 0.88rem;
   color: #2c6e45;
   margin-bottom: 12px;
@@ -219,11 +220,11 @@
 }
 
 .vt-btn-start {
-  background: #2980b9;
+  background: var(--ad-info);
   color: #fff;
   border: none;
   padding: 9px 20px;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
@@ -232,11 +233,11 @@
 .vt-btn-start:hover { background: #1f6391; }
 
 .vt-btn-complete {
-  background: #27ae60;
+  background: var(--ad-success);
   color: #fff;
   border: none;
   padding: 9px 20px;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
@@ -246,10 +247,10 @@
 
 .vt-loading, .vt-empty {
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--ad-radius);
   padding: 50px 20px;
   text-align: center;
-  color: #999;
+  color: var(--ad-text-faint);
   font-size: 1rem;
 }
 
@@ -267,7 +268,7 @@
 
 .vt-modal {
   background: #fff;
-  border-radius: 14px;
+  border-radius: var(--ad-radius-lg);
   padding: 28px;
   width: 100%;
   max-width: 480px;
@@ -276,12 +277,12 @@
 
 .vt-modal h3 {
   margin: 0 0 8px;
-  color: #2c2c2c;
+  color: var(--ad-text);
   font-size: 1.2rem;
 }
 
 .vt-modal p {
-  color: #777;
+  color: var(--ad-text-muted);
   font-size: 0.9rem;
   margin-bottom: 14px;
 }
@@ -289,8 +290,8 @@
 .vt-modal textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
+  border: 1.5px solid var(--ad-border-input);
+  border-radius: var(--ad-radius-sm);
   font-size: 0.9rem;
   font-family: inherit;
   resize: vertical;
@@ -298,7 +299,7 @@
   box-sizing: border-box;
 }
 
-.vt-modal textarea:focus { border-color: #27ae60; }
+.vt-modal textarea:focus { border-color: var(--ad-success); }
 
 .vt-modal-actions {
   display: flex;
@@ -312,17 +313,17 @@
   color: #5a3e2b;
   border: none;
   padding: 9px 20px;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   font-weight: 600;
   cursor: pointer;
 }
 
 .vt-btn-confirm {
-  background: #27ae60;
+  background: var(--ad-success);
   color: #fff;
   border: none;
   padding: 9px 22px;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
@@ -338,8 +339,8 @@
 .vt-overdue-banner {
   background: #fdf0ed;
   border: 1.5px solid #e8a99a;
-  border-left: 5px solid #c0392b;
-  border-radius: 8px;
+  border-left: 5px solid var(--ad-primary);
+  border-radius: var(--ad-radius-sm);
   padding: 12px 16px;
   color: #922b21;
   font-size: 0.9rem;
@@ -348,13 +349,13 @@
 }
 
 .vt-task-card.vt-overdue {
-  border-left-color: #c0392b !important;
+  border-left-color: var(--ad-primary) !important;
   background: #fffaf9;
 }
 
 .vt-overdue-tag {
   display: inline-block;
-  background: #c0392b;
+  background: var(--ad-primary);
   color: #fff;
   font-size: 0.65rem;
   font-weight: 700;
@@ -368,7 +369,7 @@
 /* ---- Tab Badge ---- */
 .vt-tab-badge {
   display: inline-block;
-  background: #c0392b;
+  background: var(--ad-primary);
   color: #fff;
   font-size: 0.68rem;
   font-weight: 700;
@@ -376,7 +377,7 @@
   height: 18px;
   line-height: 18px;
   text-align: center;
-  border-radius: 10px;
+  border-radius: var(--ad-radius);
   margin-left: 6px;
   padding: 0 4px;
 }
@@ -384,7 +385,7 @@
 /* ---- Inline Status Feedback ---- */
 .vt-status-msg {
   padding: 11px 16px;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   font-size: 0.88rem;
   font-weight: 600;
   margin-bottom: 18px;
@@ -393,13 +394,13 @@
 
 .vt-status-msg-success {
   background: #f0faf3;
-  color: #27ae60;
+  color: var(--ad-success);
   border: 1px solid #b7dfca;
 }
 
 .vt-status-msg-error {
   background: #fdf0ed;
-  color: #c0392b;
+  color: var(--ad-primary);
   border: 1px solid #f1c0b9;
 }
 
@@ -412,6 +413,34 @@
 .vt-empty span {
   display: block;
   font-size: 0.85rem;
-  color: #bbb;
+  color: var(--ad-text-faint);
   margin-top: 6px;
+}
+/* ── Icon alignment for lucide glyphs ───────────── */
+.vt-page h1,
+.vt-status-msg,
+.vt-overdue-banner,
+.vt-task-icon,
+.vt-task-meta span,
+.vt-complete-btn,
+.vt-modal h3,
+.vt-empty p {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vt-page h1 { display: flex; }
+.vt-page h1 svg { color: var(--ad-primary); }
+.vt-empty p { flex-direction: column; gap: 10px; color: var(--ad-text-faint); }
+.vt-empty svg { color: var(--ad-border-input); }
+.vt-page svg { flex-shrink: 0; }
+
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .vt-page { padding: var(--ad-page-pad); }
+  .vt-page h1 { font-size: 20px; }
+  .vt-complete-btn { width: 100%; min-height: 44px; justify-content: center; }
+  .vt-modal { width: 100%; max-width: 100%; padding: 20px 16px; }
+  .vt-task-meta { flex-wrap: wrap; gap: 8px; }
 }

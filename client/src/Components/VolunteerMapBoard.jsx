@@ -7,6 +7,7 @@ import {
   DirectionsRenderer,
   useJsApiLoader,
 } from "@react-google-maps/api";
+import { MapPin, CircleCheck } from "lucide-react";
 import "./VolunteerMapBoard.css";
 const defaultCenter = { lat: 23.8103, lng: 90.4125 };
 
@@ -546,8 +547,8 @@ const VolunteerMapBoard = () => {
                   >
                     <div className="volunteer-list-name">
                       {isMe
-                        ? "📍 You (shared your location)"
-                        : `🔵 ${vol.fullName}`}
+                        ? "You (shared your location)"
+                        : vol.fullName}
                     </div>
                     <div className="volunteer-list-address">
                       {vol.currentAddress ||
@@ -730,7 +731,7 @@ const VolunteerMapBoard = () => {
           </p>
 
           <div className="selected-location-box">
-            📍
+            <MapPin size={16} strokeWidth={2} />
             <div className="selected-address-line">
               {requestForm.address || "No address selected yet"}
             </div>
@@ -823,8 +824,8 @@ const VolunteerMapBoard = () => {
         )}
 
         {/* ── Active Requests Table ── */}
-        <div className="table-wrapper">
-          <table className="nearby-table">
+        <div className="vmb-table-wrap">
+          <table className="nearby-table ad-stack">
             <thead>
               <tr>
                 <th>#</th>
@@ -844,13 +845,13 @@ const VolunteerMapBoard = () => {
               ) : (
                 activeNearbyRequests.map((request) => (
                   <tr key={request._id}>
-                    <td>{requestNumberMap[request._id] || "-"}</td>
-                    <td>{request.requestType}</td>
-                    <td>{getSeverityLabel(request.severity)}</td>
-                    <td>{request.address || "No address"}</td>
-                    <td>{request.distanceKm} km</td>
-                    <td>{statusLabel(request.status)}</td>
-                    <td>
+                    <td data-label="#">{requestNumberMap[request._id] || "-"}</td>
+                    <td data-label="Type">{request.requestType}</td>
+                    <td data-label="Severity">{getSeverityLabel(request.severity)}</td>
+                    <td data-label="Address">{request.address || "No address"}</td>
+                    <td data-label="Distance">{request.distanceKm} km</td>
+                    <td data-label="Status">{statusLabel(request.status)}</td>
+                    <td data-label="Action">
                       {request.status === "need" ? (
                         <button
                           className="table-action-btn"
@@ -898,13 +899,14 @@ const VolunteerMapBoard = () => {
               className="completed-toggle-btn"
               onClick={() => setShowCompleted((prev) => !prev)}
             >
-              ✅ Completed Nearby Requests ({completedNearbyRequests.length})
+              <CircleCheck size={17} strokeWidth={2} />
+              Completed Nearby Requests ({completedNearbyRequests.length})
               {showCompleted ? " ▲" : " ▼"}
             </button>
 
             {showCompleted && (
-              <div className="table-wrapper" style={{ marginTop: "12px" }}>
-                <table className="nearby-table completed-table">
+              <div className="vmb-table-wrap" style={{ marginTop: "12px" }}>
+                <table className="nearby-table completed-table ad-stack">
                   <thead>
                     <tr>
                       <th>#</th>
@@ -918,12 +920,17 @@ const VolunteerMapBoard = () => {
                   <tbody>
                     {completedNearbyRequests.map((request) => (
                       <tr key={request._id}>
-                        <td>{requestNumberMap[request._id] || "-"}</td>
-                        <td>{request.requestType}</td>
-                        <td>{getSeverityLabel(request.severity)}</td>
-                        <td>{request.address || "No address"}</td>
-                        <td>{request.distanceKm} km</td>
-                        <td>✅ Helped</td>
+                        <td data-label="#">{requestNumberMap[request._id] || "-"}</td>
+                        <td data-label="Type">{request.requestType}</td>
+                        <td data-label="Severity">{getSeverityLabel(request.severity)}</td>
+                        <td data-label="Address">{request.address || "No address"}</td>
+                        <td data-label="Distance">{request.distanceKm} km</td>
+                        <td data-label="Status">
+                          <span className="ad-pill ad-pill-success">
+                            <CircleCheck size={13} strokeWidth={2} />
+                            Helped
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

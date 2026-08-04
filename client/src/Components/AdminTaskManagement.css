@@ -1,12 +1,27 @@
+@import "./admin-theme.css";
 /* AdminTaskManagement.css */
 /* Matches the warm beige/red palette from the screenshot */
 
 .atm-page {
-  padding: 28px 32px;
-  background: #f5f0eb;
-  min-height: calc(100vh - 70px);
-  font-family: 'Segoe UI', sans-serif;
+  padding: var(--ad-page-pad);
+  background: var(--ad-bg);
+  min-height: 100%;
+  font-family: var(--ad-font);
+  color: var(--ad-text-body);
 }
+
+.atm-page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--ad-text);
+  margin: 0 0 22px;
+}
+
+.atm-page-title svg { color: var(--ad-primary); flex-shrink: 0; }
 
 /* ---- Stats ---- */
 .atm-stats-row {
@@ -17,33 +32,35 @@
 }
 
 .atm-stat-card {
-  background: #fff;
-  border-radius: 10px;
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-top: 3px solid var(--ad-border-input);
+  border-radius: var(--ad-radius);
   padding: 18px 28px;
   min-width: 130px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  border-top: 4px solid #c8b8a2;
+  box-shadow: var(--ad-shadow);
 }
 
-.atm-stat-card.pending { border-top-color: #e67e22; }
-.atm-stat-card.inprogress { border-top-color: #2980b9; }
-.atm-stat-card.completed { border-top-color: #27ae60; }
+.atm-stat-card.pending { border-top-color: var(--ad-warning); }
+.atm-stat-card.inprogress { border-top-color: var(--ad-info); }
+.atm-stat-card.completed { border-top-color: var(--ad-success); }
 
 .atm-stat-num {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #2c2c2c;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ad-text);
 }
 
 .atm-stat-label {
-  font-size: 0.8rem;
-  color: #777;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ad-text-faint);
   margin-top: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
 }
 
 /* ---- Controls ---- */
@@ -55,119 +72,137 @@
   align-items: center;
 }
 
-.atm-search {
-  flex: 1;
-  min-width: 200px;
-  padding: 10px 14px;
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.92rem;
-  background: #fff;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.atm-search:focus { border-color: #b04a2f; }
-
+.atm-search,
 .atm-select {
   padding: 10px 12px;
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  background: #fff;
-  cursor: pointer;
+  border: 1px solid var(--ad-border-input);
+  border-radius: var(--ad-radius-sm);
+  font-family: var(--ad-font);
+  font-size: 14px;
+  color: var(--ad-text-body);
+  background: var(--ad-surface);
   outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.atm-search { flex: 1; min-width: 200px; }
+.atm-select { cursor: pointer; }
+
+.atm-search:focus,
+.atm-select:focus {
+  border-color: var(--ad-primary);
+  box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1);
 }
 
 .atm-btn-create {
-  background: #b04a2f;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ad-primary);
   color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  border-radius: var(--ad-radius-sm);
+  font-family: var(--ad-font);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
   cursor: pointer;
   transition: background 0.2s;
   white-space: nowrap;
 }
-.atm-btn-create:hover { background: #8e3520; }
+.atm-btn-create:hover { background: var(--ad-primary-hover); }
 
 /* ---- Table ---- */
 .atm-table-wrapper {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
   overflow-x: auto;
 }
 
 .atm-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 .atm-table thead tr {
-  background: #f0e8df;
+  background: rgba(249, 246, 243, 0.4);
 }
 
 .atm-table th {
-  padding: 14px 16px;
+  padding: 12px 20px;
   text-align: left;
-  font-weight: 700;
-  color: #3a2e28;
-  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ad-text-faint);
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid #e0d4c8;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
 .atm-table td {
-  padding: 13px 16px;
-  border-bottom: 1px solid #f0ebe4;
+  padding: 14px 20px;
+  border-top: 1px solid #f3f4f6;
   vertical-align: middle;
-  color: #3a3a3a;
+  color: var(--ad-text-body);
+  font-size: 14px;
+}
+
+.atm-table tbody tr {
+  transition: background 0.15s;
 }
 
 .atm-table tbody tr:hover {
-  background: #fdf9f5;
+  background: var(--ad-surface-alt);
 }
 
 .atm-task-title {
   font-weight: 600;
-  color: #2c2c2c;
-  max-width: 200px;
+  color: var(--ad-text);
+  max-width: 220px;
 }
 
 .atm-type-badge {
-  background: #f0e8df;
-  color: #5a3e2b;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--ad-neutral-bg);
+  color: var(--ad-text-muted);
+  padding: 3px 10px;
+  border-radius: var(--ad-radius-pill);
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
 
+.atm-type-badge svg { flex-shrink: 0; }
+
 .atm-unassigned {
-  color: #aaa;
+  color: var(--ad-text-faint);
   font-style: italic;
-  font-size: 0.85rem;
+  font-size: 13px;
 }
 
 .atm-priority-dot {
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
+  border-radius: var(--ad-radius-pill);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.04em;
 }
 
 .atm-status-select {
   border: none;
   background: transparent;
+  font-family: var(--ad-font);
   font-weight: 600;
-  font-size: 0.88rem;
+  font-size: 13px;
   cursor: pointer;
   outline: none;
 }
@@ -177,46 +212,54 @@
   gap: 8px;
 }
 
-.atm-btn-edit {
-  background: #2980b9;
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+.atm-btn-edit,
+.atm-btn-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  border-radius: var(--ad-radius-sm);
   cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 600;
-  transition: background 0.2s;
+  font-family: var(--ad-font);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
 }
-.atm-btn-edit:hover { background: #1f6391; }
+
+.atm-btn-edit svg,
+.atm-btn-delete svg { flex-shrink: 0; }
+
+.atm-btn-edit {
+  background: var(--ad-surface);
+  color: var(--ad-text-muted);
+  border-color: var(--ad-border-strong);
+}
+.atm-btn-edit:hover { border-color: var(--ad-primary); color: var(--ad-primary); }
 
 .atm-btn-delete {
-  background: #c0392b;
+  background: var(--ad-primary);
   color: #fff;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 600;
-  transition: background 0.2s;
 }
-.atm-btn-delete:hover { background: #922b21; }
+.atm-btn-delete:hover { background: var(--ad-primary-hover); }
 
 .atm-loading, .atm-empty {
   text-align: center;
-  padding: 50px 20px;
-  color: #999;
-  font-size: 1rem;
-  background: #fff;
-  border-radius: 12px;
+  padding: 48px 24px;
+  color: var(--ad-text-faint);
+  font-size: 14px;
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
 }
 
 /* ---- Modal ---- */
 .atm-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(17, 24, 39, 0.45);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -225,23 +268,30 @@
 }
 
 .atm-modal {
-  background: #fff;
-  border-radius: 14px;
-  padding: 32px;
+  background: var(--ad-surface);
+  border-radius: var(--ad-radius-lg);
+  padding: 28px;
   width: 100%;
   max-width: 680px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  box-shadow: var(--ad-shadow-lg);
   max-height: 90vh;
   overflow-y: auto;
+  font-family: var(--ad-font);
 }
 
 .atm-modal h2 {
-  margin: 0 0 24px;
-  color: #2c2c2c;
-  font-size: 1.4rem;
-  border-bottom: 2px solid #f0e8df;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+  color: var(--ad-text-heading);
+  font-size: 18px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--ad-border);
   padding-bottom: 14px;
 }
+
+.atm-modal h2 svg { color: var(--ad-text-faint); flex-shrink: 0; }
 
 .atm-modal-grid {
   display: grid;
@@ -260,64 +310,70 @@
 }
 
 .atm-field label {
-  font-size: 0.8rem;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #666;
-  letter-spacing: 0.5px;
+  color: var(--ad-text-faint);
+  letter-spacing: 0.06em;
 }
 
 .atm-field input,
 .atm-field select,
 .atm-field textarea {
   padding: 10px 12px;
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border: 1px solid var(--ad-border-input);
+  border-radius: var(--ad-radius-sm);
+  font-size: 14px;
+  color: var(--ad-text-body);
   outline: none;
-  transition: border-color 0.2s;
-  font-family: inherit;
-  background: #fdfaf7;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: var(--ad-font);
+  background: var(--ad-surface);
 }
 
 .atm-field input:focus,
 .atm-field select:focus,
 .atm-field textarea:focus {
-  border-color: #b04a2f;
+  border-color: var(--ad-primary);
+  box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1);
 }
 
 .atm-modal-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: flex-end;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #f0e8df;
+  border-top: 1px solid var(--ad-border);
 }
 
 .atm-btn-cancel {
-  background: #f0e8df;
-  color: #5a3e2b;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.atm-btn-cancel:hover { background: #e0d4c8; }
-
-.atm-btn-save {
-  background: #b04a2f;
-  color: #fff;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 8px;
+  background: var(--ad-surface);
+  color: var(--ad-text-muted);
+  border: 1px solid var(--ad-border-strong);
+  padding: 9px 18px;
+  border-radius: var(--ad-radius-sm);
+  font-family: var(--ad-font);
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: border-color 0.18s, color 0.18s;
 }
-.atm-btn-save:hover { background: #8e3520; }
+.atm-btn-cancel:hover { border-color: var(--ad-primary); color: var(--ad-primary); }
+
+.atm-btn-save {
+  background: var(--ad-primary);
+  color: #fff;
+  border: 1px solid transparent;
+  padding: 9px 20px;
+  border-radius: var(--ad-radius-sm);
+  font-family: var(--ad-font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.atm-btn-save:hover { background: var(--ad-primary-hover); }
 
 @media (max-width: 600px) {
   .atm-modal-grid { grid-template-columns: 1fr; }
@@ -332,47 +388,74 @@
   gap: 6px;
   margin-top: 8px;
   padding: 10px 12px;
-  background: #f0faf3;
-  border: 1px solid #b7dfca;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  color: #2c5a3e;
+  background: var(--ad-surface-alt);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-sm);
+  font-size: 12px;
+  color: var(--ad-text-muted);
 }
 
 .atm-volunteer-preview span {
-  background: #d4f0e2;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--ad-neutral-bg);
+  padding: 3px 9px;
+  border-radius: var(--ad-radius-pill);
+  font-weight: 600;
 }
 
+.atm-volunteer-preview svg { flex-shrink: 0; }
+
 .atm-vol-status.confirmed {
-  background: #27ae60 !important;
-  color: #fff !important;
+  background: var(--ad-success-bg) !important;
+  color: var(--ad-success-text) !important;
 }
 
 .atm-vol-status.pending {
-  background: #e67e22 !important;
-  color: #fff !important;
+  background: var(--ad-warning-bg) !important;
+  color: var(--ad-warning-text) !important;
 }
 
 /* ---- Modal Feedback Message ---- */
 .atm-modal-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 0.88rem;
+  border-radius: var(--ad-radius-sm);
+  font-size: 13px;
   font-weight: 600;
   margin-bottom: 16px;
 }
 
+.atm-modal-msg svg { flex-shrink: 0; }
+
 .atm-modal-msg-error {
-  background: #fdf0ed;
-  color: #c0392b;
-  border: 1px solid #f1c0b9;
+  background: var(--ad-danger-bg);
+  color: var(--ad-danger-text);
 }
 
 .atm-modal-msg-success {
-  background: #f0faf3;
-  color: #27ae60;
-  border: 1px solid #b7dfca;
+  background: var(--ad-success-bg);
+  color: var(--ad-success-text);
+}
+/* ── Responsive: collapse fixed grids (auto-added) ────── */
+@media (max-width: 768px) {
+  .atm-modal-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .atm-stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .atm-stat-card { min-width: 0; padding: 14px 12px; }
+  .atm-stat-num { font-size: 22px; }
+  .atm-controls { flex-direction: column; align-items: stretch; }
+  .atm-search, .atm-select, .atm-btn-create { width: 100%; min-height: 44px; font-size: 16px; }
+  .atm-modal { padding: 20px 16px; border-radius: var(--ad-radius-lg) var(--ad-radius-lg) 0 0; }
+  .atm-modal-overlay { padding: 0; align-items: flex-end; }
+  .atm-modal-actions { flex-direction: column-reverse; }
+  .atm-modal-actions button { width: 100%; min-height: 44px; }
+  .atm-page-title { font-size: 20px; }
+  .atm-actions { flex-wrap: wrap; }
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Target, Sparkles, CalendarDays, Check } from "lucide-react";
 import "./VolunteerRoleSetup.css";
 
 const roles = [
@@ -86,7 +87,10 @@ const VolunteerRoleSetup = () => {
   return (
     <div className="role-page">
       <div className="role-top-card">
-        <h1>Select Your Roles</h1>
+        <h1>
+          <Target size={20} strokeWidth={1.75} />
+          Select Your Roles
+        </h1>
 
         <div className="role-grid">
           {roles.map((role) => (
@@ -109,7 +113,10 @@ const VolunteerRoleSetup = () => {
 
       <div className="role-bottom-grid">
         <div className="skills-box">
-          <h2>Skills and experienced</h2>
+          <h2>
+            <Sparkles size={17} strokeWidth={1.75} />
+            Skills and Experience
+          </h2>
           <textarea
             value={skillsExperience}
             onChange={(e) => setSkillsExperience(e.target.value)}
@@ -118,7 +125,10 @@ const VolunteerRoleSetup = () => {
         </div>
 
         <div className="availability-box">
-          <h2>Availability</h2>
+          <h2>
+            <CalendarDays size={17} strokeWidth={1.75} />
+            Availability
+          </h2>
 
           <div className="availability-row">
             <div>
@@ -159,6 +169,7 @@ const VolunteerRoleSetup = () => {
 
       <div className="role-submit-wrap">
         <button onClick={handleSubmit}>
+          <Check size={15} strokeWidth={2.5} />
           {isEditMode ? "Update Profile" : "Confirm"}
         </button>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Lock, TriangleAlert, ArrowLeft } from "lucide-react";
 import "./VolunteerPassword.css";
 
 const VolunteerPassword = () => {
@@ -54,8 +55,14 @@ const VolunteerPassword = () => {
   return (
     <div className="volunteer-password-container">
       <div className="volunteer-password-card">
-        <h2>Enter Volunteer Password</h2>
-        <p>Please enter your volunteer password to access the dashboard.</p>
+        <h2>
+          <Lock size={20} strokeWidth={1.75} />
+          Enter Volunteer Password
+        </h2>
+        <p>
+          The volunteer portal is protected separately. Enter your volunteer
+          password to unlock your dashboard, tasks and operations.
+        </p>
 
         <form onSubmit={handleSubmit} className="volunteer-password-form">
           <div className="form-group">
@@ -71,10 +78,8 @@ const VolunteerPassword = () => {
           </div>
 
           {message && (
-            <div
-              className="message"
-              style={{ color: message.includes("Incorrect") ? "red" : "green" }}
-            >
+            <div className="message">
+              <TriangleAlert size={15} strokeWidth={2} />
               {message}
             </div>
           )}
@@ -84,9 +89,10 @@ const VolunteerPassword = () => {
           </button>
         </form>
 
-        <div className="back-link">
-          <button onClick={() => navigate("/home")} className="back-btn">
-            ← Back to Home
+        <div className="vp-back-link">
+          <button onClick={() => navigate("/home")} className="vp-back-btn">
+            <ArrowLeft size={14} strokeWidth={2.5} />
+            Back to Home
           </button>
         </div>
       </div>

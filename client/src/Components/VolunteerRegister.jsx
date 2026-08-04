@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./VolunteerRegister.css";
+import { useAccount } from "./AccountContext";
+import { RestrictedNotice } from "./AccountFlag";
 
 const VolunteerRegister = () => {
+  const { isBanned } = useAccount();
   const navigate = useNavigate();
 
   // Retrieve user data from localStorage
@@ -175,11 +178,18 @@ const VolunteerRegister = () => {
         },
       );
       alert(response.data.message);
+      // The volunteer just chose their password here, so the portal is
+      // already unlocked for this session — otherwise the new volunteer
+      // would be bounced straight back to the password screen.
+      localStorage.removeItem("needVolunteerPassword");
       navigate("/volunteer-onboarding");
     } catch (error) {
       setMessage(error.response?.data?.message || "Registration failed");
     }
   };
+
+  // Flagged accounts keep read access but cannot create anything.
+  if (isBanned) return <RestrictedNotice feature="volunteer registration" />;
 
   return (
     <div className="volunteer-register-page">

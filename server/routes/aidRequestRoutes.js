@@ -1,11 +1,12 @@
 const express = require("express");
+const blockIfBanned = require("../middleware/blockIfBanned");
 const router = express.Router();
 const AidRequestModel = require("../model/AidRequest");
 const VolunteerModel = require("../model/Volunteer");
 const haversineDistanceKm = require("../utils/haversine");
 
 /* ---------------- Create Aid Request ---------------- */
-router.post("/aid-requests", async (req, res) => {
+router.post("/aid-requests", blockIfBanned, async (req, res) => {
   try {
     const {
       createdByVolunteerId, createdByVolunteerName, createdByVolunteerEmail,

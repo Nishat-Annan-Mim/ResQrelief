@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Bell, BellRing, BellOff } from "lucide-react";
+import "./UserAlerts.css";
 
 const UserAlerts = () => {
   const [activeAlerts, setActiveAlerts] = useState([]);
@@ -28,72 +30,50 @@ const UserAlerts = () => {
 
     fetchAlerts();
   }, []);
-  if (loading) return <p style={{ padding: "40px" }}>Loading alerts...</p>;
+
+  if (loading) return <p className="ua-state">Loading alerts…</p>;
 
   const renderAlert = (alert, expired = false) => (
     <div
       key={alert._id}
-      style={{
-        borderLeft: `4px solid ${expired ? "#bbb" : "#c0392b"}`,
-        background: expired ? "#f5f5f5" : "#fdf2f2",
-        padding: "15px",
-        marginBottom: "15px",
-        borderRadius: "4px",
-        opacity: expired ? 0.6 : 1,
-      }}
+      className={`ua-alert ${expired ? "ua-alert--expired" : ""}`}
     >
-      <h3 style={{ margin: "0 0 6px 0", color: expired ? "#999" : "#c0392b" }}>
-        {expired ? "🔕" : "🚨"} {alert.alertTitle}
-        {expired && (
-          <span
-            style={{
-              fontSize: "11px",
-              marginLeft: "10px",
-              background: "#ddd",
-              color: "#666",
-              padding: "2px 8px",
-              borderRadius: "10px",
-              fontWeight: "normal",
-            }}
-          >
-            Expired
-          </span>
+      <h3 className="ua-alert-title">
+        {expired ? (
+          <BellOff size={16} strokeWidth={2} />
+        ) : (
+          <BellRing size={16} strokeWidth={2} />
         )}
+        {alert.alertTitle}
+        {expired && <span className="ad-pill ad-pill-neutral">Expired</span>}
       </h3>
-      <p style={{ margin: 0, color: expired ? "#aaa" : "inherit" }}>
-        {alert.message}
-      </p>
-      <small style={{ color: "#aaa", display: "block", marginTop: "8px" }}>
+      <p className="ua-alert-message">{alert.message}</p>
+      <small className="ua-alert-time">
         {new Date(alert.dateSent).toLocaleString()}
       </small>
     </div>
   );
 
   return (
-    <div style={{ padding: "40px", maxWidth: "800px", margin: "0 auto" }}>
-      <h2>Important Alerts</h2>
+    <div className="ua-page">
+      <h2 className="ua-title">
+        <Bell size={22} strokeWidth={1.75} />
+        Important Alerts
+      </h2>
 
       {activeAlerts.length === 0 && expiredAlerts.length === 0 ? (
-        <p>You have no alerts.</p>
+        <p className="ua-empty">You have no alerts.</p>
       ) : (
         <>
           {activeAlerts.length === 0 && (
-            <p style={{ color: "#999" }}>No active alerts right now.</p>
+            <p className="ua-note">No active alerts right now.</p>
           )}
           {activeAlerts.map((a) => renderAlert(a, false))}
 
           {expiredAlerts.length > 0 && (
             <>
-              <hr style={{ margin: "30px 0", borderColor: "#eee" }} />
-              <p
-                style={{
-                  color: "#aaa",
-                  fontSize: "13px",
-                  marginBottom: "15px",
-                }}
-              >
-                Past / Expired Alerts
-              </p>
+              <hr className="ua-divider" />
+              <p className="ua-note">Past / Expired Alerts</p>
               {expiredAlerts.map((a) => renderAlert(a, true))}
             </>
           )}

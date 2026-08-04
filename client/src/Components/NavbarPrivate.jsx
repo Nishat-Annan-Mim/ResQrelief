@@ -1,35 +1,54 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { LogOut, Menu, X, TriangleAlert } from "lucide-react";
 import "./NavbarPrivate.css";
 import NotificationBell from "./NotificationBell";
+import { useSidebar } from "./SidebarContext";
+import { useAccount } from "./AccountContext";
 
+/*
+ * Slim top bar for signed-in users. Page navigation now lives in the
+ * sidebar (UserLayout), so this only carries the brand, notifications
+ * and logout.
+ */
 const NavbarPrivate = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { mobileOpen, toggleMobile } = useSidebar();
+  const { isBanned } = useAccount();
 
   return (
-    <div className="navbar-container">
-      <nav className="navbar">
-        <span className="logo logo-main">
-          ResQ<span className="logo-highlight">Relief</span>
+    <header className="np-topbar">
+      <button
+        className="np-menu-btn"
+        onClick={toggleMobile}
+        aria-label={mobileOpen ? "Close menu" : "Open menu"}
+        aria-expanded={mobileOpen}
+      >
+        {mobileOpen ? (
+          <X size={20} strokeWidth={2} />
+        ) : (
+          <Menu size={20} strokeWidth={2} />
+        )}
+      </button>
+
+      <Link to="/home" className="np-brand">
+        ResQ<span className="np-brand-accent">Relief</span>
+      </Link>
+
+      {isBanned && (
+        <span className="np-flag" title="Account flagged for review">
+          <TriangleAlert size={13} strokeWidth={2.5} />
+          Flagged
         </span>
+      )}
 
-        {/* Hamburger button - only visible on mobile */}
-        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? "✕" : "☰"}
-        </button>
-
-        <ul className={`nav-links ${menuOpen ? "open" : ""}`}>
-          <li><Link to="/home" className="nav-item" onClick={() => setMenuOpen(false)}>Home</Link></li>
-          <li><Link to="/volunteer" className="nav-item" onClick={() => setMenuOpen(false)}>Volunteer</Link></li>
-          <li><Link to="/request-aid" className="nav-item" onClick={() => setMenuOpen(false)}>Request Aid</Link></li>
-          <li><Link to="/donate" className="nav-item" onClick={() => setMenuOpen(false)}>Donate</Link></li>
-          <li><Link to="/my-donations" className="nav-item" onClick={() => setMenuOpen(false)}>My Donations</Link></li>
-          <li><NotificationBell /></li>
-          <li><Link to="/collaboration-portal" className="nav-item" onClick={() => setMenuOpen(false)}>Collab Portal</Link></li>
-          <li><Link to="/logout" className="nav-item logout-btn" onClick={() => setMenuOpen(false)}>Logout</Link></li>
-        </ul>
-      </nav>
-    </div>
+      <div className="np-actions">
+        <NotificationBell />
+        <Link to="/logout" className="np-logout">
+          <LogOut size={14} strokeWidth={2} />
+          Logout
+        </Link>
+      </div>
+    </header>
   );
 };
 

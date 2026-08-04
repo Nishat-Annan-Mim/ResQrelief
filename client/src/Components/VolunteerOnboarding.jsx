@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { CircleCheck, ArrowRight, Map } from "lucide-react";
 import "./VolunteerOnboarding.css";
 
 const VolunteerOnboarding = () => {
@@ -8,6 +9,7 @@ const VolunteerOnboarding = () => {
   return (
     <div className="volunteer-onboarding-page">
       <div className="volunteer-onboarding-card">
+        <CircleCheck size={40} strokeWidth={1.5} />
         <h1>
           Thank you for registering as a volunteer with ResQRelief. Your
           identity has been successfully verified.
@@ -21,11 +23,13 @@ const VolunteerOnboarding = () => {
 
       <div className="volunteer-onboarding-buttons">
         <button onClick={() => navigate("/volunteer-zone-select")}>
-          Continue to Area & Role Selection ▶
+          Continue to Area &amp; Role Selection
+          <ArrowRight size={15} strokeWidth={2.5} />
         </button>
 
         <button onClick={() => alert("Live Maps page will be added later")}>
-          Go to Live Maps ▶
+          <Map size={15} strokeWidth={2} />
+          Go to Live Maps
         </button>
       </div>
     </div>

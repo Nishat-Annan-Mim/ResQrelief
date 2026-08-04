@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
+import { Lock } from "lucide-react";
 const AdminLogin = ({ setLogged, setRole }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -42,7 +43,10 @@ const AdminLogin = ({ setLogged, setRole }) => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="admin-login-title">🔐 Admin Login</h2>
+        <h2 className="admin-login-title">
+          <Lock size={20} strokeWidth={1.75} />
+          Admin Login
+        </h2>
 
         <form onSubmit={handleSubmit}>
           <label>Admin Email</label>

@@ -1,0 +1,268 @@
+@import "./admin-theme.css";
+
+/* =============================================
+   MyDonations.css
+   This page previously had no stylesheet (inline
+   styles only). Built on the shared theme.
+   ============================================= */
+
+.md-page {
+  padding: var(--ad-page-pad);
+  max-width: 940px;
+  margin: 0 auto;
+  font-family: var(--ad-font);
+  color: var(--ad-text-body);
+}
+
+.md-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--ad-text-faint);
+  font-size: 14px;
+  font-family: var(--ad-font);
+}
+
+.md-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--ad-text);
+  margin: 0;
+}
+
+.md-title svg {
+  color: var(--ad-primary);
+  flex-shrink: 0;
+}
+
+.md-subtitle {
+  margin: 6px 0 var(--ad-gap);
+  font-size: 14px;
+  color: var(--ad-text-muted);
+}
+
+/* ── Empty state ───────────────────────────── */
+.md-empty {
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+}
+
+.md-empty svg { color: var(--ad-border-input); }
+
+.md-empty h3 {
+  margin: 14px 0 6px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ad-text-heading);
+}
+
+.md-empty p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ad-text-faint);
+}
+
+.md-empty-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding: 10px 22px;
+  background: var(--ad-primary);
+  color: #fff;
+  border-radius: var(--ad-radius-sm);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.18s;
+}
+
+.md-empty-cta:hover { background: var(--ad-primary-hover); }
+
+/* ── Donation cards ────────────────────────── */
+.md-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.md-card {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  padding: 20px 24px;
+}
+
+.md-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.md-card-headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.md-amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ad-text);
+  letter-spacing: -0.3px;
+}
+
+.md-meta {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--ad-text-faint);
+}
+
+/* ── Impact block ──────────────────────────── */
+.md-impact {
+  background: var(--ad-surface-alt);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.md-impact-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ad-text);
+}
+
+.md-impact-title svg {
+  color: var(--ad-text-faint);
+  flex-shrink: 0;
+}
+
+.md-impact-body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ad-text-body);
+}
+
+.md-impact-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--ad-text-faint);
+}
+
+.md-impact-line svg { flex-shrink: 0; }
+.md-impact-line strong { color: var(--ad-text-body); }
+
+.md-pending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ad-warning-bg);
+  color: var(--ad-warning-text);
+  border-radius: var(--ad-radius);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.md-pending svg { flex-shrink: 0; }
+
+/* ── Photos ────────────────────────────────── */
+.md-photos { margin-bottom: 16px; }
+
+.md-photos-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ad-text);
+}
+
+.md-photos-title svg {
+  color: var(--ad-text-faint);
+  flex-shrink: 0;
+}
+
+.md-photo-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.md-photo-grid img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--ad-radius-sm);
+  border: 1px solid var(--ad-border-input);
+  display: block;
+}
+
+/* ── Certificate row ───────────────────────── */
+.md-cert-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--ad-border);
+}
+
+.md-cert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: var(--ad-warning);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: var(--ad-radius-sm);
+  font-family: var(--ad-font);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.md-cert-btn:hover { background: #b45309; }
+.md-cert-btn svg { flex-shrink: 0; }
+
+.md-cert-none {
+  font-size: 12px;
+  color: var(--ad-text-faint);
+}
+
+@media (max-width: 768px) {
+  .md-title { font-size: 20px; }
+}
+
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .md-card { padding: 16px; }
+  .md-card-head { flex-direction: column; gap: 10px; }
+  .md-cert-btn { width: 100%; min-height: 44px; justify-content: center; }
+  .md-photo-grid img { width: calc(50% - 4px); height: 90px; }
+}

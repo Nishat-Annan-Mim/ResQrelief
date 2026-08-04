@@ -1,3 +1,4 @@
+@import "./admin-theme.css";
 /* =============================================
    AdminHome.css — Redesigned UI
    All original classes (priority-*, btn-verify,
@@ -13,8 +14,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f7f5f2;
-  font-family: 'Inter', sans-serif;
+  background-color: var(--ad-bg);
+  font-family: var(--ad-font);
 }
 
 /* ─── TOP NAVBAR ──────────────────────────────── */
@@ -23,7 +24,7 @@
   top: 0;
   z-index: 30;
   background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--ad-border-strong);
   padding: 12px 24px;
 }
 
@@ -49,7 +50,7 @@
 }
 
 .ah-brand-relief {
-  color: #c53030;
+  color: var(--ad-primary);
 }
 
 .ah-brand-badge {
@@ -57,7 +58,7 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #9ca3af;
+  color: var(--ad-text-faint);
   margin-left: 6px;
   vertical-align: super;
 }
@@ -74,7 +75,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #9ca3af;
+  color: var(--ad-text-faint);
   transition: color 0.2s;
 }
 
@@ -94,7 +95,7 @@
   right: 8px;
   width: 8px;
   height: 8px;
-  background: #c53030;
+  background: var(--ad-primary);
   border-radius: 50%;
   border: 2px solid #fff;
 }
@@ -103,8 +104,8 @@
   padding: 8px 18px;
   font-size: 13px;
   font-weight: 700;
-  color: #c53030;
-  border: 2px solid #c53030;
+  color: var(--ad-primary);
+  border: 2px solid var(--ad-primary);
   border-radius: 8px;
   background: transparent;
   cursor: pointer;
@@ -112,7 +113,7 @@
 }
 
 .ah-logout-btn:hover {
-  background: #c53030;
+  background: var(--ad-primary);
   color: #fff;
 }
 
@@ -126,8 +127,8 @@
 /* ─── SIDEBAR ─────────────────────────────────── */
 .ah-sidebar {
   width: 220px;
-  background: #ede9e3;
-  border-right: 1px solid #e0dbd4;
+  background: var(--ad-sidebar);
+  border-right: 1px solid var(--ad-border-input);
   padding: 24px 12px;
   flex-shrink: 0;
 }
@@ -158,7 +159,7 @@
 
 .ah-nav-active {
   background: rgba(255, 255, 255, 0.6);
-  color: #c53030;
+  color: var(--ad-primary);
   font-weight: 700;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
@@ -177,7 +178,7 @@
 .ah-section {
   background: #fff;
   border-radius: 16px;
-  border: 1px solid #f0ece7;
+  border: 1px solid var(--ad-border);
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   overflow: hidden;
 }
@@ -187,7 +188,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 18px 24px;
-  border-bottom: 1px solid #f0ece7;
+  border-bottom: 1px solid var(--ad-border);
   background: rgba(249,246,243,0.5);
 }
 
@@ -200,14 +201,14 @@
 .ah-section-title {
   font-size: 17px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--ad-text-heading);
   margin: 0;
 }
 
 .ah-ai-badge {
   padding: 2px 8px;
   background: #eff6ff;
-  color: #2563eb;
+  color: var(--ad-info);
   border: 1px solid #bfdbfe;
   border-radius: 4px;
   font-size: 10px;
@@ -221,7 +222,7 @@
   align-items: center;
   gap: 5px;
   padding: 6px 14px;
-  background: #c53030;
+  background: var(--ad-primary);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -232,7 +233,7 @@
 }
 
 .ah-show-all-btn:hover {
-  background: #9b2c2c;
+  background: var(--ad-primary-hover);
 }
 
 /* ─── TABLE ───────────────────────────────────── */
@@ -254,7 +255,7 @@
   padding: 12px 20px;
   font-size: 11px;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--ad-text-faint);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -271,7 +272,7 @@
 .ah-table td {
   padding: 14px 20px;
   font-size: 14px;
-  color: #374151;
+  color: var(--ad-text-body);
 }
 
 .ah-tr-clickable {
@@ -280,11 +281,11 @@
 
 .ah-td-bold {
   font-weight: 600;
-  color: #111827 !important;
+  color: var(--ad-text) !important;
 }
 
 .ah-td-muted {
-  color: #6b7280 !important;
+  color: var(--ad-text-muted) !important;
 }
 
 .ah-td-mono {
@@ -302,7 +303,7 @@
 
 .ah-td-time {
   font-size: 12px !important;
-  color: #9ca3af !important;
+  color: var(--ad-text-faint) !important;
 }
 
 /* ─── STATUS PILLS (inventory) ────────────────── */
@@ -340,9 +341,9 @@
 }
 
 /* Reuse getPriorityClass() colour names */
-.ah-priority-label.priority-high  { color: #c0392b; }
-.ah-priority-label.priority-medium { color: #d97706; }
-.ah-priority-label.priority-low   { color: #16a34a; }
+.ah-priority-label.priority-high  { color: var(--ad-primary); }
+.ah-priority-label.priority-medium { color: var(--ad-warning); }
+.ah-priority-label.priority-low   { color: var(--ad-success); }
 
 /* ─── REQUEST STATUS PILL ─────────────────────── */
 .ah-req-status {
@@ -365,35 +366,35 @@
 
 .ah-req-verified {
   background: #f0fdf4;
-  color: #15803d;
+  color: var(--ad-success-text);
 }
 
 .ah-req-verified .ah-status-dot {
-  background: #16a34a;
+  background: var(--ad-success);
 }
 
 .ah-req-pending {
   background: #fff1f1;
-  color: #c0392b;
+  color: var(--ad-primary);
 }
 
 .ah-req-pending .ah-status-dot {
-  background: #c0392b;
+  background: var(--ad-primary);
 }
 
 .ah-req-other {
   background: #f3f4f6;
-  color: #6b7280;
+  color: var(--ad-text-muted);
 }
 
 .ah-req-other .ah-status-dot {
-  background: #9ca3af;
+  background: var(--ad-text-faint);
 }
 
 /* ─── LOADING TEXT ────────────────────────────── */
 .ah-loading-text {
   padding: 24px 24px;
-  color: #9ca3af;
+  color: var(--ad-text-faint);
   font-size: 14px;
   margin: 0;
 }
@@ -409,24 +410,25 @@
   font-size: 14px;
 }
 
-.priority-high  { color: #c0392b; }
-.priority-medium { color: #d97706; }
-.priority-low   { color: #16a34a; }
+.priority-high  { color: var(--ad-primary); }
+.priority-medium { color: var(--ad-warning); }
+.priority-low   { color: var(--ad-success); }
 
 /* Detail Page */
 .detail-page {
   padding: 40px;
   max-width: 1000px;
   margin: 0 auto;
-  background: #f3efe7;
+  background: var(--ad-bg);
   min-height: 100vh;
+  font-family: var(--ad-font);
 }
 
 .detail-title {
   font-size: 32px;
   font-weight: 800;
   margin-bottom: 30px;
-  color: #111;
+  color: var(--ad-text);
 }
 
 .detail-layout {
@@ -444,7 +446,9 @@
 }
 
 .detail-card {
-  background: #e8e3db;
+  background: #fff;
+  border: 1px solid var(--ad-border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   border-radius: 12px;
   padding: 20px 24px;
 }
@@ -452,7 +456,7 @@
 .detail-card h3 {
   margin: 0 0 16px 0;
   font-size: 18px;
-  color: #333;
+  color: var(--ad-text-heading);
 }
 
 .detail-table {
@@ -462,13 +466,13 @@
 
 .detail-table td {
   padding: 10px 8px;
-  border-bottom: 1px solid #d0ccc4;
+  border-bottom: 1px solid var(--ad-border);
   font-size: 15px;
-  color: #444;
+  color: var(--ad-text-body);
 }
 
 .detail-table td:first-child {
-  color: #888;
+  color: var(--ad-text-faint);
   width: 45%;
 }
 
@@ -476,7 +480,7 @@
 .btn-verify {
   flex: 1;
   padding: 16px;
-  background: #16a34a;
+  background: var(--ad-success);
   color: white;
   border: none;
   border-radius: 8px;
@@ -486,12 +490,12 @@
   transition: background 0.2s;
 }
 
-.btn-verify:hover { background: #15803d; }
+.btn-verify:hover { background: var(--ad-success-text); }
 
 .btn-fraud {
   flex: 1;
   padding: 16px;
-  background: #c0392b;
+  background: var(--ad-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -501,7 +505,7 @@
   transition: background 0.2s;
 }
 
-.btn-fraud:hover { background: #a93226; }
+.btn-fraud:hover { background: var(--ad-primary-hover); }
 
 /* Request Portal Tabs */
 .ar-tabs {
@@ -512,6 +516,10 @@
 }
 
 .ar-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--ad-font);
   padding: 9px 18px;
   border-radius: 8px;
   border: 2px solid #e0e0e0;
@@ -524,12 +532,40 @@
 }
 
 .ar-tab:hover {
-  border-color: #1a1a2e;
-  color: #1a1a2e;
+  border-color: var(--ad-primary);
+  color: var(--ad-primary);
 }
 
 .ar-tab-active {
-  background: #1a1a2e;
-  border-color: #1a1a2e;
+  background: var(--ad-primary);
+  border-color: var(--ad-primary);
   color: #fff;
+}
+.ar-tab svg { flex-shrink: 0; }
+
+/* ── Responsive (phones + tablets) ─────────────────────── */
+@media (max-width: 1024px) {
+  .ah-main { padding: var(--ad-page-pad); gap: 20px; }
+}
+
+@media (max-width: 768px) {
+  .ah-main { padding: var(--ad-page-pad); gap: 16px; }
+  .ah-section-header { flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 16px; }
+  .ah-section-title { font-size: 15px; }
+  .ah-show-all-btn { width: 100%; justify-content: center; min-height: 40px; }
+  .ah-table th, .ah-table td { padding: 10px 12px; }
+  .ah-loading-text { padding: 20px 16px; }
+
+  /* Request detail page */
+  .detail-page { padding: var(--ad-page-pad); }
+  .detail-title { font-size: 22px; margin-bottom: 18px; }
+  .detail-layout { flex-direction: column; gap: 16px; }
+  .detail-left, .detail-right { width: 100%; flex: none; }
+  .detail-card { padding: 16px; }
+  .detail-table td { font-size: 14px; padding: 9px 6px; }
+  .btn-verify, .btn-fraud { padding: 14px; font-size: 15px; min-height: 48px; }
+
+  /* Request portal tabs scroll instead of wrapping into a tall block */
+  .ar-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .ar-tab { white-space: nowrap; min-height: 40px; }
 }

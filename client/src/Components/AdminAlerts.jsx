@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Megaphone, Send, History, Info } from "lucide-react";
 import "./AdminAlerts.css";
 import AdminLayout from "./AdminLayout";
 
@@ -50,12 +51,12 @@ const AdminAlerts = () => {
 
       const { emailsSent, inAppSent } = res.data;
       alert(
-        `✅ Alert Sent!\n` +
+        `Alert sent.\n` +
           (channels.includes("email")
-            ? `📧 Emails sent to ${emailsSent} recipient(s) (distance-based selection)\n`
+            ? `Emails sent to ${emailsSent} recipient(s) (distance-based selection)\n`
             : "") +
           (channels.includes("app")
-            ? `🔔 In-app notification sent to ${inAppSent} recipient(s)`
+            ? `In-app notification sent to ${inAppSent} recipient(s)`
             : ""),
       );
 
@@ -67,7 +68,7 @@ const AdminAlerts = () => {
       fetchAlerts();
     } catch (err) {
       console.error(err);
-      alert("❌ Failed to send alert");
+      alert("Failed to send alert.");
     }
   };
 
@@ -79,167 +80,175 @@ const AdminAlerts = () => {
       fetchAlerts();
     } catch (err) {
       console.error(err);
-      alert("❌ Could not expire alert");
+      alert("Could not expire alert.");
     }
   };
 
   return (
     <AdminLayout>
-    <div className="alert-page">
-      <h1 className="main-title">Emergency Notification System</h1>
+      <div className="alert-page">
+        <h1 className="main-title">
+          <Megaphone size={22} strokeWidth={1.75} />
+          Emergency Notification System
+        </h1>
 
-      <div className="alert-wrapper">
-        {/* LEFT SIDE */}
-        <div className="alert-form">
-          <h2>Create Emergency Alert</h2>
+        <div className="alert-wrapper">
+          {/* LEFT SIDE */}
+          <div className="alert-form">
+            <h2>
+              <Send size={17} strokeWidth={1.75} />
+              Create Emergency Alert
+            </h2>
 
-          <label>Alert Title</label>
-          <input
-            placeholder="Enter alert title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <label>Message</label>
-          <textarea
-            placeholder="Enter alert message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-
-          <label>
-            District{" "}
-            <span
-              style={{ fontWeight: "normal", color: "#888", fontSize: "13px" }}
-            >
-              (used for proximity-based email targeting)
-            </span>
-          </label>
-          <input
-            placeholder="e.g. Dhaka, Sylhet, Chattogram..."
-            value={district}
-            onChange={(e) => setDistrict(e.target.value)}
-          />
-          {channels.includes("email") && (
-            <p
-              style={{
-                fontSize: "12px",
-                color: "#888",
-                marginTop: "-8px",
-                marginBottom: "8px",
-              }}
-            >
-              💡 Volunteers within 50 km will all be emailed. Beyond 50 km, only
-              the nearest volunteer will receive an email.
-            </p>
-          )}
-
-          <label>Target Audience</label>
-          <div className="checkbox-group">
-            <label>
+            <div className="alert-form-body">
+              <label>Alert Title</label>
               <input
-                type="checkbox"
-                checked={audience.includes("volunteers")}
-                onChange={() => toggle("volunteers", audience, setAudience)}
+                placeholder="Enter alert title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
-              Volunteers
-            </label>
-            <label>
+
+              <label>Message</label>
+              <textarea
+                placeholder="Enter alert message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+
+              <label>
+                District{" "}
+                <span
+                  style={{ fontWeight: "normal", color: "#9ca3af", fontSize: "11px", textTransform: "none", letterSpacing: 0 }}
+                >
+                  (proximity-based email targeting)
+                </span>
+              </label>
               <input
-                type="checkbox"
-                checked={audience.includes("beneficiaries")}
-                onChange={() => toggle("beneficiaries", audience, setAudience)}
+                placeholder="e.g. Dhaka, Sylhet, Chattogram..."
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
               />
-              Beneficiaries
-            </label>
+              {channels.includes("email") && (
+                <p className="proximity-hint">
+                  <Info size={14} strokeWidth={2} />
+                  <span>
+                    Volunteers within 50 km will all be emailed. Beyond 50 km,
+                    only the nearest volunteer will receive an email.
+                  </span>
+                </p>
+              )}
+
+              <label>Target Audience</label>
+              <div className="checkbox-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={audience.includes("volunteers")}
+                    onChange={() => toggle("volunteers", audience, setAudience)}
+                  />
+                  Volunteers
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={audience.includes("beneficiaries")}
+                    onChange={() => toggle("beneficiaries", audience, setAudience)}
+                  />
+                  Beneficiaries
+                </label>
+              </div>
+
+              <label>Notification Channel</label>
+              <div className="checkbox-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={channels.includes("app")}
+                    onChange={() => toggle("app", channels, setChannels)}
+                  />
+                  In-App
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={channels.includes("email")}
+                    onChange={() => toggle("email", channels, setChannels)}
+                  />
+                  Email
+                </label>
+              </div>
+
+              <button className="send-btn" onClick={sendAlert}>
+                <Send size={15} strokeWidth={2.25} />
+                Send Alert
+              </button>
+            </div>
           </div>
 
-          <label>Notification Channel</label>
-          <div className="checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={channels.includes("app")}
-                onChange={() => toggle("app", channels, setChannels)}
-              />
-              In-App
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={channels.includes("email")}
-                onChange={() => toggle("email", channels, setChannels)}
-              />
-              Email
-            </label>
-          </div>
+          {/* RIGHT SIDE */}
+          <div className="alert-history">
+            <h2>
+              <History size={17} strokeWidth={1.75} />
+              Sent Alerts
+            </h2>
 
-          <button className="send-btn" onClick={sendAlert}>
-            Send Alerts
-          </button>
-        </div>
-
-        {/* RIGHT SIDE */}
-        <div className="alert-history">
-          <h2>Sent Alerts</h2>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Alert Title</th>
-                <th>Channel</th>
-                <th>Audience</th>
-                <th>Date Sent</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {alerts.length === 0 ? (
+            <table className="ad-stack">
+              <thead>
                 <tr>
-                  <td colSpan="6" style={{ textAlign: "center" }}>
-                    No alerts sent yet
-                  </td>
+                  <th>Alert Title</th>
+                  <th>Channel</th>
+                  <th>Audience</th>
+                  <th>Date Sent</th>
+                  <th>Status</th>
+                  <th>Action</th>
                 </tr>
-              ) : (
-                alerts.map((a, index) => (
-                  <tr key={index}>
-                    <td>{a.alertTitle}</td>
-                    <td>{a.channels.join(" + ")}</td>
-                    <td>{a.audience.join(" + ")}</td>
-                    <td>{new Date(a.dateSent).toLocaleDateString()}</td>
-                    <td>{a.status}</td>
-                    <td>
-                      {a.status !== "expired" ? (
-                        <button
-                          onClick={() => expireAlert(a._id)}
-                          style={{
-                            background: "#c0392b",
-                            color: "#fff",
-                            border: "none",
-                            padding: "5px 10px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                          }}
-                        >
-                          Expire
-                        </button>
-                      ) : (
-                        <span style={{ color: "#999", fontSize: "13px" }}>
-                          —
-                        </span>
-                      )}
+              </thead>
+
+              <tbody>
+                {alerts.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="alert-empty">
+                      No alerts sent yet
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  alerts.map((a, index) => (
+                    <tr key={index}>
+                      <td style={{ fontWeight: 600, color: "#111827" }} data-label="Alert Title">{a.alertTitle}</td>
+                      <td style={{ color: "#6b7280" }} data-label="Channel">{a.channels.join(" + ")}</td>
+                      <td style={{ color: "#6b7280" }} data-label="Audience">{a.audience.join(" + ")}</td>
+                      <td style={{ fontSize: "12px", color: "#9ca3af" }} data-label="Date Sent">{new Date(a.dateSent).toLocaleDateString()}</td>
+                      <td data-label="Status">
+                        <span
+                          className={`alert-status-pill ${
+                            a.status === "expired" ? "status-expired" : "status-active"
+                          }`}
+                        >
+                          {a.status.charAt(0).toUpperCase() + a.status.slice(1)}
+                        </span>
+                      </td>
+                      <td data-label="Action">
+                        {a.status !== "expired" ? (
+                          <button
+                            className="expire-btn"
+                            onClick={() => expireAlert(a._id)}
+                          >
+                            Expire
+                          </button>
+                        ) : (
+                          <span style={{ color: "#9ca3af", fontSize: "13px" }}>
+                            —
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
     </AdminLayout>
   );
 };

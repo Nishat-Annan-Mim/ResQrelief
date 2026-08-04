@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import { MapPin, ArrowRight } from "lucide-react";
 import "./VolunteerZoneSelect.css";
 
 import dhakaImg from "../assets/images/dhaka.jfif";
@@ -74,7 +75,10 @@ const VolunteerZoneSelect = () => {
   return (
     <div className="zone-page">
       <div className="zone-title-box">
-        <h1>Select Your Zones & Roles</h1>
+        <h1>
+          <MapPin size={22} strokeWidth={1.75} />
+          Select Your Zones &amp; Roles
+        </h1>
       </div>
 
       <div className="zone-selected-box">
@@ -99,7 +103,8 @@ const VolunteerZoneSelect = () => {
 
       <div className="zone-next-wrap">
         <button onClick={handleNext}>
-          {isEditMode ? "NEXT TO EDIT ROLE →" : "NEXT →"}
+          {isEditMode ? "Next: Edit Role" : "Next"}
+          <ArrowRight size={15} strokeWidth={2.5} />
         </button>
       </div>
     </div>

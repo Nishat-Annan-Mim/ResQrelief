@@ -1,4 +1,18 @@
 import { useEffect, useState } from "react";
+import {
+  Eye,
+  Utensils,
+  Shirt,
+  Pill,
+  BedDouble,
+  Package,
+  Banknote,
+  Boxes,
+  MapPin,
+  TrendingUp,
+  Receipt,
+} from "lucide-react";
+import "./Transparency.css";
 import AdminLayout from "./AdminLayout";
 
 const MONTH_NAMES = [
@@ -16,13 +30,19 @@ const MONTH_NAMES = [
   "Dec",
 ];
 
-const itemEmoji = (name) => {
+/** Picks a lucide icon for a supply category by name. */
+const ItemIcon = ({ name, size = 14 }) => {
   const n = (name || "").toLowerCase();
-  if (n.includes("food")) return "🍱";
-  if (n.includes("cloth")) return "👕";
-  if (n.includes("medicine")) return "💊";
-  if (n.includes("blanket")) return "🛏️";
-  return "📦";
+  const Icon = n.includes("food")
+    ? Utensils
+    : n.includes("cloth")
+      ? Shirt
+      : n.includes("medicine")
+        ? Pill
+        : n.includes("blanket")
+          ? BedDouble
+          : Package;
+  return <Icon size={size} strokeWidth={2} />;
 };
 
 const fmt = (num) => {
@@ -47,385 +67,181 @@ export default function Transparency() {
 
   if (loading)
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f0ede8",
-        }}
-      >
-        <p style={{ color: "#888" }}>Loading dashboard...</p>
-      </div>
+      <AdminLayout>
+        <div className="tr-state">Loading dashboard…</div>
+      </AdminLayout>
     );
 
   if (!data)
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f0ede8",
-        }}
-      >
-        <p style={{ color: "#888" }}>Failed to load data.</p>
-      </div>
+      <AdminLayout>
+        <div className="tr-state">Failed to load data.</div>
+      </AdminLayout>
     );
 
   const maxMonthly = Math.max(...data.monthlyTrend.map((m) => m.total), 1);
-  const itemColors = ["#5b21b6", "#16a34a", "#b45309", "#be123c", "#0369a1"];
 
   return (
     <AdminLayout>
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f0ede8",
-        fontFamily: "Segoe UI, sans-serif",
-        padding: "2rem 1.5rem",
-      }}
-    >
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-        <h1
-          style={{
-            fontSize: "2rem",
-            fontWeight: "700",
-            color: "#1a1a1a",
-            marginBottom: "1.5rem",
-          }}
-        >
-          Transparency
-        </h1>
+      <div className="tr-page">
+        <div className="tr-container">
+          <h1 className="tr-title">
+            <Eye size={22} strokeWidth={1.75} />
+            Transparency
+          </h1>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "1rem",
-            marginBottom: "1.5rem",
-          }}
-        >
-          {[
-            { label: "Total Raised", value: fmt(data.totalFundsCollected) },
-            { label: "Total Disbursed", value: fmt(data.totalFundsUtilized) },
-            { label: "Total Donors", value: data.totalDonors ?? 0 },
-          ].map((card) => (
-            <div
-              key={card.label}
-              style={{
-                backgroundColor: "#e8e4de",
-                borderRadius: "16px",
-                padding: "1.5rem",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "0.85rem",
-                  fontWeight: "600",
-                  color: "#7c3aed",
-                  marginBottom: "0.5rem",
-                  marginTop: 0,
-                }}
-              >
-                {card.label}
-              </p>
-              <p
-                style={{
-                  fontSize: "1.8rem",
-                  fontWeight: "700",
-                  color: "#1a1a1a",
-                  margin: 0,
-                }}
-              >
-                {card.value}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {data.itemsDistributed.length > 0 && (
-          <div
-            style={{
-              backgroundColor: "#e8e4de",
-              borderRadius: "16px",
-              padding: "1.5rem",
-              marginBottom: "1.5rem",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            }}
-          >
-            <h3
-              style={{
-                fontSize: "1rem",
-                fontWeight: "700",
-                marginBottom: "1.2rem",
-                marginTop: 0,
-              }}
-            >
-              Items Distributed
-            </h3>
-            {data.itemsDistributed.map((item, i) => {
-              const maxQty = Math.max(
-                ...data.itemsDistributed.map((x) => x.totalQuantity),
-                1,
-              );
-              const pct = (item.totalQuantity / maxQty) * 100;
-              return (
-                <div key={item._id} style={{ marginBottom: "0.8rem" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      fontSize: "0.82rem",
-                      marginBottom: "0.3rem",
-                    }}
-                  >
-                    <span style={{ color: "#555" }}>
-                      {itemEmoji(item._id)} {item._id}
-                    </span>
-                    <span style={{ color: "#555", fontWeight: "600" }}>
-                      {item.totalQuantity} pcs
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      backgroundColor: "#d5d0c9",
-                      borderRadius: "999px",
-                      height: "10px",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: `${pct}%`,
-                        height: "100%",
-                        backgroundColor: itemColors[i % itemColors.length],
-                        borderRadius: "999px",
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+          {/* ── Headline figures ── */}
+          <div className="tr-stat-grid">
+            {[
+              {
+                label: "Total Raised",
+                value: fmt(data.totalFundsCollected),
+                Icon: Banknote,
+              },
+              {
+                label: "Total Disbursed",
+                value: fmt(data.totalFundsUtilized),
+                Icon: TrendingUp,
+              },
+              {
+                label: "Total Donors",
+                value: data.totalDonors ?? 0,
+                Icon: Receipt,
+              },
+            ].map(({ label, value, Icon }) => (
+              <div key={label} className="tr-stat-card">
+                <p className="tr-stat-label">
+                  <Icon size={13} strokeWidth={2} />
+                  {label}
+                </p>
+                <p className="tr-stat-value">{value}</p>
+              </div>
+            ))}
           </div>
-        )}
 
-        {data.servedAreas.length > 0 && (
-          <div style={{ marginBottom: "1.5rem" }}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "1rem",
-              }}
-            >
+          {/* ── Items distributed ── */}
+          {data.itemsDistributed.length > 0 && (
+            <div className="tr-card">
+              <h3 className="tr-card-title">
+                <Boxes size={17} strokeWidth={1.75} />
+                Items Distributed
+              </h3>
+              {data.itemsDistributed.map((item) => {
+                const maxQty = Math.max(
+                  ...data.itemsDistributed.map((x) => x.totalQuantity),
+                  1,
+                );
+                const pct = (item.totalQuantity / maxQty) * 100;
+                return (
+                  <div key={item._id} className="tr-item-row">
+                    <div className="tr-item-head">
+                      <span className="tr-item-name">
+                        <ItemIcon name={item._id} />
+                        {item._id}
+                      </span>
+                      <span className="tr-item-qty">
+                        {item.totalQuantity} pcs
+                      </span>
+                    </div>
+                    <div className="tr-bar-track">
+                      <div
+                        className="tr-bar-fill"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* ── Areas served ── */}
+          {data.servedAreas.length > 0 && (
+            <div className="tr-area-grid">
               {data.servedAreas.map((area) => (
-                <div
-                  key={area._id}
-                  style={{
-                    backgroundColor: "#e8e4de",
-                    borderRadius: "16px",
-                    padding: "1.2rem",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  }}
-                >
-                  <p
-                    style={{
-                      fontWeight: "700",
-                      fontSize: "0.95rem",
-                      color: "#1a1a1a",
-                      marginBottom: "0.8rem",
-                      marginTop: 0,
-                      textAlign: "center",
-                    }}
-                  >
+                <div key={area._id} className="tr-area-card">
+                  <p className="tr-area-name">
+                    <MapPin size={13} strokeWidth={2} />
                     {area._id?.toUpperCase()}
                   </p>
-                  <div
-                    style={{
-                      borderTop: "1px solid #ccc",
-                      paddingTop: "0.7rem",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: "0.78rem",
-                        marginBottom: "0.4rem",
-                      }}
-                    >
-                      <span style={{ color: "#7c3aed", fontWeight: "600" }}>
-                        FAMILIES AIDED
-                      </span>
-                      <span style={{ fontWeight: "700" }}>
-                        {area.familiesAided}
-                      </span>
+                  <div className="tr-area-stats">
+                    <div className="tr-area-row">
+                      <span className="tr-area-key">Families Aided</span>
+                      <span className="tr-area-val">{area.familiesAided}</span>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: "0.78rem",
-                      }}
-                    >
-                      <span style={{ color: "#555" }}>Funds</span>
-                      <span style={{ fontWeight: "600" }}>
-                        {fmt(area.fundsUsed)}
-                      </span>
+                    <div className="tr-area-row">
+                      <span className="tr-area-key">Funds</span>
+                      <span className="tr-area-val">{fmt(area.fundsUsed)}</span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {data.monthlyTrend.length > 0 && (
-          <div
-            style={{
-              backgroundColor: "#e8e4de",
-              borderRadius: "16px",
-              padding: "1.5rem",
-              marginBottom: "1.5rem",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            }}
-          >
-            <h3
-              style={{
-                fontSize: "1rem",
-                fontWeight: "700",
-                marginBottom: "1.2rem",
-                marginTop: 0,
-              }}
-            >
-              Monthly Donations
-            </h3>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                gap: "0.8rem",
-                height: "140px",
-              }}
-            >
-              {data.monthlyTrend.map((m) => (
-                <div
-                  key={`${m._id.year}-${m._id.month}`}
-                  style={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: "0.7rem",
-                      color: "#666",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    {fmt(m.total)}
-                  </span>
-                  <div
-                    style={{
-                      width: "100%",
-                      height: `${(m.total / maxMonthly) * 100}px`,
-                      backgroundColor: "#7c3aed",
-                      borderRadius: "6px 6px 0 0",
-                      minHeight: "4px",
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: "0.72rem",
-                      color: "#777",
-                      marginTop: "4px",
-                    }}
-                  >
-                    {MONTH_NAMES[m._id.month - 1]}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div
-          style={{
-            backgroundColor: "#e8e4de",
-            borderRadius: "16px",
-            padding: "1.5rem",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          }}
-        >
-          <h3
-            style={{
-              fontSize: "1rem",
-              fontWeight: "700",
-              marginBottom: "1.2rem",
-              marginTop: 0,
-            }}
-          >
-            Transactions
-          </h3>
-          {data.recentTransactions.length === 0 ? (
-            <p
-              style={{ color: "#aaa", fontSize: "0.9rem", textAlign: "center" }}
-            >
-              No transactions yet.
-            </p>
-          ) : (
-            data.recentTransactions.map((tx) => (
-              <div
-                key={tx._id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "0.7rem 0",
-                  borderBottom: "1px solid #d0cbc4",
-                }}
-              >
-                <div>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontWeight: "600",
-                      fontSize: "0.9rem",
-                      color: "#1a1a1a",
-                    }}
-                  >
-                    {tx.donorName}
-                  </p>
-                  <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
-                    {tx.donationType === "money" ? "💰 Money" : "📦 Supplies"} ·{" "}
-                    {new Date(tx.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <span
-                  style={{
-                    fontWeight: "700",
-                    fontSize: "0.95rem",
-                    color: "#1a1a1a",
-                  }}
-                >
-                  {tx.donationType === "money"
-                    ? fmt(tx.amount)
-                    : tx.supplies
-                        ?.map((s) => `${s.item} x${s.quantity}`)
-                        .join(", ")}
-                </span>
-              </div>
-            ))
           )}
+
+          {/* ── Monthly trend ── */}
+          {data.monthlyTrend.length > 0 && (
+            <div className="tr-card">
+              <h3 className="tr-card-title">
+                <TrendingUp size={17} strokeWidth={1.75} />
+                Monthly Donations
+              </h3>
+              <div className="tr-chart">
+                {data.monthlyTrend.map((m) => (
+                  <div
+                    key={`${m._id.year}-${m._id.month}`}
+                    className="tr-chart-col"
+                  >
+                    <span className="tr-chart-value">{fmt(m.total)}</span>
+                    <div
+                      className="tr-chart-bar"
+                      style={{ height: `${(m.total / maxMonthly) * 100}px` }}
+                    />
+                    <span className="tr-chart-month">
+                      {MONTH_NAMES[m._id.month - 1]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Recent transactions ── */}
+          <div className="tr-card">
+            <h3 className="tr-card-title">
+              <Receipt size={17} strokeWidth={1.75} />
+              Transactions
+            </h3>
+            {data.recentTransactions.length === 0 ? (
+              <p className="tr-empty">No transactions yet.</p>
+            ) : (
+              data.recentTransactions.map((tx) => (
+                <div key={tx._id} className="tr-tx-row">
+                  <div>
+                    <p className="tr-tx-name">{tx.donorName}</p>
+                    <p className="tr-tx-meta">
+                      {tx.donationType === "money" ? (
+                        <Banknote size={13} strokeWidth={2} />
+                      ) : (
+                        <Package size={13} strokeWidth={2} />
+                      )}
+                      {tx.donationType === "money" ? "Money" : "Supplies"} ·{" "}
+                      {new Date(tx.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <span className="tr-tx-amount">
+                    {tx.donationType === "money"
+                      ? fmt(tx.amount)
+                      : tx.supplies
+                          ?.map((s) => `${s.item} x${s.quantity}`)
+                          .join(", ")}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </AdminLayout>
   );
 }

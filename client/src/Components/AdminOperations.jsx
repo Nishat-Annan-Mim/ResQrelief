@@ -3,6 +3,21 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./AdminHome.css";
 import "./Adminvolunteers.css";
+import {
+  Truck,
+  Plus,
+  X,
+  Package,
+  MapPin,
+  Check,
+  CircleCheck,
+  Square,
+  SquareCheck,
+  User,
+  Clock,
+  Trash2,
+  ClipboardList,
+} from "lucide-react";
 import "./AdminOperations.css";
 import AdminLayout from "./AdminLayout";
 
@@ -183,7 +198,7 @@ const AdminOperations = () => {
       );
     }
     if (isToday(form.scheduledDate) && !form.departureTime) {
-      return alert("⚠️ Departure time is required for today's operation.");
+      return alert("Departure time is required for today's operation.");
     }
     await axios.post("https://resqrelief-fj7z.onrender.com/api/operations", {
       operationName: form.operationName,
@@ -285,17 +300,39 @@ const AdminOperations = () => {
       
 
       <main className="admin-main-content op-main-padding">
-        <div className="admin-header">
-          <h2>🚛 Relief Operations</h2>
+        <div className="op-page-header">
+          <div>
+            <h1 className="op-page-title">
+              <Truck size={22} strokeWidth={1.75} />
+              Relief Operations
+            </h1>
+            <p className="op-page-subtitle">
+              Assign volunteers, supply pickup points and destinations for each
+              relief run.
+            </p>
+          </div>
           <button className="btn-admin" onClick={() => setShowForm(!showForm)}>
-            {showForm ? "✕ Cancel" : "+ Assign Operation"}
+            {showForm ? (
+              <>
+                <X size={15} strokeWidth={2.5} />
+                Cancel
+              </>
+            ) : (
+              <>
+                <Plus size={15} strokeWidth={2.5} />
+                Assign Operation
+              </>
+            )}
           </button>
         </div>
 
         {/* ASSIGNMENT FORM */}
         {showForm && (
           <div className="op-form-container">
-            <h3>New Operation Assignment</h3>
+            <h3 className="op-form-title">
+              <ClipboardList size={17} strokeWidth={1.75} />
+              New Operation Assignment
+            </h3>
 
             {/* ── ROW 1: Operation Name + Date + Departure ── */}
             <div className="op-form-grid">
@@ -321,7 +358,7 @@ const AdminOperations = () => {
                     const today = getLocalToday();
                     if (selected < today) {
                       setDateError(
-                        "⚠️ Please select today's date or a future date.",
+                        "Please select today's date or a future date.",
                       );
                       setForm({
                         ...form,
@@ -337,15 +374,11 @@ const AdminOperations = () => {
                       });
                     }
                   }}
-                  style={dateError ? { borderColor: "#c0392b" } : {}}
+                  className={dateError ? "op-input-error" : undefined}
                 />
                 {dateError && (
                   <p
-                    style={{
-                      color: "#c0392b",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                    }}
+                    className="op-error-text"
                   >
                     {dateError}
                   </p>
@@ -368,7 +401,7 @@ const AdminOperations = () => {
                       const minTime = getMinDepartureTime();
                       if (chosenTime <= minTime) {
                         alert(
-                          "⚠️  Departure time must be later than the current time and at least 3 hours ahead.",
+                          "Departure time must be later than the current time and at least 3 hours ahead.",
                         );
                         setForm({ ...form, departureTime: "" });
                         return;
@@ -379,11 +412,7 @@ const AdminOperations = () => {
                 />
                 {isToday(form.scheduledDate) && (
                   <p
-                    style={{
-                      color: "#888",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                    }}
+                    className="op-hint-text"
                   >
                     Must be later than the current time.
                   </p>
@@ -396,7 +425,7 @@ const AdminOperations = () => {
               <label>
                 Select Volunteers *{" "}
                 <span
-                  style={{ fontWeight: 400, color: "#888", fontSize: "12px" }}
+                  className="op-label-note"
                 >
                   (filter by district, tick to select multiple)
                 </span>
@@ -405,14 +434,10 @@ const AdminOperations = () => {
               <select
                 value={districtFilter}
                 onChange={(e) => setDistrictFilter(e.target.value)}
+                className="op-district-filter"
                 style={{
-                  width: "100%",
-                  padding: "10px 12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ccc",
-                  fontSize: "14px",
                   marginBottom: "10px",
-                  background: "#fff",
+                  background: "var(--ad-surface)",
                   boxSizing: "border-box",
                 }}
               >
@@ -427,12 +452,7 @@ const AdminOperations = () => {
               <div className="op-volunteer-checklist">
                 {filteredVolunteers.length === 0 && (
                   <p
-                    style={{
-                      color: "#aaa",
-                      fontSize: "13px",
-                      padding: "12px",
-                      textAlign: "center",
-                    }}
+                    className="op-empty-text"
                   >
                     {form.scheduledDate
                       ? "No available volunteers for this date and district."
@@ -448,7 +468,11 @@ const AdminOperations = () => {
                       className={`op-volunteer-row ${selected ? "selected" : ""}`}
                     >
                       <div className="op-volunteer-checkbox">
-                        {selected ? "☑" : "☐"}
+                        {selected ? (
+                          <SquareCheck size={17} strokeWidth={2} />
+                        ) : (
+                          <Square size={17} strokeWidth={2} />
+                        )}
                       </div>
                       <div className="op-volunteer-info">
                         <span className="op-volunteer-name">
@@ -473,7 +497,8 @@ const AdminOperations = () => {
                   className="op-selected-supplies"
                   style={{ marginTop: "8px" }}
                 >
-                  ✅ Selected:{" "}
+                  <CircleCheck size={14} strokeWidth={2} />
+                  Selected:{" "}
                   {form.selectedVolunteers
                     .map((v) => v.volunteerName)
                     .join(", ")}
@@ -483,7 +508,10 @@ const AdminOperations = () => {
 
             {/* ── SUPPLY PICKUP POINT ── */}
             <div className="op-form-row">
-              <label>📦 Supply Collection Point</label>
+              <label className="ad-icon-inline">
+                <Package size={14} strokeWidth={2} />
+                Supply Collection Point
+              </label>
               <div style={{ position: "relative" }}>
                 <input
                   placeholder="e.g. Central Warehouse, Farmgate, Dhaka"
@@ -505,9 +533,9 @@ const AdminOperations = () => {
                       top: "100%",
                       left: 0,
                       right: 0,
-                      background: "#fff",
-                      border: "1px solid #ddd",
-                      borderRadius: "6px",
+                      background: "var(--ad-surface)",
+                      border: "1px solid var(--ad-border-input)",
+                      borderRadius: "var(--ad-radius-sm)",
                       listStyle: "none",
                       margin: 0,
                       padding: "4px 0",
@@ -529,20 +557,21 @@ const AdminOperations = () => {
                           padding: "8px 14px",
                           cursor: "pointer",
                           fontSize: "13px",
-                          color: "#333",
+                          color: "var(--ad-text-body)",
                           borderBottom:
                             i < pickupSuggestions.length - 1
-                              ? "1px solid #f0f0f0"
+                              ? "1px solid var(--ad-border)"
                               : "none",
                         }}
                         onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "#f5f5f5")
+                          (e.currentTarget.style.background = "var(--ad-surface-alt)")
                         }
                         onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = "#fff")
+                          (e.currentTarget.style.background = "var(--ad-surface)")
                         }
                       >
-                        📍 {suggestion}
+                        <MapPin size={13} strokeWidth={2} />
+                        {suggestion}
                       </li>
                     ))}
                   </ul>
@@ -581,9 +610,9 @@ const AdminOperations = () => {
                           top: "100%",
                           left: 0,
                           right: 0,
-                          background: "#fff",
-                          border: "1px solid #ddd",
-                          borderRadius: "6px",
+                          background: "var(--ad-surface)",
+                          border: "1px solid var(--ad-border-input)",
+                          borderRadius: "var(--ad-radius-sm)",
                           listStyle: "none",
                           margin: 0,
                           padding: "4px 0",
@@ -608,20 +637,21 @@ const AdminOperations = () => {
                               padding: "8px 14px",
                               cursor: "pointer",
                               fontSize: "13px",
-                              color: "#333",
+                              color: "var(--ad-text-body)",
                               borderBottom:
                                 i < locationSuggestions.length - 1
-                                  ? "1px solid #f0f0f0"
+                                  ? "1px solid var(--ad-border)"
                                   : "none",
                             }}
                             onMouseEnter={(e) =>
-                              (e.currentTarget.style.background = "#f5f5f5")
+                              (e.currentTarget.style.background = "var(--ad-surface-alt)")
                             }
                             onMouseLeave={(e) =>
-                              (e.currentTarget.style.background = "#fff")
+                              (e.currentTarget.style.background = "var(--ad-surface)")
                             }
                           >
-                            📍 {suggestion}
+                            <MapPin size={13} strokeWidth={2} />
+                            {suggestion}
                           </li>
                         ))}
                       </ul>
@@ -638,12 +668,16 @@ const AdminOperations = () => {
                 {form.locations.map((loc) => (
                   <div key={loc.name} className="op-location-card">
                     <div className="op-location-card-header">
-                      <span className="op-location-name">📍 {loc.name}</span>
+                      <span className="op-location-name">
+                        <MapPin size={14} strokeWidth={2} />
+                        {loc.name}
+                      </span>
                       <button
                         className="op-remove-location-btn"
                         onClick={() => removeLocation(loc.name)}
                       >
-                        ✕ Remove
+                        <X size={13} strokeWidth={2.5} />
+                        Remove
                       </button>
                     </div>
 
@@ -689,7 +723,8 @@ const AdminOperations = () => {
 
                     {loc.supplies.length > 0 && (
                       <div className="op-selected-supplies">
-                        ✅ {loc.supplies.join(", ")}
+                        <CircleCheck size={14} strokeWidth={2} />
+                        {loc.supplies.join(", ")}
                       </div>
                     )}
                   </div>
@@ -710,21 +745,17 @@ const AdminOperations = () => {
             </div>
 
             <button className="confirm-btn" onClick={handleSubmit}>
-              ✅ Assign Operation
+              <Check size={16} strokeWidth={2.5} />
+              Assign Operation
             </button>
           </div>
         )}
 
         {/* OPERATIONS TABLE */}
         <div className="table-wrapper op-table-wrapper">
-          <table className="op-table">
+          <table className="op-table ad-stack">
             <thead>
-              <tr
-                style={{
-                  background: "linear-gradient(135deg, #1a1a2e, #e63946)",
-                  color: "#fff",
-                }}
-              >
+                <tr>
                 <th>Operation</th>
                 <th>Volunteers</th>
                 <th>Destinations & Supplies</th>
@@ -736,42 +767,30 @@ const AdminOperations = () => {
             <tbody>
               {operations.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={6}
-                    style={{
-                      textAlign: "center",
-                      padding: "30px",
-                      color: "#888",
-                    }}
-                  >
+                  <td colSpan={6} className="op-table-empty">
                     No operations yet.
                   </td>
                 </tr>
               )}
               {operations.map((op) => (
                 <tr key={op._id}>
-                  <td>
+                  <td data-label="Operation">
                     <strong>{op.operationName}</strong>
                   </td>
-                  <td>
+                  <td data-label="Volunteers">
                     {op.volunteers?.map((v, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          fontSize: "13px",
-                          color: "#333",
-                          marginBottom: "2px",
-                        }}
-                      >
-                        👤 {v.volunteerName}
+                      <div key={i} className="op-table-volunteer-row">
+                        <User size={13} strokeWidth={2} />
+                        {v.volunteerName}
                       </div>
                     ))}
                   </td>
-                  <td>
+                  <td data-label="Destinations & Supplies">
                     {op.locations?.map((loc, i) => (
                       <div key={i} className="op-table-location-row">
                         <span className="op-table-location-name">
-                          📍 {loc.name}
+                          <MapPin size={13} strokeWidth={2} />
+                          {loc.name}
                         </span>
                         <span className="op-table-location-supplies">
                           {loc.supplies?.length > 0
@@ -781,26 +800,28 @@ const AdminOperations = () => {
                       </div>
                     ))}
                   </td>
-                  <td>
+                  <td data-label="Date & Departure">
                     <div>{op.scheduledDate || "—"}</div>
                     {op.departureTime && (
-                      <div style={{ fontSize: "12px", color: "#888" }}>
-                        🕐 Departs {op.departureTime}
+                      <div className="op-table-departs">
+                        <Clock size={12} strokeWidth={2} />
+                        Departs {op.departureTime}
                       </div>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span
                       className={`op-status-badge ${getStatusClass(op.status)}`}
                     >
                       {op.status}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Action">
                     <button
                       className="remove-btn"
                       onClick={() => deleteOperation(op._id)}
                     >
+                      <Trash2 size={14} strokeWidth={2} />
                       Delete
                     </button>
                   </td>

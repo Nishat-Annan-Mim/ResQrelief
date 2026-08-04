@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
+import { X, Check, MessageSquareText, Flag } from "lucide-react";
 const BASE = "https://resqrelief-fj7z.onrender.com";
 
 // ── Styles ──────────────────────────────────────────────────────────
@@ -353,7 +354,7 @@ const VolunteerAssignment = () => {
                 color: "inherit",
               }}
             >
-              ✕
+              <X size={18} strokeWidth={2.5} />
             </button>
           </div>
         )}
@@ -385,9 +386,9 @@ const VolunteerAssignment = () => {
               : status === "volunteer_done"
                 ? "Done — Awaiting Admin Review"
                 : status === "completed"
-                  ? "🏁 Completed"
+                  ? "Completed"
                   : status === "verified"
-                    ? "🔵 Assigned to You"
+                    ? "Assigned to You"
                     : status}
           </span>
         </div>
@@ -479,7 +480,14 @@ const VolunteerAssignment = () => {
                   onClick={handleMarkDone}
                   disabled={marking}
                 >
-                  {marking ? "Submitting..." : "✅ Mark as Done"}
+                  {marking ? (
+                    "Submitting…"
+                  ) : (
+                    <>
+                      <Check size={15} strokeWidth={2.5} />
+                      Mark as Done
+                    </>
+                  )}
                 </button>
               </div>
             )}
@@ -488,7 +496,7 @@ const VolunteerAssignment = () => {
               <p
                 style={{ color: "#065f46", fontSize: "14px", fontWeight: 600 }}
               >
-                ✅ You marked this as done. Waiting for admin to review and
+                You marked this as done. Waiting for admin to review and
                 officially close the request.
               </p>
             )}
@@ -563,7 +571,7 @@ const VolunteerAssignment = () => {
         {/* Completed state */}
         {status === "completed" && (
           <div style={{ ...s.card, textAlign: "center", padding: "40px" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🏁</div>
+            <Flag size={44} strokeWidth={1.5} style={{ marginBottom: "16px", color: "#065f46" }} />
             <h2 style={{ color: "#065f46", margin: "0 0 8px 0" }}>
               Request Completed
             </h2>
@@ -584,7 +592,8 @@ const VolunteerAssignment = () => {
                     marginBottom: "12px",
                   }}
                 >
-                  💬 Message History
+                  <MessageSquareText size={15} strokeWidth={2} />
+                  Message History
                 </h3>
                 {req.inquiries.map((msg, i) => (
                   <div key={i} style={s.bubble(msg.from)}>

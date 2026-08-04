@@ -1,4 +1,18 @@
 import { useEffect, useState } from "react";
+import {
+  HeartHandshake,
+  Wallet,
+  Package,
+  CircleCheck,
+  Globe,
+  MapPin,
+  Banknote,
+  Hourglass,
+  Camera,
+  Award,
+  CreditCard,
+} from "lucide-react";
+import "./MyDonations.css";
 
 export default function MyDonations() {
   const [donations, setDonations] = useState([]);
@@ -174,119 +188,138 @@ export default function MyDonations() {
     doc.save(`RESQRELIEF-Certificate-${donation.donorName}-${new Date().toISOString().split("T")[0]}.pdf`);
   };
 
-  const s = {
-    fontFamily: "Segoe UI, sans-serif",
-    padding: "2rem",
-    maxWidth: "900px",
-    margin: "0 auto",
-  };
-
-  if (!email) return <div style={s}><p>Please log in to view your donations.</p></div>;
-  if (loading) return <div style={s}><p>Loading your donations...</p></div>;
+  if (!email)
+    return <p className="md-state">Please log in to view your donations.</p>;
+  if (loading) return <p className="md-state">Loading your donations…</p>;
 
   return (
-    <div style={s}>
-      <h1 style={{ fontSize: "1.8rem", fontWeight: "700", marginBottom: "0.5rem" }}>💝 My Donations</h1>
-      <p style={{ color: "#666", marginBottom: "1.5rem" }}>
-        View your donation history, impact summaries and download your certificates.
+    <div className="md-page">
+      <h1 className="md-title">
+        <HeartHandshake size={22} strokeWidth={1.75} />
+        My Donations
+      </h1>
+      <p className="md-subtitle">
+        View your donation history, impact summaries and download your
+        certificates.
       </p>
 
       {donations.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "3rem", backgroundColor: "#fff", borderRadius: "16px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-          <p style={{ fontSize: "3rem", margin: 0 }}>💳</p>
+        <div className="md-empty">
+          <CreditCard size={44} strokeWidth={1.5} />
           <h3>No donations yet</h3>
-          <p style={{ color: "#888" }}>Your donation history will appear here once you make a donation.</p>
-          <a href="/donate" style={{ display: "inline-block", marginTop: "1rem", padding: "0.8rem 2rem", backgroundColor: "#e63946", color: "#fff", borderRadius: "10px", textDecoration: "none", fontWeight: "600" }}>
+          <p>
+            Your donation history will appear here once you make a donation.
+          </p>
+          <a href="/donate" className="md-empty-cta">
+            <HeartHandshake size={15} strokeWidth={2} />
             Make a Donation
           </a>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <div className="md-list">
           {donations.map((d) => (
-            <div key={d._id} style={{ backgroundColor: "#fff", borderRadius: "16px", padding: "1.5rem", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1.5px solid #f0f0f0" }}>
-
+            <div key={d._id} className="md-card">
               {/* Header */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
+              <div className="md-card-head">
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                    <span style={{ padding: "0.2rem 0.7rem", borderRadius: "12px", backgroundColor: d.donationType === "money" ? "#e8f5e9" : "#e3f0ff", color: d.donationType === "money" ? "#2e7d32" : "#1565c0", fontWeight: "600", fontSize: "0.82rem" }}>
-                      {d.donationType === "money" ? "💰 Money" : "📦 Supplies"}
+                  <div className="md-card-headline">
+                    <span
+                      className={`ad-pill ${
+                        d.donationType === "money"
+                          ? "ad-pill-success"
+                          : "ad-pill-info"
+                      }`}
+                    >
+                      {d.donationType === "money" ? (
+                        <Wallet size={13} strokeWidth={2} />
+                      ) : (
+                        <Package size={13} strokeWidth={2} />
+                      )}
+                      {d.donationType === "money" ? "Money" : "Supplies"}
                     </span>
-                    <span style={{ fontSize: "1.2rem", fontWeight: "700", color: "#1a1a1a" }}>
+                    <span className="md-amount">
                       {d.donationType === "money"
                         ? `৳${d.amount?.toLocaleString()}`
-                        : d.supplies?.map((s) => `${s.item} x${s.quantity}`).join(", ")}
+                        : d.supplies
+                            ?.map((s) => `${s.item} x${s.quantity}`)
+                            .join(", ")}
                     </span>
                   </div>
-                  <p style={{ margin: "0.3rem 0 0 0", fontSize: "0.82rem", color: "#888" }}>
-                    {new Date(d.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                  <p className="md-meta">
+                    {new Date(d.createdAt).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
                     {d.transactionId && ` · TXN: ${d.transactionId}`}
                   </p>
                 </div>
-                <span style={{ padding: "0.3rem 0.8rem", borderRadius: "12px", backgroundColor: "#e8f5e9", color: "#2e7d32", fontWeight: "600", fontSize: "0.82rem" }}>
-                  ✅ Successful
+                <span className="ad-pill ad-pill-success">
+                  <CircleCheck size={13} strokeWidth={2} />
+                  Successful
                 </span>
               </div>
 
-              {/* Impact Section */}
+              {/* Impact */}
               {d.impactSummary ? (
-                <div style={{ backgroundColor: "#f9fafb", borderRadius: "10px", padding: "1rem", marginBottom: "1rem" }}>
-                  <p style={{ margin: "0 0 0.5rem 0", fontWeight: "600", fontSize: "0.9rem", color: "#1a1a1a" }}>
-                    🌍 How your donation was used:
+                <div className="md-impact">
+                  <p className="md-impact-title">
+                    <Globe size={14} strokeWidth={2} />
+                    How your donation was used
                   </p>
-                  <p style={{ margin: 0, color: "#555", fontSize: "0.9rem", lineHeight: "1.6" }}>{d.impactSummary}</p>
+                  <p className="md-impact-body">{d.impactSummary}</p>
                   {d.servedArea && (
-                    <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.82rem", color: "#888" }}>
-                      📍 Area served: <strong>{d.servedArea}</strong>
+                    <p className="md-impact-line">
+                      <MapPin size={13} strokeWidth={2} />
+                      Area served: <strong>{d.servedArea}</strong>
                     </p>
                   )}
                   {d.isUtilized && d.utilizedAmount > 0 && (
-                    <p style={{ margin: "0.3rem 0 0 0", fontSize: "0.82rem", color: "#888" }}>
-                      💵 Amount utilized: <strong>৳{d.utilizedAmount?.toLocaleString()}</strong>
+                    <p className="md-impact-line">
+                      <Banknote size={13} strokeWidth={2} />
+                      Amount utilized:{" "}
+                      <strong>৳{d.utilizedAmount?.toLocaleString()}</strong>
                     </p>
                   )}
                 </div>
               ) : (
-                <div style={{ backgroundColor: "#fff8e1", borderRadius: "10px", padding: "0.8rem 1rem", marginBottom: "1rem" }}>
-                  <p style={{ margin: 0, color: "#f57f17", fontSize: "0.88rem" }}>
-                    ⏳ Impact report is being prepared by the admin. Check back soon.
-                  </p>
+                <div className="md-pending">
+                  <Hourglass size={15} strokeWidth={2} />
+                  Impact report is being prepared by the admin. Check back soon.
                 </div>
               )}
 
-              {/* Impact Images */}
+              {/* Impact photos */}
               {d.impactImages && d.impactImages.length > 0 && (
-                <div style={{ marginBottom: "1rem" }}>
-                  <p style={{ margin: "0 0 0.5rem 0", fontWeight: "600", fontSize: "0.88rem" }}>📸 Impact Photos:</p>
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                <div className="md-photos">
+                  <p className="md-photos-title">
+                    <Camera size={14} strokeWidth={2} />
+                    Impact Photos
+                  </p>
+                  <div className="md-photo-grid">
                     {d.impactImages.map((img, i) => (
-                      <img
-                        key={i}
-                        src={img}
-                        alt={`impact-${i}`}
-                        style={{ width: "120px", height: "80px", objectFit: "cover", borderRadius: "8px", border: "1.5px solid #ddd" }}
-                      />
+                      <img key={i} src={img} alt={`impact-${i}`} />
                     ))}
                   </div>
                 </div>
               )}
 
               {/* Certificate */}
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <div className="md-cert-row">
                 {d.certificateGenerated ? (
                   <button
+                    className="md-cert-btn"
                     onClick={() => downloadCertificate(d)}
-                    style={{ padding: "0.6rem 1.2rem", backgroundColor: "#b8860b", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "0.88rem" }}
                   >
-                    🏅 Download Certificate (PDF)
+                    <Award size={15} strokeWidth={2} />
+                    Download Certificate (PDF)
                   </button>
                 ) : (
-                  <span style={{ fontSize: "0.82rem", color: "#aaa", alignSelf: "center" }}>
+                  <span className="md-cert-none">
                     Certificate not yet issued
                   </span>
                 )}
               </div>
-
             </div>
           ))}
         </div>

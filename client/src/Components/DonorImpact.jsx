@@ -1,4 +1,14 @@
 import { useEffect, useState } from "react";
+import {
+  Award,
+  X,
+  CircleCheck,
+  Hourglass,
+  Pencil,
+  FileBadge,
+  Image as ImageIcon,
+} from "lucide-react";
+import "./DonorImpact.css";
 import AdminLayout from "./AdminLayout";
 
 export default function DonorImpact() {
@@ -78,13 +88,13 @@ export default function DonorImpact() {
         setDonations((prev) =>
           prev.map((d) => (d._id === selected._id ? { ...d, ...editForm } : d)),
         );
-        setMessage("✅ Impact saved successfully!");
+        setMessage("Impact saved successfully.");
         setSelected(null);
       } else {
-        setMessage("❌ " + data.message);
+        setMessage(data.message);
       }
     } catch {
-      setMessage("❌ Error saving impact");
+      setMessage("Error saving impact.");
     } finally {
       setSaving(false);
     }
@@ -303,424 +313,253 @@ export default function DonorImpact() {
     }
   };
 
-  const s = {
-    fontFamily: "Segoe UI, sans-serif",
-    padding: "2rem",
-    maxWidth: "1000px",
-    margin: "0 auto",
-  };
-
   if (loading)
     return (
-      <div style={s}>
-        <p>Loading donor impact data...</p>
-      </div>
+      <AdminLayout>
+        <div className="di-state">Loading donor impact data…</div>
+      </AdminLayout>
     );
 
   return (
     <AdminLayout>
-    <div style={s}>
-      <h1
-        style={{
-          fontSize: "1.8rem",
-          fontWeight: "700",
-          marginBottom: "0.5rem",
-        }}
-      >
-        🏅 Donor Impact Tracker
-      </h1>
-      <p style={{ color: "#666", marginBottom: "1.5rem" }}>
-        Track how donations were used and generate certificates for donors.
-      </p>
+      <div className="di-page">
+        <div className="di-container">
+          <h1 className="di-title">
+            <Award size={22} strokeWidth={1.75} />
+            Donor Impact Tracker
+          </h1>
+          <p className="di-subtitle">
+            Track how donations were used and generate certificates for donors.
+          </p>
 
-      {message && (
-        <div
-          style={{
-            padding: "0.8rem 1rem",
-            borderRadius: "8px",
-            backgroundColor: "#f0fff4",
-            border: "1px solid #68d391",
-            marginBottom: "1rem",
-          }}
-        >
-          {message}
-        </div>
-      )}
-
-      {/* Edit Impact Modal */}
-      {selected && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            overflowY: "auto",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "16px",
-              padding: "2rem",
-              width: "100%",
-              maxWidth: "540px",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-              margin: "2rem auto",
-            }}
-          >
-            <h3 style={{ marginTop: 0 }}>
-              Edit Impact for {selected.donorName}
-            </h3>
-
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontWeight: "600",
-                  marginBottom: "0.4rem",
-                }}
-              >
-                Impact Summary
-              </label>
-              <textarea
-                value={editForm.impactSummary}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, impactSummary: e.target.value })
-                }
-                rows={4}
-                style={{
-                  width: "100%",
-                  padding: "0.7rem",
-                  borderRadius: "8px",
-                  border: "1.5px solid #ddd",
-                  boxSizing: "border-box",
-                  fontSize: "0.9rem",
-                }}
-                placeholder="Describe how this donation was used..."
-              />
+          {message && (
+            <div className="di-message">
+              <CircleCheck size={15} strokeWidth={2} />
+              {message}
             </div>
+          )}
 
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontWeight: "600",
-                  marginBottom: "0.4rem",
-                }}
-              >
-                Served Area
-              </label>
-              <input
-                value={editForm.servedArea}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, servedArea: e.target.value })
-                }
-                style={{
-                  width: "100%",
-                  padding: "0.7rem",
-                  borderRadius: "8px",
-                  border: "1.5px solid #ddd",
-                  boxSizing: "border-box",
-                }}
-                placeholder="e.g. Sylhet, Cox's Bazar"
-              />
-            </div>
+          {/* ── Edit Impact Modal ── */}
+          {selected && (
+            <div className="di-modal-overlay">
+              <div className="di-modal">
+                <h3 className="di-modal-title">
+                  <Pencil size={18} strokeWidth={1.75} />
+                  Edit Impact for {selected.donorName}
+                </h3>
 
-            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-              <div style={{ flex: 1 }}>
-                <label
-                  style={{
-                    display: "block",
-                    fontWeight: "600",
-                    marginBottom: "0.4rem",
-                  }}
-                >
-                  Utilized Amount (৳)
-                </label>
-                <input
-                  type="number"
-                  value={editForm.utilizedAmount}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      utilizedAmount: Number(e.target.value),
-                    })
-                  }
-                  style={{
-                    width: "100%",
-                    padding: "0.7rem",
-                    borderRadius: "8px",
-                    border: "1.5px solid #ddd",
-                    boxSizing: "border-box",
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginTop: "1.5rem",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={editForm.isUtilized}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, isUtilized: e.target.checked })
-                  }
-                  id="isUtilized"
-                />
-                <label htmlFor="isUtilized" style={{ fontWeight: "600" }}>
-                  Fully Utilized
-                </label>
-              </div>
-            </div>
-
-            {/* Image Upload */}
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontWeight: "600",
-                  marginBottom: "0.4rem",
-                }}
-              >
-                Impact Images
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                style={{ marginBottom: "0.8rem" }}
-              />
-              {imagePreview.length > 0 && (
-                <div
-                  style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}
-                >
-                  {imagePreview.map((img, i) => (
-                    <div key={i} style={{ position: "relative" }}>
-                      <img
-                        src={img}
-                        alt={`preview-${i}`}
-                        style={{
-                          width: "80px",
-                          height: "60px",
-                          objectFit: "cover",
-                          borderRadius: "6px",
-                          border: "1.5px solid #ddd",
-                        }}
-                      />
-                      <button
-                        onClick={() => removeImage(i)}
-                        style={{
-                          position: "absolute",
-                          top: "-6px",
-                          right: "-6px",
-                          background: "#e63946",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "18px",
-                          height: "18px",
-                          cursor: "pointer",
-                          fontSize: "0.7rem",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
+                <div className="di-field">
+                  <label>Impact Summary</label>
+                  <textarea
+                    value={editForm.impactSummary}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        impactSummary: e.target.value,
+                      })
+                    }
+                    rows={4}
+                    placeholder="Describe how this donation was used…"
+                  />
                 </div>
-              )}
-            </div>
 
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <button
-                onClick={saveImpact}
-                disabled={saving}
-                style={{
-                  flex: 1,
-                  padding: "0.8rem",
-                  backgroundColor: "#1a1a1a",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                }}
-              >
-                {saving ? "Saving..." : "Save Impact"}
-              </button>
-              <button
-                onClick={() => setSelected(null)}
-                style={{
-                  flex: 1,
-                  padding: "0.8rem",
-                  backgroundColor: "#f0f0f0",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                <div className="di-field">
+                  <label>Served Area</label>
+                  <input
+                    value={editForm.servedArea}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, servedArea: e.target.value })
+                    }
+                    placeholder="e.g. Sylhet, Cox's Bazar"
+                  />
+                </div>
 
-      {/* Donations Table */}
-      {donations.length === 0 ? (
-        <p style={{ color: "#aaa" }}>No successful donations found.</p>
-      ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: "0.88rem",
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: "#f5f5f5" }}>
-                <th style={th}>Donor</th>
-                <th style={th}>Type</th>
-                <th style={th}>Amount/Items</th>
-                <th style={th}>Area</th>
-                <th style={th}>Impact</th>
-                <th style={th}>Images</th>
-                <th style={th}>Certificate</th>
-                <th style={th}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {donations.map((d) => (
-                <tr key={d._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                  <td style={td}>
-                    <p style={{ margin: 0, fontWeight: "600" }}>
-                      {d.donorName}
-                    </p>
-                    <p
-                      style={{ margin: 0, fontSize: "0.78rem", color: "#888" }}
-                    >
-                      {d.donorEmail}
-                    </p>
-                  </td>
-                  <td style={td}>
-                    <span
-                      style={{
-                        padding: "0.2rem 0.6rem",
-                        borderRadius: "12px",
-                        backgroundColor:
-                          d.donationType === "money" ? "#e8f5e9" : "#e3f0ff",
-                        color:
-                          d.donationType === "money" ? "#2e7d32" : "#1565c0",
-                        fontWeight: "600",
-                        fontSize: "0.78rem",
-                      }}
-                    >
-                      {d.donationType}
-                    </span>
-                  </td>
-                  <td style={td}>
-                    {d.donationType === "money"
-                      ? `৳${d.amount?.toLocaleString()}`
-                      : d.supplies
-                          ?.map((s) => `${s.item} x${s.quantity}`)
-                          .join(", ")}
-                  </td>
-                  <td style={td}>
-                    {d.servedArea || <span style={{ color: "#ccc" }}>—</span>}
-                  </td>
-                  <td style={td}>
-                    {d.impactSummary ? (
-                      <span style={{ color: "#2e7d32" }}>✅ Added</span>
-                    ) : (
-                      <span style={{ color: "#f57f17" }}>⏳ Pending</span>
-                    )}
-                  </td>
-                  <td style={td}>
-                    {d.impactImages && d.impactImages.length > 0 ? (
-                      <span style={{ color: "#2e7d32" }}>
-                        🖼️ {d.impactImages.length}
-                      </span>
-                    ) : (
-                      <span style={{ color: "#ccc" }}>—</span>
-                    )}
-                  </td>
-                  <td style={td}>
-                    {d.certificateGenerated ? (
-                      <span style={{ color: "#2e7d32" }}>✅ Issued</span>
-                    ) : (
-                      <span style={{ color: "#aaa" }}>Not issued</span>
-                    )}
-                  </td>
-                  <td style={td}>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "0.5rem",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <button
-                        onClick={() => openEdit(d)}
-                        style={{
-                          padding: "0.3rem 0.7rem",
-                          backgroundColor: "#1a1a1a",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontSize: "0.78rem",
-                        }}
-                      >
-                        Edit Impact
-                      </button>
-                      <button
-                        onClick={() => generateCertificate(d)}
-                        style={{
-                          padding: "0.3rem 0.7rem",
-                          backgroundColor: "#b8860b",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontSize: "0.78rem",
-                        }}
-                      >
-                        {d.certificateGenerated ? "Re-issue" : "Generate Cert"}
-                      </button>
+                <div className="di-field-row">
+                  <div className="di-field">
+                    <label>Utilized Amount (৳)</label>
+                    <input
+                      type="number"
+                      value={editForm.utilizedAmount}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          utilizedAmount: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="di-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={editForm.isUtilized}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          isUtilized: e.target.checked,
+                        })
+                      }
+                      id="isUtilized"
+                    />
+                    <label htmlFor="isUtilized">Fully Utilized</label>
+                  </div>
+                </div>
+
+                {/* Image Upload */}
+                <div className="di-field">
+                  <label>Impact Images</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    style={{ marginBottom: "10px" }}
+                  />
+                  {imagePreview.length > 0 && (
+                    <div className="di-previews">
+                      {imagePreview.map((img, i) => (
+                        <div key={i} className="di-preview">
+                          <img src={img} alt={`preview-${i}`} />
+                          <button
+                            className="di-preview-remove"
+                            onClick={() => removeImage(i)}
+                            aria-label="Remove image"
+                          >
+                            <X size={12} strokeWidth={3} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  )}
+                </div>
+
+                <div className="di-modal-actions">
+                  <button
+                    className="di-btn di-btn-ghost"
+                    onClick={() => setSelected(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="di-btn di-btn-primary"
+                    onClick={saveImpact}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving…" : "Save Impact"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Donations Table ── */}
+          {donations.length === 0 ? (
+            <p className="di-empty">No successful donations found.</p>
+          ) : (
+            <div className="di-card">
+              <div className="di-table-wrap">
+                <table className="di-table ad-stack">
+                  <thead>
+                    <tr>
+                      <th>Donor</th>
+                      <th>Type</th>
+                      <th>Amount / Items</th>
+                      <th>Area</th>
+                      <th>Impact</th>
+                      <th>Images</th>
+                      <th>Certificate</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {donations.map((d) => (
+                      <tr key={d._id}>
+                        <td data-label="Donor">
+                          <p className="di-donor-name">{d.donorName}</p>
+                          <p className="di-donor-email">{d.donorEmail}</p>
+                        </td>
+                        <td data-label="Type">
+                          <span
+                            className={`ad-pill ${
+                              d.donationType === "money"
+                                ? "ad-pill-success"
+                                : "ad-pill-info"
+                            }`}
+                          >
+                            {d.donationType}
+                          </span>
+                        </td>
+                        <td data-label="Amount / Items">
+                          {d.donationType === "money"
+                            ? `৳${d.amount?.toLocaleString()}`
+                            : d.supplies
+                                ?.map((s) => `${s.item} x${s.quantity}`)
+                                .join(", ")}
+                        </td>
+                        <td data-label="Area">
+                          {d.servedArea || <span className="di-muted">—</span>}
+                        </td>
+                        <td data-label="Impact">
+                          {d.impactSummary ? (
+                            <span className="di-state-done">
+                              <CircleCheck size={13} strokeWidth={2} />
+                              Added
+                            </span>
+                          ) : (
+                            <span className="di-state-pending">
+                              <Hourglass size={13} strokeWidth={2} />
+                              Pending
+                            </span>
+                          )}
+                        </td>
+                        <td data-label="Images">
+                          {d.impactImages && d.impactImages.length > 0 ? (
+                            <span className="di-state-done">
+                              <ImageIcon size={13} strokeWidth={2} />
+                              {d.impactImages.length}
+                            </span>
+                          ) : (
+                            <span className="di-muted">—</span>
+                          )}
+                        </td>
+                        <td data-label="Certificate">
+                          {d.certificateGenerated ? (
+                            <span className="di-state-done">
+                              <CircleCheck size={13} strokeWidth={2} />
+                              Issued
+                            </span>
+                          ) : (
+                            <span className="di-muted">Not issued</span>
+                          )}
+                        </td>
+                        <td data-label="Actions">
+                          <div className="di-actions">
+                            <button
+                              className="di-btn di-btn-ghost"
+                              onClick={() => openEdit(d)}
+                            >
+                              <Pencil size={13} strokeWidth={2} />
+                              Edit Impact
+                            </button>
+                            <button
+                              className="di-btn di-btn-cert"
+                              onClick={() => generateCertificate(d)}
+                            >
+                              <FileBadge size={13} strokeWidth={2} />
+                              {d.certificateGenerated
+                                ? "Re-issue"
+                                : "Generate Cert"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
     </AdminLayout>
   );
 }
-
-const th = {
-  padding: "0.7rem 1rem",
-  textAlign: "left",
-  fontWeight: "600",
-  color: "#444",
-  whiteSpace: "nowrap",
-};
-const td = { padding: "0.65rem 1rem", color: "#333", verticalAlign: "middle" };

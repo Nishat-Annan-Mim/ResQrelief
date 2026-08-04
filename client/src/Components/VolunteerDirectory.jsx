@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Users, MapPin } from "lucide-react";
 import "./VolunteerDirectory.css";
 
 const VolunteerDirectory = () => {
@@ -42,7 +43,10 @@ const VolunteerDirectory = () => {
   return (
     <div className="volunteer-directory-page">
       <div className="volunteer-directory-header">
-        <h1>Volunteer Directory</h1>
+        <h1>
+          <Users size={22} strokeWidth={1.75} />
+          Volunteer Directory
+        </h1>
         <p>
           View all registered volunteers grouped by their selected disaster
           zone.
@@ -94,10 +98,17 @@ const VolunteerDirectory = () => {
 
           return (
             <div key={zone} className="zone-section">
-              <h2 className="zone-heading">{zone.toUpperCase()}</h2>
+              <h2 className="zone-heading">
+                <MapPin size={14} strokeWidth={2} />
+                {zone}
+                <span className="zone-count">
+                  {filteredVolunteers.length} volunteer
+                  {filteredVolunteers.length === 1 ? "" : "s"}
+                </span>
+              </h2>
 
-              <div className="table-wrapper">
-                <table className="volunteer-table">
+              <div className="vdir-table-wrap">
+                <table className="volunteer-table ad-stack">
                   <thead>
                     <tr>
                       <th>Name</th>
@@ -110,11 +121,11 @@ const VolunteerDirectory = () => {
                   <tbody>
                     {filteredVolunteers.map((volunteer) => (
                       <tr key={volunteer._id}>
-                        <td>{volunteer.fullName}</td>
-                        <td>{volunteer.email}</td>
-                        <td>{volunteer.phone}</td>
-                        <td>{volunteer.volunteerRole || "Not set"}</td>
-                        <td>
+                        <td data-label="Name">{volunteer.fullName}</td>
+                        <td data-label="Email">{volunteer.email}</td>
+                        <td data-label="Phone">{volunteer.phone}</td>
+                        <td data-label="Preferred Role">{volunteer.volunteerRole || "Not set"}</td>
+                        <td data-label="Available Time">
                           {volunteer.availableFrom && volunteer.availableUntil
                             ? `${volunteer.availableFrom} to ${volunteer.availableUntil}`
                             : "Not set"}

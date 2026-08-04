@@ -1,41 +1,77 @@
+@import "./admin-theme.css";
+
+/* =============================================
+   Volunteer.css — "no volunteer account" screen.
+   Rebuilt on the shared theme; class names kept.
+   ============================================= */
+
 .volunteer-check-wrapper {
-    min-height: calc(100vh - 90px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #eceae3;
-    padding: 40px 20px;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: var(--ad-bg);
+  padding: 48px 24px;
+  font-family: var(--ad-font);
+  color: var(--ad-text-muted);
+  font-size: 14px;
 }
 
 .volunteer-check-box {
-    width: 100%;
-    max-width: 900px;
-    background: #ffffff;
-    border: 3px solid #6f6762;
-    padding: 60px 20px;
-    text-align: center;
+  width: 100%;
+  max-width: 520px;
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.volunteer-check-box svg {
+  color: var(--ad-border-input);
+  flex-shrink: 0;
 }
 
 .volunteer-check-box h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 40px;
-    color: #111;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  margin: 16px 0 8px;
+  color: var(--ad-text);
+}
+
+.volunteer-check-box p {
+  margin: 0 0 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ad-text-muted);
 }
 
 .create-volunteer-btn {
-    width: 360px;
-    max-width: 100%;
-    padding: 18px 20px;
-    border: none;
-    border-radius: 22px;
-    background: #d6d1c4;
-    font-size: 22px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 22px;
+  border: 1px solid transparent;
+  border-radius: var(--ad-radius-sm);
+  background: var(--ad-primary);
+  color: #fff;
+  font-family: var(--ad-font);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
 }
 
-.create-volunteer-btn:hover {
-    background: #c8c1b0;
+.create-volunteer-btn:hover { background: var(--ad-primary-hover); }
+.create-volunteer-btn svg { color: currentColor; }
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .volunteer-check-wrapper { padding: 28px 16px; }
+  .volunteer-check-box { padding: 28px 18px; }
+  .volunteer-check-box h1 { font-size: 17px; }
+  .create-volunteer-btn { width: 100%; min-height: 48px; }
 }

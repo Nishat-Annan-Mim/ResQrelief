@@ -1,13 +1,14 @@
+@import "./admin-theme.css";
 /* Home.css */
 
 .home-wrapper {
-    min-height: 100vh;
-    background-color: #ede8df;
+    min-height: 100%;
+    background-color: var(--ad-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 60px 40px;
-    font-family: "Georgia", serif;
+    font-family: var(--ad-font);
 }
 
 .home-container {
@@ -28,12 +29,12 @@
 .home-brand {
     font-size: 13px;
     letter-spacing: 0.04em;
-    color: #333;
+    color: var(--ad-text-body);
     margin-bottom: 18px;
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: "Arial", sans-serif;
+    font-family: var(--ad-font);
     font-weight: 400;
 }
 
@@ -46,12 +47,11 @@
 }
 
 .home-headline {
-    font-family: "Barlow Condensed", "Franklin Gothic Medium", "Arial Narrow",
-        Arial, sans-serif;
+    font-family: var(--ad-font);
     font-size: clamp(48px, 7vw, 76px);
     font-weight: 800;
     line-height: 1.05;
-    color: #111;
+    color: var(--ad-text);
     margin: 0 0 24px 0;
     letter-spacing: -0.5px;
 }
@@ -59,10 +59,10 @@
 .home-description {
     font-size: 16px;
     line-height: 1.7;
-    color: #444;
+    color: var(--ad-text-body);
     max-width: 500px;
     margin-bottom: 40px;
-    font-family: "Georgia", serif;
+    font-family: var(--ad-font);
 }
 
 .home-actions {
@@ -72,41 +72,41 @@
 }
 
 .btn-request {
-    background-color: #c0392b;
+    background-color: var(--ad-primary);
     color: #fff;
     border: none;
     padding: 14px 30px;
     font-size: 15px;
     font-weight: 700;
-    border-radius: 6px;
+    border-radius: var(--ad-radius-sm);
     cursor: pointer;
-    font-family: "Arial", sans-serif;
+    font-family: var(--ad-font);
     letter-spacing: 0.02em;
     transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
 .btn-request:hover {
-    background-color: #a93226;
+    background-color: var(--ad-primary-hover);
     transform: translateY(-1px);
 }
 
 .btn-donate {
     background-color: transparent;
-    color: #111;
-    border: 2px solid #bbb;
+    color: var(--ad-text);
+    border: 2px solid var(--ad-text-faint);
     padding: 12px 28px;
     font-size: 15px;
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: var(--ad-radius-sm);
     cursor: pointer;
-    font-family: "Arial", sans-serif;
+    font-family: var(--ad-font);
     letter-spacing: 0.02em;
     transition: border-color 0.2s ease, background-color 0.2s ease,
         transform 0.15s ease;
 }
 
 .btn-donate:hover {
-    border-color: #888;
+    border-color: var(--ad-text-faint);
     background-color: rgba(0, 0, 0, 0.04);
     transform: translateY(-1px);
 }
@@ -122,7 +122,7 @@
 .stat-card {
     background-color: #f7f4ee;
     border: 1px solid #ddd8ce;
-    border-radius: 12px;
+    border-radius: var(--ad-radius);
     padding: 24px 32px;
     min-width: 200px;
     display: flex;
@@ -134,22 +134,22 @@
 .stat-number {
     font-size: 36px;
     font-weight: 800;
-    font-family: "Arial", sans-serif;
+    font-family: var(--ad-font);
     line-height: 1;
 }
 
 .stat-number.volunteers {
-    color: #16a34a;
+    color: var(--ad-success);
 }
 
 .stat-number.funds {
-    color: #111;
+    color: var(--ad-text);
 }
 
 .stat-label {
     font-size: 13px;
-    color: #666;
-    font-family: "Arial", sans-serif;
+    color: var(--ad-text-muted);
+    font-family: var(--ad-font);
     font-weight: 500;
 }
 

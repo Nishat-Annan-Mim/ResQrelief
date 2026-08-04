@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { UserPlus } from "lucide-react";
 import "./Volunteer.css";
 
 const Volunteer = () => {
@@ -50,7 +51,7 @@ const Volunteer = () => {
   if (loading) {
     return (
       <div className="volunteer-check-wrapper">
-        <p>Checking volunteer account...</p>
+        <p>Checking volunteer account…</p>
       </div>
     );
   }
@@ -60,12 +61,18 @@ const Volunteer = () => {
       {!isVolunteer && (
         <div className="volunteer-check-wrapper">
           <div className="volunteer-check-box">
-            <h1>YOU DO NOT HAVE VOLUNTEER ACCOUNT YET!</h1>
+            <UserPlus size={40} strokeWidth={1.5} />
+            <h1>You don't have a volunteer account yet</h1>
+            <p>
+              Register as a volunteer to receive tasks, join relief operations
+              and help affected communities near you.
+            </p>
             <button
               className="create-volunteer-btn"
               onClick={() => navigate("/volunteer-register")}
             >
-              Create One ....
+              <UserPlus size={15} strokeWidth={2} />
+              Create Volunteer Account
             </button>
           </div>
         </div>

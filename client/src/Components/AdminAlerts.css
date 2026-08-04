@@ -1,89 +1,305 @@
+@import "./admin-theme.css";
+/* =============================================
+   AdminAlerts.css — Aligned with AdminHome design system
+   Uses ah-* tokens: var(--ad-bg) bg, var(--ad-primary) accent,
+   Inter font, 16px section radius, ah-table pattern
+   ============================================= */
+
+/* ─── PAGE ROOT ───────────────────────────────── */
 .alert-page {
-  background: #f3efe7;
-  padding: 30px;
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ad-page-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  background: var(--ad-bg);
   min-height: 100vh;
+  font-family: var(--ad-font);
 }
 
+/* ─── PAGE TITLE ──────────────────────────────── */
 .main-title {
-  font-size: 28px;
-  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ad-text-heading);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.3px;
 }
 
+/* ─── TWO-COLUMN WRAPPER ──────────────────────── */
 .alert-wrapper {
   display: flex;
-  gap: 30px;
+  gap: 24px;
+  align-items: flex-start;
 }
 
-/* LEFT FORM */
+/* ─── LEFT: CREATE FORM ───────────────────────── */
 .alert-form {
-  background: #e8e4dc;
-  padding: 25px;
-  border-radius: 10px;
+  background: var(--ad-surface);
+  border-radius: var(--ad-radius-lg);
+  border: 1px solid var(--ad-border);
+  box-shadow: var(--ad-shadow);
+  padding: 0;
   width: 40%;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
+/* Form section header — mirrors ah-section-header */
 .alert-form h2 {
-  margin-bottom: 15px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ad-text-heading);
+  margin: 0;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--ad-border);
+  background: rgba(249, 246, 243, 0.5);
+}
+
+/* Form body padding */
+.alert-form-body {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .alert-form label {
   display: block;
-  margin-top: 15px;
-  font-weight: 600;
+  margin-top: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ad-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.alert-form label:first-of-type {
+  margin-top: 0;
 }
 
 .alert-form input,
 .alert-form textarea {
   width: 100%;
-  margin-top: 5px;
-  padding: 10px;
-  border: 1px solid #aaa;
-  border-radius: 4px;
+  margin-top: 6px;
+  padding: 9px 12px;
+  border: 1px solid var(--ad-border-strong);
+  border-radius: var(--ad-radius-sm);
+  font-size: 14px;
+  font-family: var(--ad-font);
+  color: var(--ad-text-heading);
+  background: var(--ad-surface-alt);
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.alert-form input:focus,
+.alert-form textarea:focus {
+  border-color: var(--ad-primary);
+  box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.08);
+  background: var(--ad-surface);
+}
+
+.alert-form input::placeholder,
+.alert-form textarea::placeholder {
+  color: var(--ad-text-faint);
 }
 
 .alert-form textarea {
-  height: 80px;
+  height: 88px;
+  resize: vertical;
 }
 
+/* ─── CHECKBOX GROUPS ─────────────────────────── */
 .checkbox-group {
   display: flex;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 20px;
+  margin-top: 8px;
 }
 
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ad-text-body);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 0;
+  cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--ad-primary);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* ─── SEND BUTTON — mirrors ah-show-all-btn ───── */
 .send-btn {
-  margin-top: 20px;
-  background: #5f8ea3;
-  color: white;
-  padding: 12px;
+  margin-top: 24px;
+  background: var(--ad-primary);
+  color: #fff;
+  padding: 11px 16px;
   border: none;
   width: 100%;
   cursor: pointer;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: var(--ad-radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--ad-font);
+  letter-spacing: 0.01em;
+  transition: background 0.2s;
 }
 
-/* RIGHT PANEL */
+.send-btn:hover {
+  background: var(--ad-primary-hover);
+}
+
+/* ─── RIGHT: ALERT HISTORY ────────────────────── */
 .alert-history {
-  background: #e8e4dc;
-  padding: 20px;
-  border-radius: 10px;
-  width: 60%;
+  background: var(--ad-surface);
+  border-radius: var(--ad-radius-lg);
+  border: 1px solid var(--ad-border);
+  box-shadow: var(--ad-shadow);
+  flex: 1;
+  overflow: hidden;
 }
 
+/* History header — mirrors ah-section-header */
+.alert-history h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ad-text-heading);
+  margin: 0;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--ad-border);
+  background: rgba(249, 246, 243, 0.5);
+}
+
+/* ─── TABLE — mirrors ah-table ────────────────── */
 .alert-history table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.alert-history th,
-.alert-history td {
-  border: 1px solid #999;
-  padding: 10px;
   text-align: left;
 }
 
+.alert-history thead tr {
+  background: rgba(249, 246, 243, 0.4);
+}
+
 .alert-history th {
-  background: #ddd;
+  padding: 12px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ad-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+}
+
+.alert-history tbody tr {
+  border-top: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.alert-history tbody tr:hover {
+  background: var(--ad-surface-alt);
+}
+
+.alert-history td {
+  padding: 14px 20px;
+  font-size: 14px;
+  color: var(--ad-text-body);
+  border: none;
+}
+
+/* ─── EXPIRE BUTTON ───────────────────────────── */
+.expire-btn {
+  background: var(--ad-primary);
+  color: #fff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: var(--ad-radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--ad-font);
+  transition: background 0.2s;
+}
+
+.expire-btn:hover {
+  background: var(--ad-primary-hover);
+}
+
+/* ─── STATUS PILL ─────────────────────────────── */
+.alert-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--ad-radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.alert-status-pill.status-active {
+  background: var(--ad-success-bg);
+  color: var(--ad-success-text);
+}
+
+.alert-status-pill.status-expired {
+  background: var(--ad-neutral-bg);
+  color: var(--ad-text-muted);
+}
+
+/* ─── EMPTY STATE ─────────────────────────────── */
+.alert-empty {
+  padding: 24px;
+  color: var(--ad-text-faint);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ─── PROXIMITY HINT TEXT ─────────────────────── */
+.proximity-hint {
+  font-size: 12px;
+  color: var(--ad-text-faint);
+  margin-top: 4px;
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+/* ── Icon alignment for lucide glyphs ───────────── */
+.main-title,
+.alert-form h2,
+.alert-history h2,
+.send-btn,
+.expire-btn,
+.proximity-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.send-btn, .expire-btn { justify-content: center; }
+.main-title svg { color: var(--ad-primary); }
+.alert-form h2 svg, .alert-history h2 svg { color: var(--ad-text-faint); }
+.proximity-hint svg { color: var(--ad-info); flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
+.alert-page svg { flex-shrink: 0; }
+
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .alert-wrapper { flex-direction: column; }
+  .alert-form { width: 100%; }
+  .main-title { font-size: 20px; }
+  .alert-form input, .alert-form textarea { font-size: 16px; }
+  .send-btn { min-height: 46px; }
+  .alert-history table { display: block; }
 }

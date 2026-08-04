@@ -1,3 +1,4 @@
+@import "./admin-theme.css";
 /* Container for centering */
 .signup-container {
     display: flex;
@@ -76,4 +77,10 @@
 
 .redirect a:hover {
     text-decoration: underline;
+}
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .signup-container, .signup-box, .signup-card { width: 100%; max-width: 100%; padding: 24px 18px; }
+  .signup-box input, .signup-card input { font-size: 16px; min-height: 44px; }
+  .signup-btn { width: 100%; min-height: 46px; }
 }

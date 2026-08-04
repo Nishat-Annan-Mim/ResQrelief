@@ -1,3 +1,4 @@
+@import "./admin-theme.css";
 /* AdminRequestDetail.css — add this new file to your Components folder */
 
 /* Done screen */
@@ -21,7 +22,7 @@
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 28px;
-  color: #1a1a2e;
+  color: var(--ad-text-heading);
   line-height: 1.5;
 }
 
@@ -47,7 +48,7 @@
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 14px;
-  color: #1a1a2e;
+  color: var(--ad-text-heading);
 }
 .ard-modal p {
   color: #555;
@@ -120,7 +121,7 @@
   box-sizing: border-box;
   transition: border-color 0.2s;
 }
-.ard-vol-search:focus { border-color: #16a34a; }
+.ard-vol-search:focus { border-color: var(--ad-success); }
 
 .ard-vol-list {
   display: flex;
@@ -137,15 +138,15 @@
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
-.ard-vol-card:hover { border-color: #16a34a; background: #f6fff6; }
+.ard-vol-card:hover { border-color: var(--ad-success); background: #f6fff6; }
 .ard-vol-selected {
-  border-color: #16a34a !important;
+  border-color: var(--ad-success) !important;
   background: #f0fdf4 !important;
 }
 .ard-vol-name {
   font-weight: 700;
   font-size: 15px;
-  color: #1a1a2e;
+  color: var(--ad-text-heading);
   margin-bottom: 3px;
 }
 .ard-vol-meta {
@@ -154,7 +155,7 @@
 }
 .ard-vol-time {
   font-size: 12px;
-  color: #16a34a;
+  color: var(--ad-success);
   margin-top: 4px;
 }
 
@@ -163,9 +164,9 @@
   padding: 10px 14px;
   background: #f0fdf4;
   border-radius: 8px;
-  border: 1.5px solid #16a34a;
+  border: 1.5px solid var(--ad-success);
   font-size: 14px;
-  color: #16a34a;
+  color: var(--ad-success);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -173,7 +174,7 @@
 .ard-clear-btn {
   background: none;
   border: none;
-  color: #c0392b;
+  color: var(--ad-primary);
   font-size: 13px;
   cursor: pointer;
   font-weight: 600;
@@ -184,7 +185,7 @@
   border: 2px solid #d1fae5;
   background: #f0fdf4;
 }
-.ard-assigned-card h3 { color: #16a34a; }
+.ard-assigned-card h3 { color: var(--ad-success); }
 
 /* --- Expanded Layout --- */
 .detail-page {
@@ -208,7 +209,7 @@
   padding: 28px; 
   border-radius: 12px;
   background: #fff;
-  border: 1px solid #e8e4dc;
+  border: 1px solid var(--ad-border);
 }
 
 /* Add this to the bottom of your CSS file */
@@ -216,8 +217,8 @@
 /* --- Full-Width AI Panel --- */
 .ai-full-width-container {
   margin-top: 40px; /* Space from the top grid */
-  background: #faf9f6;
-  border: 1.5px solid #e8e4dc;
+  background: var(--ad-bg);
+  border: 1.5px solid var(--ad-border);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
@@ -229,8 +230,8 @@
   font-size: 18px; /* Slightly larger */
   font-weight: 700;
   cursor: pointer;
-  background: #f7f4ee; 
-  color: #1a1a2e; 
+  background: var(--ad-bg); 
+  color: var(--ad-text-heading); 
   border: none;
   border-bottom: 1.5px solid transparent; 
   transition: background 0.2s;
@@ -240,10 +241,10 @@
   gap: 10px;
 }
 .ai-main-btn:hover {
-  background: #f0ece4;
+  background: var(--ad-border);
 }
 .ai-main-btn.open {
-  border-bottom-color: #ddd8ce; /* Adds a line when opened */
+  border-bottom-color: #e5e0d8; /* Adds a line when opened */
 }
 
 .ai-panel-content {
@@ -270,9 +271,9 @@
   text-align: center;
 }
 .ai-option-btn:hover, .ai-option-btn.active {
-  border-color: #1a1a2e;
-  color: #1a1a2e;
-  background: #f0ece4;
+  border-color: var(--ad-text-heading);
+  color: var(--ad-text-heading);
+  background: var(--ad-border);
   transform: translateY(-2px); /* Slight lift effect */
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
@@ -281,21 +282,21 @@
   background: #fff;
   padding: 32px;
   border-radius: 12px;
-  border: 1px solid #e8e4dc;
+  border: 1px solid var(--ad-border);
 }
 
 /* --- AI Sidebar Card (Right Column) --- */
 .ai-sidebar-card {
   margin-top: 24px;
-  background: #faf9f6;
-  border: 1.5px solid #e8e4dc;
+  background: var(--ad-bg);
+  border: 1.5px solid var(--ad-border);
   border-radius: 12px;
   padding: 24px;
 }
 .ai-sidebar-title {
   font-size: 16px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--ad-text-heading);
   margin-top: 0;
   margin-bottom: 16px;
   display: flex;
@@ -311,8 +312,8 @@
   font-size: 14px;
   cursor: pointer;
   background: #fff;
-  color: #1a1a2e;
-  border: 1.5px solid #ddd8ce;
+  color: var(--ad-text-heading);
+  border: 1.5px solid #e5e0d8;
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -320,8 +321,8 @@
   text-align: left;
 }
 .ai-sidebar-btn:hover {
-  border-color: #1a1a2e;
-  background: #f0ece4;
+  border-color: var(--ad-text-heading);
+  background: var(--ad-border);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }
@@ -333,7 +334,7 @@
 .ai-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(26, 26, 46, 0.6);
+  background: rgba(31, 41, 55, 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -358,17 +359,17 @@
 }
 .ai-modal-header {
   padding: 20px 32px;
-  border-bottom: 1px solid #e8e4dc;
+  border-bottom: 1px solid var(--ad-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #faf9f6;
+  background: var(--ad-bg);
   border-radius: 16px 16px 0 0;
 }
 .ai-modal-header h2 {
   margin: 0;
   font-size: 20px;
-  color: #1a1a2e;
+  color: var(--ad-text-heading);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -383,10 +384,29 @@
   transition: color 0.2s;
 }
 .ai-modal-close:hover {
-  color: #c0392b;
+  color: var(--ad-primary);
 }
 .ai-modal-body {
   padding: 32px;
   overflow-y: auto;
 }
 /* Existing btn-verify / btn-fraud — ensure they're in AdminHome.css already */
+/* ── Icon alignment for lucide glyphs ───────────── */
+.btn-admin,
+.btn-verify,
+.btn-fraud,
+.ard-done-card .btn-admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--ad-font);
+}
+
+.detail-page svg,
+.ard-done-card svg { flex-shrink: 0; }
+
+/* ── Responsive: collapse fixed grids (auto-added) ────── */
+@media (max-width: 768px) {
+  .detail-layout { grid-template-columns: 1fr; }
+}

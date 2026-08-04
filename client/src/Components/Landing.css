@@ -1,3 +1,4 @@
+@import "./admin-theme.css";
 /* Landing.css — same style as Home.css but for public page */
 .landing-wrapper {
   min-height: 100vh;
@@ -63,7 +64,7 @@
 }
 
 .btn-login {
-  background-color: #c0392b;
+  background-color: var(--ad-primary);
   color: #fff;
   border: none;
   padding: 14px 30px;
@@ -74,7 +75,7 @@
   transition: background-color 0.2s ease;
 }
 
-.btn-login:hover { background-color: #a93226; }
+.btn-login:hover { background-color: var(--ad-primary-hover); }
 
 .btn-signup {
   background-color: transparent;
@@ -123,4 +124,12 @@
   color: #666;
   font-family: "Arial", sans-serif;
   font-weight: 500;
+}
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .landing-container, .landing-hero { flex-direction: column; padding: 28px 16px; text-align: center; gap: 24px; }
+  .landing-headline, .hero-title { font-size: clamp(28px, 8vw, 40px); }
+  .landing-actions { flex-direction: column; width: 100%; }
+  .landing-actions a, .landing-actions button { width: 100%; min-height: 46px; }
+  .stat-card { width: 100%; }
 }

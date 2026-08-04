@@ -1,56 +1,46 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./NavbarPrivate.css"; // Keeps your existing button/text styles active[cite: 3]
+import { LogOut, Menu, X } from "lucide-react";
+import "./NavbarPrivate.css"; // shared slim top-bar styles
 import NotificationBell from "./NotificationBell";
+import { useSidebar } from "./SidebarContext";
 
+/*
+ * Slim top bar for admins. Page navigation lives in AdminLayout's
+ * sidebar, so this only carries the brand, notifications and logout —
+ * matching the signed-in user bar.
+ */
 const NavbarAdmin = () => {
-  return (
-    // Outer bar: Forced to 100% screen width
-    <div style={{ 
-      width: "100%", 
-      backgroundColor: "#ffffff", 
-      borderBottom: "1px solid #e5e7eb", 
-      position: "sticky", 
-      top: 0, 
-      zIndex: 50, 
-      padding: "14px 24px", 
-      boxSizing: "border-box" 
-    }}>
-      {/* Inner nav: Removes any max-width constraints and pushes items to the absolute sides */}
-      <nav style={{ 
-        width: "100%", 
-        maxWidth: "none", 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
-        margin: 0 
-      }}>
-        
-        {/* Logo (Far Left) */}
-        <span className="logo logo-main">
-          ResQ<span className="logo-highlight">Relief</span>
-          <span style={{ fontSize: "12px", color: "#c0392b", marginLeft: "8px", fontWeight: "700" }}>ADMIN</span>
-        </span>
+  const { mobileOpen, toggleMobile } = useSidebar();
 
-        {/* Links (Far Right) */}
-        <ul className="nav-links" style={{ 
-          display: "flex", 
-          alignItems: "center", 
-          gap: "24px", 
-          listStyle: "none", 
-          margin: 0, 
-          padding: 0 
-        }}>
-          <li>
-            <NotificationBell />
-          </li>
-          <li>
-            <Link to="/logout" className="nav-item logout-btn">Logout</Link>
-          </li>
-        </ul>
-        
-      </nav>
-    </div>
+  return (
+    <header className="np-topbar">
+      <button
+        className="np-menu-btn"
+        onClick={toggleMobile}
+        aria-label={mobileOpen ? "Close menu" : "Open menu"}
+        aria-expanded={mobileOpen}
+      >
+        {mobileOpen ? (
+          <X size={20} strokeWidth={2} />
+        ) : (
+          <Menu size={20} strokeWidth={2} />
+        )}
+      </button>
+
+      <Link to="/admin-home" className="np-brand">
+        ResQ<span className="np-brand-accent">Relief</span>
+        <span className="np-badge">Admin</span>
+      </Link>
+
+      <div className="np-actions">
+        <NotificationBell />
+        <Link to="/logout" className="np-logout">
+          <LogOut size={14} strokeWidth={2} />
+          Logout
+        </Link>
+      </div>
+    </header>
   );
 };
 

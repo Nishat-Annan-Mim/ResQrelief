@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
+import { useAccount } from "./AccountContext";
 import { useNavigate } from "react-router-dom";
 
 const NotificationListener = () => {
+  const { setBanned } = useAccount();
   const socketRef = useRef(null);
   const navigate  = useNavigate();
 
@@ -28,13 +30,18 @@ const NotificationListener = () => {
       showNotification(data.title, data.message);
     });
 
-    // ── Account banned: clear session and force to login ─────
+    /*
+     * Account flagged for fraud. The user is deliberately NOT logged out —
+     * they keep read access. Flip the flag so the warning banner appears
+     * and the restricted screens take over straight away.
+     */
     socketRef.current.on("banned", (data) => {
-      sessionStorage.clear();
-      localStorage.clear();
-      if (socketRef.current) socketRef.current.disconnect();
-      alert(`🚫 Account Suspended\n\n${data?.message || "Your account has been banned due to a fraudulent request."}\n\nYou have been logged out.`);
-      window.location.href = "/login"; // hard redirect — works even as component unmounts
+      sessionStorage.setItem("isBanned", "true");
+      setBanned(true);
+      alert(
+        data?.message ||
+          "Your account has been flagged for a fraudulent request. You can still browse, but you cannot submit requests, volunteer, donate, or post.",
+      );
     });
     socketRef.current.on("connect_error", (err) => {
       console.error("❌ Socket connection error:", err.message);

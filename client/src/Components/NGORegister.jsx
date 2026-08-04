@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Handshake, TriangleAlert, ArrowRight } from "lucide-react";
 import "./NGORegister.css";
 
 const AGENCY_TYPES = [
@@ -85,7 +86,10 @@ const NGORegister = () => {
     <div className="ngo-reg-page">
       <div className="ngo-reg-card">
         <div className="ngo-reg-hero">
-          <h1>🤝 Register Your Agency</h1>
+          <h1 className="ad-icon-inline">
+            <Handshake size={22} strokeWidth={1.75} />
+            Register Your Agency
+          </h1>
           <p>Join the ResQRelief Collaboration Network to coordinate relief efforts with other agencies.</p>
         </div>
 
@@ -157,9 +161,19 @@ const NGORegister = () => {
         </div>
 
         <div className="ngo-reg-footer">
-          <p className="ngo-reg-note">⚠️ Your registration will be reviewed by an admin before access is granted.</p>
+          <p className="ngo-reg-note ad-icon-inline">
+            <TriangleAlert size={15} strokeWidth={2} />
+            <span>Your registration will be reviewed by an admin before access is granted.</span>
+          </p>
           <button className="ngo-reg-btn" onClick={handleSubmit} disabled={loading}>
-            {loading ? "Submitting..." : "Submit Registration →"}
+            {loading ? (
+              "Submitting…"
+            ) : (
+              <>
+                Submit Registration
+                <ArrowRight size={15} strokeWidth={2.5} />
+              </>
+            )}
           </button>
         </div>
 

@@ -1,0 +1,737 @@
+/* =================================================================
+   admin-theme.css — shared design tokens for the ResQRelief admin.
+
+   Source of truth is the Dashboard (AdminHome) and Requests pages.
+   Every admin page imports this file and uses the variables below
+   instead of hard-coded colours, radii and fonts.
+
+   Add a new colour here first, then reference it. Do not reintroduce
+   raw hex values into page CSS.
+   ================================================================= */
+
+:root {
+  /* ── Brand ─────────────────────────────────────── */
+  --ad-primary: #c53030;
+  --ad-primary-hover: #9b2c2c;
+  --ad-primary-soft: #fff1f1;
+
+  /* ── Surfaces ──────────────────────────────────── */
+  --ad-bg: #f7f5f2;
+  --ad-surface: #ffffff;
+  --ad-surface-alt: #faf9f7;
+  --ad-surface-header: rgba(249, 246, 243, 0.5);
+  --ad-sidebar: #ede9e3;
+
+  /* ── Borders ───────────────────────────────────── */
+  --ad-border: #f0ece7;
+  --ad-border-strong: #e5e7eb;
+  --ad-border-input: #e0dbd4;
+
+  /* ── Text ──────────────────────────────────────── */
+  --ad-text: #111827;
+  --ad-text-heading: #1f2937;
+  --ad-text-body: #374151;
+  --ad-text-muted: #6b7280;
+  --ad-text-faint: #9ca3af;
+
+  /* ── Status ────────────────────────────────────── */
+  --ad-success: #16a34a;
+  --ad-success-bg: #f0fdf4;
+  --ad-success-text: #15803d;
+  --ad-warning: #d97706;
+  --ad-warning-bg: #fef3c7;
+  --ad-warning-text: #92400e;
+  --ad-danger: #c53030;
+  --ad-danger-bg: #fee2e2;
+  --ad-danger-text: #991b1b;
+  --ad-info: #2563eb;
+  --ad-info-bg: #eff6ff;
+  --ad-info-text: #1d4ed8;
+  --ad-neutral-bg: #f3f4f6;
+
+  /* ── Shape ─────────────────────────────────────── */
+  --ad-radius-sm: 8px;
+  --ad-radius: 12px;
+  --ad-radius-lg: 16px;
+  --ad-radius-pill: 999px;
+
+  /* ── Elevation ─────────────────────────────────── */
+  --ad-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  --ad-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --ad-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.14);
+
+  /* ── Type ──────────────────────────────────────── */
+  --ad-font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ad-font-mono: 'Courier New', monospace;
+
+  /* ── Spacing ───────────────────────────────────── */
+  --ad-page-pad: 28px 32px;
+  --ad-card-pad: 20px 24px;
+  --ad-gap: 24px;
+}
+
+/* =================================================================
+   PAGE SHELL
+   ================================================================= */
+
+.ad-page {
+  padding: var(--ad-page-pad);
+  background: var(--ad-bg);
+  min-height: 100%;
+  font-family: var(--ad-font);
+  color: var(--ad-text-body);
+}
+
+.ad-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: var(--ad-gap);
+}
+
+.ad-page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--ad-text);
+  margin: 0;
+}
+
+.ad-page-title svg {
+  color: var(--ad-primary);
+  flex-shrink: 0;
+}
+
+.ad-page-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--ad-text-muted);
+}
+
+.ad-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* =================================================================
+   CARD
+   ================================================================= */
+
+.ad-card {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  overflow: hidden;
+}
+
+.ad-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--ad-border);
+  background: var(--ad-surface-header);
+}
+
+.ad-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ad-text-heading);
+  margin: 0;
+}
+
+.ad-card-title svg {
+  color: var(--ad-text-faint);
+  flex-shrink: 0;
+}
+
+.ad-card-body {
+  padding: var(--ad-card-pad);
+}
+
+/* =================================================================
+   TABLE
+   ================================================================= */
+
+.ad-table-wrap {
+  overflow-x: auto;
+}
+
+.ad-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: var(--ad-font);
+}
+
+.ad-table thead tr {
+  background: rgba(249, 246, 243, 0.4);
+}
+
+.ad-table th {
+  padding: 12px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ad-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.ad-table tbody tr {
+  border-top: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.ad-table tbody tr:hover {
+  background: var(--ad-surface-alt);
+}
+
+.ad-table td {
+  padding: 14px 20px;
+  font-size: 14px;
+  color: var(--ad-text-body);
+  vertical-align: middle;
+}
+
+.ad-td-bold {
+  font-weight: 600;
+  color: var(--ad-text);
+}
+
+.ad-td-muted {
+  color: var(--ad-text-muted);
+}
+
+.ad-td-time {
+  font-size: 12px;
+  color: var(--ad-text-faint);
+}
+
+/* =================================================================
+   BUTTONS
+   ================================================================= */
+
+.ad-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-family: var(--ad-font);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: var(--ad-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  white-space: nowrap;
+}
+
+.ad-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ad-btn svg {
+  flex-shrink: 0;
+}
+
+.ad-btn-primary {
+  background: var(--ad-primary);
+  color: #fff;
+}
+
+.ad-btn-primary:hover:not(:disabled) {
+  background: var(--ad-primary-hover);
+}
+
+.ad-btn-outline {
+  background: transparent;
+  color: var(--ad-primary);
+  border-color: var(--ad-primary);
+}
+
+.ad-btn-outline:hover:not(:disabled) {
+  background: var(--ad-primary);
+  color: #fff;
+}
+
+.ad-btn-ghost {
+  background: var(--ad-surface);
+  color: var(--ad-text-muted);
+  border-color: var(--ad-border-strong);
+}
+
+.ad-btn-ghost:hover:not(:disabled) {
+  border-color: var(--ad-primary);
+  color: var(--ad-primary);
+}
+
+.ad-btn-success {
+  background: var(--ad-success);
+  color: #fff;
+}
+
+.ad-btn-success:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.ad-btn-danger {
+  background: var(--ad-danger);
+  color: #fff;
+}
+
+.ad-btn-danger:hover:not(:disabled) {
+  background: var(--ad-primary-hover);
+}
+
+.ad-btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.ad-btn-icon {
+  padding: 7px;
+  background: transparent;
+  border: none;
+  color: var(--ad-text-faint);
+  cursor: pointer;
+  border-radius: var(--ad-radius-sm);
+  display: inline-flex;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ad-btn-icon:hover {
+  background: var(--ad-neutral-bg);
+  color: var(--ad-text-body);
+}
+
+/* =================================================================
+   PILLS / BADGES
+   ================================================================= */
+
+.ad-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--ad-radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ad-pill svg {
+  flex-shrink: 0;
+}
+
+.ad-pill-success { background: var(--ad-success-bg); color: var(--ad-success-text); }
+.ad-pill-warning { background: var(--ad-warning-bg); color: var(--ad-warning-text); }
+.ad-pill-danger  { background: var(--ad-danger-bg);  color: var(--ad-danger-text); }
+.ad-pill-info    { background: var(--ad-info-bg);    color: var(--ad-info-text); }
+.ad-pill-neutral { background: var(--ad-neutral-bg); color: var(--ad-text-muted); }
+
+.ad-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+/* =================================================================
+   TABS  (mirrors .ar-tab from the Requests page)
+   ================================================================= */
+
+.ad-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--ad-gap);
+  flex-wrap: wrap;
+}
+
+.ad-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--ad-radius-sm);
+  border: 2px solid var(--ad-border-strong);
+  background: var(--ad-surface);
+  color: var(--ad-text-muted);
+  font-family: var(--ad-font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ad-tab:hover {
+  border-color: var(--ad-primary);
+  color: var(--ad-primary);
+}
+
+.ad-tab-active,
+.ad-tab.active {
+  background: var(--ad-primary);
+  border-color: var(--ad-primary);
+  color: #fff;
+}
+
+/* =================================================================
+   FORM CONTROLS
+   ================================================================= */
+
+.ad-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ad-field label,
+.ad-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ad-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ad-input,
+.ad-select,
+.ad-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: var(--ad-font);
+  font-size: 14px;
+  color: var(--ad-text-body);
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border-input);
+  border-radius: var(--ad-radius-sm);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.ad-input:focus,
+.ad-select:focus,
+.ad-textarea:focus {
+  outline: none;
+  border-color: var(--ad-primary);
+  box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1);
+}
+
+.ad-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* =================================================================
+   MODAL
+   ================================================================= */
+
+.ad-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.ad-modal {
+  background: var(--ad-surface);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow-lg);
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  font-family: var(--ad-font);
+}
+
+.ad-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--ad-border);
+}
+
+.ad-modal-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ad-text-heading);
+}
+
+.ad-modal-body {
+  padding: 20px 24px;
+}
+
+.ad-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--ad-border);
+}
+
+/* =================================================================
+   FEEDBACK / EMPTY STATES
+   ================================================================= */
+
+.ad-loading,
+.ad-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--ad-text-faint);
+  font-size: 14px;
+  text-align: center;
+}
+
+.ad-empty svg {
+  color: var(--ad-border-input);
+}
+
+.ad-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--ad-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ad-msg svg { flex-shrink: 0; }
+.ad-msg-success { background: var(--ad-success-bg); color: var(--ad-success-text); }
+.ad-msg-error   { background: var(--ad-danger-bg);  color: var(--ad-danger-text); }
+.ad-msg-warning { background: var(--ad-warning-bg); color: var(--ad-warning-text); }
+.ad-msg-info    { background: var(--ad-info-bg);    color: var(--ad-info-text); }
+
+/* =================================================================
+   ICON HELPERS
+   Inline lucide icons that sit next to text.
+   ================================================================= */
+
+.ad-icon-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ad-icon-inline svg {
+  flex-shrink: 0;
+  vertical-align: -0.15em;
+}
+
+.ad-icon-muted { color: var(--ad-text-faint); }
+.ad-icon-primary { color: var(--ad-primary); }
+.ad-icon-success { color: var(--ad-success); }
+.ad-icon-warning { color: var(--ad-warning); }
+.ad-icon-danger { color: var(--ad-danger); }
+
+/* =================================================================
+   RESPONSIVE
+   Two breakpoints:
+     <= 1024px  tablets / small laptops
+     <=  768px  phones
+   Page padding and card padding are driven by variables so most
+   pages shrink correctly without needing their own media queries.
+   ================================================================= */
+
+@media (max-width: 1024px) {
+  :root {
+    --ad-page-pad: 22px 20px;
+    --ad-gap: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --ad-page-pad: 16px 14px;
+    --ad-card-pad: 14px 16px;
+    --ad-gap: 14px;
+  }
+
+  .ad-page-title { font-size: 20px; }
+  .ad-page-header { flex-direction: column; align-items: stretch; }
+  .ad-header-actions { width: 100%; }
+  .ad-header-actions .ad-btn { flex: 1; justify-content: center; }
+
+  .ad-card-header { padding: 14px 16px; }
+  .ad-card-body { padding: var(--ad-card-pad); }
+
+  .ad-table th,
+  .ad-table td { padding: 10px 12px; }
+
+  /* Comfortable touch targets — 40px minimum */
+  .ad-btn,
+  .ad-tab {
+    min-height: 40px;
+    padding: 10px 16px;
+  }
+
+  .ad-btn-sm { min-height: 34px; }
+
+  .ad-btn-icon {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  /* 16px inputs stop iOS Safari zooming on focus */
+  .ad-input,
+  .ad-select,
+  .ad-textarea {
+    font-size: 16px;
+    min-height: 42px;
+  }
+
+  .ad-tabs { gap: 6px; }
+
+  .ad-modal-overlay { padding: 0; align-items: flex-end; }
+
+  .ad-modal {
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: var(--ad-radius-lg) var(--ad-radius-lg) 0 0;
+  }
+
+  .ad-modal-actions { flex-direction: column-reverse; }
+  .ad-modal-actions .ad-btn { width: 100%; }
+}
+
+/* =================================================================
+   TABLE -> CARDS  (phones)
+
+   Add `ad-stack` to a <table> and `data-label="Column name"` to each
+   <td>. Below 768px the header row is hidden and every row becomes a
+   labelled card, so nothing is cut off and there is no sideways
+   scrolling.
+   ================================================================= */
+
+@media (max-width: 768px) {
+  table.ad-stack,
+  table.ad-stack tbody,
+  table.ad-stack tr,
+  table.ad-stack td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  table.ad-stack {
+    min-width: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  table.ad-stack thead {
+    display: none;
+  }
+
+  table.ad-stack tr {
+    background: var(--ad-surface);
+    border: 1px solid var(--ad-border);
+    border-radius: var(--ad-radius);
+    box-shadow: var(--ad-shadow);
+    margin-bottom: 10px;
+    padding: 4px 0;
+    overflow: hidden;
+  }
+
+  table.ad-stack tr:last-child { margin-bottom: 0; }
+  table.ad-stack tr:hover { background: var(--ad-surface); }
+
+  table.ad-stack td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 9px 14px !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ad-border) !important;
+    text-align: right;
+    font-size: 14px;
+    min-height: 0;
+  }
+
+  table.ad-stack td:last-child {
+    border-bottom: none !important;
+  }
+
+  table.ad-stack td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    max-width: 45%;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ad-text-faint);
+    padding-top: 2px;
+  }
+
+  /* Rows whose label is empty (action cells) get the full width */
+  table.ad-stack td[data-label=""] {
+    justify-content: flex-end;
+  }
+
+  /* Keep action buttons usable inside a stacked row */
+  table.ad-stack td button,
+  table.ad-stack td a {
+    min-height: 36px;
+  }
+
+  /* The wrapper no longer needs to scroll once rows are stacked */
+  .ad-table-wrap,
+  .vdir-table-wrap,
+  .vmb-table-wrap,
+  .sa-table-wrap,
+  .di-table-wrap,
+  .atm-table-wrapper,
+  .table-wrapper,
+  .op-table-wrapper {
+    overflow-x: visible;
+  }
+}
+
+/* =================================================================
+   UTILITIES
+   ================================================================= */
+
+/* Never let a long email / URL blow out a narrow layout */
+.ad-page,
+.ad-card,
+table.ad-stack td {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+  .ad-hide-phone { display: none !important; }
+  .ad-stack-phone { flex-direction: column !important; align-items: stretch !important; }
+  .ad-full-phone { width: 100% !important; }
+}

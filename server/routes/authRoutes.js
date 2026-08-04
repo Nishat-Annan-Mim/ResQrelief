@@ -54,19 +54,39 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    if (user.isBanned) {
-      return res.status(403).json({
-        message: "Your account has been suspended due to a fraudulent request.",
-        banned: true,
-      });
-    }
+    /*
+     * Flagged (fraud) accounts are deliberately NOT rejected here. They may
+     * sign in and browse; the restriction is enforced per-action by the
+     * blockIfBanned middleware, and the client shows a warning banner.
+     */
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Incorrect password" });
 
     res.status(200).json({
       message: "Login successful",
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isBanned: Boolean(user.isBanned),
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ---------------- Account Status (is this account flagged?) ---------------- */
+router.get("/api/account-status/:email", async (req, res) => {
+  try {
+    const user = await UserModel.findOne({ email: req.params.email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json({
+      email: user.email,
+      isBanned: Boolean(user.isBanned),
     });
   } catch (error) {
     console.log(error);

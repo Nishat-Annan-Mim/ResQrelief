@@ -1,4 +1,5 @@
 const express = require("express");
+const blockIfBanned = require("../middleware/blockIfBanned");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const VolunteerModel = require("../model/Volunteer");
@@ -24,7 +25,7 @@ router.get("/volunteer/check/:email", async (req, res) => {
 });
 
 /* ---------------- Register Volunteer ---------------- */
-router.post("/volunteer/register", async (req, res) => {
+router.post("/volunteer/register", blockIfBanned, async (req, res) => {
   try {
     const {
       userId, fullName, email, dateOfBirth, phone, address,

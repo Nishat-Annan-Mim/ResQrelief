@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Plus, Pencil, TriangleAlert, Search, Inbox } from "lucide-react";
 import "./Inventory.css";
 import AdminLayout from "./AdminLayout";
 
@@ -131,12 +132,16 @@ const AddItemModal = ({ onClose, onAdded }) => {
       onClick={onClose}>
       <div style={{ background: "#fff", borderRadius: "16px", padding: "36px 32px", maxWidth: "480px", width: "90%", boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}
         onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ margin: "0 0 6px 0", fontSize: "20px", fontWeight: 700 }}>➕ Add Inventory Item</h2>
+        <h2 style={{ margin: "0 0 6px 0", fontSize: "20px", fontWeight: 700 }} className="ad-icon-inline">
+          <Plus size={19} strokeWidth={2.25} />
+          Add Inventory Item
+        </h2>
         <p style={{ margin: "0 0 24px 0", color: "#888", fontSize: "14px" }}>Fill in the details below to add a new item to stock.</p>
 
         {error && (
-          <div style={{ background: "#fef3c7", border: "1px solid #fde68a", borderRadius: "8px", padding: "10px 14px", color: "#92400e", fontSize: "13px", marginBottom: "16px" }}>
-            ⚠️ {error}
+          <div className="ad-msg ad-msg-warning" style={{ marginBottom: "16px" }}>
+            <TriangleAlert size={15} strokeWidth={2} />
+            {error}
           </div>
         )}
 
@@ -260,12 +265,16 @@ const EditItemModal = ({ item, onClose, onUpdated }) => {
       onClick={onClose}>
       <div style={{ background: "#fff", borderRadius: "16px", padding: "36px 32px", maxWidth: "480px", width: "90%", boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}
         onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ margin: "0 0 6px 0", fontSize: "20px", fontWeight: 700 }}>✏️ Edit Inventory Item</h2>
+        <h2 style={{ margin: "0 0 6px 0", fontSize: "20px", fontWeight: 700 }} className="ad-icon-inline">
+          <Pencil size={19} strokeWidth={2} />
+          Edit Inventory Item
+        </h2>
         <p style={{ margin: "0 0 24px 0", color: "#888", fontSize: "14px" }}>Update the details for <strong>{item.itemName}</strong>.</p>
 
         {error && (
-          <div style={{ background: "#fef3c7", border: "1px solid #fde68a", borderRadius: "8px", padding: "10px 14px", color: "#92400e", fontSize: "13px", marginBottom: "16px" }}>
-            ⚠️ {error}
+          <div className="ad-msg ad-msg-warning" style={{ marginBottom: "16px" }}>
+            <TriangleAlert size={15} strokeWidth={2} />
+            {error}
           </div>
         )}
 
@@ -433,7 +442,8 @@ const Inventory = () => {
             onClick={() => setShowAddModal(true)}
             style={{ background: "#2b7cff", color: "#fff", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
           >
-            ➕ Add Item
+            <Plus size={15} strokeWidth={2.5} />
+            Add Item
           </button>
         </div>
 
@@ -449,7 +459,7 @@ const Inventory = () => {
           {/* Search & Filter Bar */}
           <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
             <div style={{ flex: 1, minWidth: "200px", position: "relative" }}>
-              <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#aaa", fontSize: "16px" }}>🔍</span>
+              <Search size={16} strokeWidth={2} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--ad-text-faint)" }} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -474,14 +484,14 @@ const Inventory = () => {
           {/* Table */}
           {filtered.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 0", color: "#aaa" }}>
-              <div style={{ fontSize: "40px", marginBottom: "12px" }}>📭</div>
+              <Inbox size={40} strokeWidth={1.5} style={{ marginBottom: "12px", color: "var(--ad-border-input)" }} />
               <p style={{ margin: 0, fontSize: "15px" }}>No items found.</p>
               {(search || categoryFilter !== "All") && (
                 <p style={{ margin: "6px 0 0", fontSize: "13px" }}>Try clearing the search or filter.</p>
               )}
             </div>
           ) : (
-            <table className="inv-table">
+            <table className="inv-table ad-stack">
               <thead>
                 <tr>
                   <th>Item</th>
@@ -498,17 +508,17 @@ const Inventory = () => {
                   const st = STATUS_STYLES[item.status] || {};
                   return (
                     <tr key={item._id}>
-                      <td style={{ fontWeight: 600 }}>{item.itemName}</td>
-                      <td>{item.category || "—"}</td>
-                      <td>{item.warehouseLocation || "—"}</td>
-                      <td style={{ fontWeight: 600, color: item.quantity < 100 ? "#e67e22" : undefined }}>{item.quantity}</td>
-                      <td>{item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : "N/A"}</td>
-                      <td>
+                      <td style={{ fontWeight: 600 }} data-label="Item">{item.itemName}</td>
+                      <td data-label="Category">{item.category || "—"}</td>
+                      <td data-label="Warehouse">{item.warehouseLocation || "—"}</td>
+                      <td style={{ fontWeight: 600, color: item.quantity < 100 ? "#e67e22" : undefined }} data-label="Qty">{item.quantity}</td>
+                      <td data-label="Expiry">{item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : "N/A"}</td>
+                      <td data-label="Status">
                         <span style={{ padding: "3px 10px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, ...st }}>
                           {item.status}
                         </span>
                       </td>
-                      <td style={{ display: "flex", gap: "8px" }}>
+                      <td style={{ display: "flex", gap: "8px" }} data-label="">
                         <button
                           onClick={() => setEditItem(item)}
                           style={{ background: "#2b7cff", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}

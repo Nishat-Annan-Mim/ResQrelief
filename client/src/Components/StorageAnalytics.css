@@ -1,0 +1,376 @@
+@import "./admin-theme.css";
+
+/* =============================================
+   StorageAnalytics.css
+   This page previously had no stylesheet at all
+   (inline styles only). Built on the shared
+   admin theme to match Dashboard / Requests.
+   ============================================= */
+
+.sa-page {
+  min-height: 100%;
+  padding: var(--ad-page-pad);
+  background: var(--ad-bg);
+  font-family: var(--ad-font);
+  color: var(--ad-text-body);
+}
+
+.sa-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sa-state {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ad-bg);
+  font-family: var(--ad-font);
+  color: var(--ad-text-faint);
+  font-size: 14px;
+}
+
+/* ── Header ────────────────────────────────── */
+.sa-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: var(--ad-gap);
+}
+
+.sa-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--ad-text);
+  margin: 0;
+}
+
+.sa-title svg {
+  color: var(--ad-primary);
+  flex-shrink: 0;
+}
+
+.sa-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--ad-text-muted);
+}
+
+.sa-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: var(--ad-primary);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: var(--ad-radius-sm);
+  font-family: var(--ad-font);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s;
+}
+
+.sa-export-btn:hover { background: var(--ad-primary-hover); }
+.sa-export-btn svg { flex-shrink: 0; }
+
+/* ── KPI cards ─────────────────────────────── */
+.sa-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: var(--ad-gap);
+}
+
+.sa-kpi-card {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-top: 3px solid var(--ad-border-input);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  padding: 18px 22px;
+  text-align: center;
+}
+
+.sa-kpi-card.info    { border-top-color: var(--ad-info); }
+.sa-kpi-card.success { border-top-color: var(--ad-success); }
+.sa-kpi-card.danger  { border-top-color: var(--ad-primary); }
+.sa-kpi-card.warning { border-top-color: var(--ad-warning); }
+
+.sa-kpi-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ad-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 8px;
+}
+
+.sa-kpi-label svg { flex-shrink: 0; }
+
+.sa-kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ad-text);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+/* ── Tabs (mirrors .ar-tab on Requests) ────── */
+.sa-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: var(--ad-gap);
+}
+
+.sa-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--ad-radius-sm);
+  border: 2px solid var(--ad-border-strong);
+  background: var(--ad-surface);
+  color: var(--ad-text-muted);
+  font-family: var(--ad-font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sa-tab:hover {
+  border-color: var(--ad-primary);
+  color: var(--ad-primary);
+}
+
+.sa-tab.active {
+  background: var(--ad-primary);
+  border-color: var(--ad-primary);
+  color: #fff;
+}
+
+/* ── Cards ─────────────────────────────────── */
+.sa-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ad-gap);
+}
+
+.sa-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.sa-card {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.sa-card:last-child { margin-bottom: 0; }
+
+.sa-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ad-text-heading);
+  margin: 0 0 18px;
+}
+
+.sa-card-title svg { flex-shrink: 0; }
+
+/* Severity accents on the expiry cards */
+.sa-card.danger  { border-left: 3px solid var(--ad-primary); }
+.sa-card.warning { border-left: 3px solid var(--ad-warning); }
+.sa-card.success { border-left: 3px solid var(--ad-success); }
+
+.sa-card.danger  .sa-card-title svg { color: var(--ad-primary); }
+.sa-card.warning .sa-card-title svg { color: var(--ad-warning); }
+.sa-card.success .sa-card-title svg { color: var(--ad-success); }
+.sa-card .sa-card-title svg { color: var(--ad-text-faint); }
+
+/* ── Bars ──────────────────────────────────── */
+.sa-bar-row { margin-bottom: 14px; }
+.sa-bar-row:last-child { margin-bottom: 0; }
+
+.sa-bar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.sa-bar-label { color: var(--ad-text-body); }
+
+.sa-bar-value {
+  font-weight: 700;
+  color: var(--ad-text);
+}
+
+.sa-bar-track {
+  background: var(--ad-neutral-bg);
+  border-radius: var(--ad-radius-pill);
+  height: 8px;
+  overflow: hidden;
+}
+
+.sa-bar-fill {
+  height: 100%;
+  background: var(--ad-primary);
+  border-radius: var(--ad-radius-pill);
+  transition: width 0.3s ease;
+}
+
+/* ── Status list ───────────────────────────── */
+.sa-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--ad-border);
+  font-size: 13px;
+}
+
+.sa-status-row:last-child { border-bottom: none; }
+.sa-status-row strong { font-weight: 700; color: var(--ad-text); }
+
+/* ── Table (Dashboard pattern) ─────────────── */
+.sa-table-wrap { overflow-x: auto; }
+
+.sa-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: var(--ad-font);
+}
+
+.sa-table thead tr { background: rgba(249, 246, 243, 0.4); }
+
+.sa-table th {
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ad-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.sa-table tbody tr {
+  border-top: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.sa-table tbody tr:hover { background: var(--ad-surface-alt); }
+
+.sa-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--ad-text-body);
+  vertical-align: middle;
+}
+
+.sa-qty-low {
+  font-weight: 700;
+  color: var(--ad-primary);
+}
+
+/* ── Warehouse cards ───────────────────────── */
+.sa-wh-card {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  box-shadow: var(--ad-shadow);
+  padding: 18px;
+  text-align: center;
+}
+
+.sa-wh-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ad-text);
+  margin: 0 0 10px;
+}
+
+.sa-wh-name svg {
+  color: var(--ad-text-faint);
+  flex-shrink: 0;
+}
+
+.sa-wh-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ad-text);
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+.sa-wh-meta {
+  font-size: 12px;
+  color: var(--ad-text-faint);
+  margin: 0;
+}
+
+.sa-empty {
+  padding: 24px 0;
+  color: var(--ad-text-faint);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ── Responsive ────────────────────────────── */
+@media (max-width: 900px) {
+  .sa-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .sa-grid-2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .sa-title { font-size: 20px; }
+}
+
+/* ── Responsive: collapse fixed grids (auto-added) ────── */
+@media (max-width: 1024px) {
+  .sa-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .sa-grid-2 { grid-template-columns: 1fr; }
+  .sa-kpi-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .sa-header { flex-direction: column; align-items: stretch; }
+  .sa-export-btn { width: 100%; justify-content: center; min-height: 44px; }
+  .sa-title { font-size: 20px; }
+  .sa-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .sa-tab { white-space: nowrap; min-height: 40px; }
+  .sa-card { padding: 16px; }
+}

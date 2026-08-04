@@ -1,3 +1,4 @@
+@import "./admin-theme.css";
 /* AidRequestForm.css */
 
 *,
@@ -7,12 +8,12 @@
 }
 
 .arf-page {
-  min-height: 100vh;
+  min-height: 100%;
   width: 100%; /* Forces the page to take full width */
   background-color: #f0ece3;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--ad-font);
   padding: 40px 20px;
-  color: #1a1a1a;
+  color: var(--ad-text);
   
   /* Flexbox Centering */
   display: flex;
@@ -25,7 +26,7 @@
 .arf-page-title {
   font-size: 28px;
   font-weight: 700;
-  color: #111;
+  color: var(--ad-text);
   
   /* 1. Match the exact width of the card */
   width: 100%;
@@ -39,7 +40,7 @@
 /* ─── Main Card ──────────────────────────────────────────── */
 .arf-card {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: var(--ad-radius-lg);
   padding: 32px 36px 28px;
   width: 100%; /* Allows it to shrink on mobile */
   max-width: 960px;
@@ -73,7 +74,7 @@
   padding: 18px 12px;
   background: #ffffff;
   border: 1.5px solid #d0ccc4;
-  border-radius: 10px;
+  border-radius: var(--ad-radius);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
@@ -96,7 +97,7 @@
 .arf-aid-label {
   font-size: 15px;
   font-weight: 600;
-  color: #111;
+  color: var(--ad-text);
 }
 
 /* ─── Form Layout ────────────────────────────────────────── */
@@ -120,7 +121,7 @@
 .arf-field label {
   font-size: 13.5px;
   font-weight: 500;
-  color: #444;
+  color: var(--ad-text-body);
 }
 
 .arf-field input,
@@ -128,9 +129,9 @@
   padding: 11px 13px;
   border: 1.5px solid #d0ccc4;
   border-radius: 7px;
-  background: #faf9f7;
+  background: var(--ad-surface-alt);
   font-size: 15px;
-  color: #111;
+  color: var(--ad-text);
   font-family: inherit;
   transition: border-color 0.15s;
   resize: vertical;
@@ -139,7 +140,7 @@
 .arf-field input:focus,
 .arf-field textarea:focus {
   outline: none;
-  border-color: #888;
+  border-color: var(--ad-text-faint);
   background: #ffffff;
 }
 
@@ -151,7 +152,7 @@
 }
 
 .arf-submit-btn {
-  background: #c0392b;
+  background: var(--ad-primary);
   color: #ffffff;
   border: none;
   border-radius: 7px;
@@ -163,13 +164,13 @@
 }
 
 .arf-submit-btn:hover {
-  background: #a93226;
+  background: var(--ad-primary-hover);
 }
 
 /* ─── Success Screen ─────────────────────────────────────── */
 .arf-success-card {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: var(--ad-radius-lg);
   padding: 60px 48px;
   max-width: 860px;
   display: flex;
@@ -187,11 +188,11 @@
   font-size: 18px;
   font-weight: 600;
   text-align: center;
-  color: #333;
+  color: var(--ad-text-body);
   max-width: 520px;
   line-height: 1.5;
   border: 1.5px solid #8dc8c2;
-  border-radius: 8px;
+  border-radius: var(--ad-radius-sm);
   padding: 28px 36px;
   margin: 0;
 }
@@ -226,7 +227,7 @@
 
 .arf-modal {
   background: #f0ece3;
-  border-radius: 10px;
+  border-radius: var(--ad-radius);
   padding: 36px 40px;
   min-width: 320px;
   max-width: 460px;
@@ -241,7 +242,7 @@
 .arf-modal-text {
   font-size: 17px;
   font-weight: 700;
-  color: #c0392b;
+  color: var(--ad-primary);
   margin: 0;
 }
 
@@ -254,7 +255,7 @@
   background: #5b91a8;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--ad-radius-sm);
   padding: 10px 32px;
   font-size: 15px;
   font-weight: 600;
@@ -270,9 +271,9 @@
   padding: 11px 13px;
   border: 1.5px solid #d0ccc4;
   border-radius: 7px;
-  background: #faf9f7;
+  background: var(--ad-surface-alt);
   font-size: 15px;
-  color: #111;
+  color: var(--ad-text);
   font-family: inherit;
   cursor: pointer;
   transition: border-color 0.15s;
@@ -280,7 +281,7 @@
 
 .arf-field select:focus {
   outline: none;
-  border-color: #888;
+  border-color: var(--ad-text-faint);
   background: #ffffff;
 }
 
@@ -297,4 +298,30 @@
   .arf-card {
     padding: 20px 16px;
   }
+}
+/* ── Icon alignment for lucide glyphs ───────────── */
+.arf-aid-emoji,
+.arf-success-icon,
+.arf-modal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arf-success-icon { color: var(--ad-success); }
+.arf-modal-icon { color: var(--ad-warning); }
+.arf-aid-btn.selected .arf-aid-emoji { color: #fff; }
+.arf-aid-emoji { color: var(--ad-text-muted); }
+
+/* ── Responsive: collapse fixed grids (auto-added) ────── */
+@media (max-width: 768px) {
+  .arf-aid-grid { grid-template-columns: 1fr; }
+  .arf-row { grid-template-columns: 1fr; }
+}
+
+/* ── Responsive: page-specific (phones) ───────────────── */
+@media (max-width: 768px) {
+  .arf-field input, .arf-field select, .arf-field textarea { font-size: 16px; min-height: 44px; }
+  .arf-aid-btn { min-height: 76px; }
+  .arf-submit-btn { width: 100%; min-height: 48px; }
 }

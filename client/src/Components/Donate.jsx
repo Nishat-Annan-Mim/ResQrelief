@@ -1,8 +1,21 @@
 import { useState } from "react";
+import {
+  CreditCard,
+  Package,
+  TriangleAlert,
+  CircleCheck,
+  Lock,
+} from "lucide-react";
 import "./Donate.css";
+import { useAccount } from "./AccountContext";
+import { RestrictedNotice } from "./AccountFlag";
 
 export default function Donate() {
+  const { isBanned } = useAccount();
   const [view, setView] = useState("home");
+  // Flagged accounts keep read access but cannot create anything.
+  if (isBanned) return <RestrictedNotice feature="donations" />;
+
   return (
     <div className="donate-wrapper">
       {view === "home" && <DonateHome setView={setView} />}
@@ -21,13 +34,17 @@ function DonateHome({ setView }) {
       </div>
       <div className="donate-options">
         <div className="donate-option-card" onClick={() => setView("money")}>
-          <div className="option-icon">💳</div>
+          <div className="option-icon">
+            <CreditCard size={30} strokeWidth={1.75} />
+          </div>
           <h2>Donate Money</h2>
           <p>Send funds securely via SSLCommerz. Every taka counts.</p>
           <button className="btn-primary">Donate Now →</button>
         </div>
         <div className="donate-option-card" onClick={() => setView("supplies")}>
-          <div className="option-icon">📦</div>
+          <div className="option-icon">
+            <Package size={30} strokeWidth={1.75} />
+          </div>
           <h2>Schedule Drop-Off</h2>
           <p>Donate food, clothes, medicine, or blankets at a relief point.</p>
           <button className="btn-secondary">Schedule Drop-Off →</button>
@@ -79,7 +96,10 @@ function DonateMoney({ setView }) {
   return (
     <div className="donate-form-page">
       <button className="back-btn" onClick={() => setView("home")}>← Back</button>
-      <h2>💳 Donate Money</h2>
+      <h2>
+        <CreditCard size={20} strokeWidth={1.75} />
+        Donate Money
+      </h2>
       <p className="form-subtitle">Secure payment powered by SSLCommerz</p>
       <div className="form-group">
         <label>Full Name *</label>
@@ -108,11 +128,18 @@ function DonateMoney({ setView }) {
         </div>
         <input name="amount" type="number" value={form.amount} onChange={handleChange} placeholder="Or enter custom amount" min="10" />
       </div>
-      {error && <div className="error-msg">⚠️ {error}</div>}
+      {error && (
+        <div className="error-msg">
+          <TriangleAlert size={15} strokeWidth={2} />
+          {error}
+        </div>
+      )}
       <button className="btn-primary submit-btn" onClick={handleSubmit} disabled={loading}>
         {loading ? "Redirecting to payment..." : `Pay ৳${form.amount || "0"} via SSLCommerz`}
       </button>
-      <p className="ssl-note">🔒 Secured by SSLCommerz · Visa · MasterCard · bKash · Nagad</p>
+      <p className="ssl-note">
+        <Lock size={13} strokeWidth={2} />
+        Secured by SSLCommerz · Visa · MasterCard · bKash · Nagad</p>
     </div>
   );
 }
@@ -170,7 +197,9 @@ function DonateSupplies({ setView }) {
   if (success) {
     return (
       <div className="donate-success">
-        <div className="success-icon">✅</div>
+        <div className="success-icon">
+          <CircleCheck size={44} strokeWidth={1.75} />
+        </div>
         <h2>Drop-Off Scheduled!</h2>
         <p>Thank you! Your supply donation has been registered.</p>
         <button className="btn-primary" onClick={() => setView("home")}>Back to Donate</button>
@@ -181,7 +210,10 @@ function DonateSupplies({ setView }) {
   return (
     <div className="donate-form-page">
       <button className="back-btn" onClick={() => setView("home")}>← Back</button>
-      <h2>📦 Schedule Supply Drop-Off</h2>
+      <h2>
+        <Package size={20} strokeWidth={1.75} />
+        Schedule Supply Drop-Off
+      </h2>
       <p className="form-subtitle">Donate essential supplies to relief centers</p>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -233,7 +265,10 @@ function DonateSupplies({ setView }) {
           <label>Drop-Off Time *</label>
           <input name="dropTime" type="time" value={formData.dropTime} onChange={handleChange} />
         </div>
-        {message && <div className="error-msg" style={{ marginBottom: "0.8rem" }}>⚠️ {message}</div>}
+        {message && <div className="error-msg" style={{ marginBottom: "0.8rem" }}>
+            <TriangleAlert size={15} strokeWidth={2} />
+            {message}
+          </div>}
         <button type="submit" className="btn-secondary submit-btn" style={{ opacity: isFormComplete ? 1 : 0.5, cursor: isFormComplete ? "pointer" : "not-allowed" }} disabled={!isFormComplete || loading}>
           {loading ? "Scheduling..." : "Confirm Drop-Off"}
         </button>

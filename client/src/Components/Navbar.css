@@ -1,3 +1,4 @@
+@import "./admin-theme.css";
 /* Global reset */
 * {
     margin: 0;
@@ -41,7 +42,7 @@
 }
 
 .logo-highlight {
-    color: #dc3545;
+    color: var(--ad-primary);
 }
 
 /* Nav links */
@@ -88,9 +89,9 @@
 
 /* Logout hover (red) */
 .logout-btn:hover {
-    background: #dc3545;
+    background: var(--ad-primary);
     color: white;
-    border-color: #dc3545;
+    border-color: var(--ad-primary);
 }
 
 /* Mobile Responsive */
