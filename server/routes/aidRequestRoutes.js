@@ -1,25 +1,214 @@
+// const express = require("express");
+// const blockIfBanned = require("../middleware/blockIfBanned");
+// const router = express.Router();
+// const AidRequestModel = require("../model/AidRequest");
+// const VolunteerModel = require("../model/Volunteer");
+// const haversineDistanceKm = require("../utils/haversine");
+
+// /* ---------------- Create Aid Request ---------------- */
+// router.post("/aid-requests", blockIfBanned, async (req, res) => {
+//   try {
+//     const {
+//       createdByVolunteerId, createdByVolunteerName, createdByVolunteerEmail,
+//       requestType, severity, description, latitude, longitude, address,
+//     } = req.body;
+
+//     const newRequest = new AidRequestModel({
+//       createdByVolunteerId, createdByVolunteerName, createdByVolunteerEmail,
+//       requestType, severity, description, latitude, longitude, address,
+//       status: "need",
+//     });
+//     await newRequest.save();
+//     res.status(201).json({ message: "Aid request created successfully", request: newRequest });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// /* ---------------- Get All Aid Requests ---------------- */
+// router.get("/aid-requests", async (req, res) => {
+//   try {
+//     const requests = await AidRequestModel.find().sort({ createdAt: -1 });
+//     res.status(200).json(requests);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// /* ---------------- Get Nearby Aid Requests ---------------- */
+// router.get("/aid-requests/nearby/:email", async (req, res) => {
+//   try {
+//     const volunteer = await VolunteerModel.findOne({ email: req.params.email });
+//     if (!volunteer || volunteer.currentLatitude === null || volunteer.currentLongitude === null) {
+//       return res.status(400).json({ message: "Volunteer location not shared yet" });
+//     }
+
+//     const requests = await AidRequestModel.find({
+//       createdByVolunteerEmail: { $ne: req.params.email },
+//     }).sort({ createdAt: -1 });
+
+//     const nearbyRequests = requests
+//       .map((r) => ({
+//         ...r.toObject(),
+//         distanceKm: haversineDistanceKm(
+//           volunteer.currentLatitude, volunteer.currentLongitude,
+//           r.latitude, r.longitude,
+//         ),
+//       }))
+//       .sort((a, b) => a.distanceKm - b.distanceKm);
+
+//     res.status(200).json(nearbyRequests);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// /* ---------------- Accept Aid Request ---------------- */
+// router.put("/aid-requests/:requestId/accept", async (req, res) => {
+//   try {
+//     const { helperVolunteerId, helperVolunteerName, helperVolunteerEmail } = req.body;
+//     const request = await AidRequestModel.findById(req.params.requestId);
+//     if (!request) return res.status(404).json({ message: "Request not found" });
+
+//     const updated = await AidRequestModel.findByIdAndUpdate(
+//       req.params.requestId,
+//       {
+//         status: "helping",
+//         helperVolunteerId, helperVolunteerName, helperVolunteerEmail,
+//         helperMessage: `Coming for help... Volunteer ${helperVolunteerName} is on the way.`,
+//       },
+//       { returnDocument: "after" },
+//     );
+//     res.status(200).json({ message: "Request accepted successfully", request: updated });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// /* ---------------- Mark As Helped ---------------- */
+// router.put("/aid-requests/:requestId/helped", async (req, res) => {
+//   try {
+//     const { helperVolunteerEmail } = req.body;
+//     const request = await AidRequestModel.findById(req.params.requestId);
+//     if (!request) return res.status(404).json({ message: "Request not found" });
+//     if (request.helperVolunteerEmail !== helperVolunteerEmail) {
+//       return res.status(403).json({ message: "Only the assigned helper can mark this helped" });
+//     }
+//     const updated = await AidRequestModel.findByIdAndUpdate(
+//       req.params.requestId,
+//       { status: "helped", helperMessage: "This request has already received help." },
+//       { returnDocument: "after" },
+//     );
+//     res.status(200).json({ message: "Request marked as helped", request: updated });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// /* ---------------- Cancel Aid Request (Helper Volunteer) ---------------- */
+// router.put("/aid-requests/:id/cancel", async (req, res) => {
+//   try {
+//     const request = await AidRequestModel.findById(req.params.id);
+//     if (!request) return res.status(404).json({ message: "Request not found" });
+//     if (request.helperVolunteerEmail !== req.body.cancellerEmail) {
+//       return res.status(403).json({ message: "Not authorized to cancel" });
+//     }
+//     request.status = "need";
+//     request.helperVolunteerId = null;
+//     request.helperVolunteerName = null;
+//     request.helperVolunteerEmail = null;
+//     request.helperMessage = null;
+//     await request.save();
+//     res.json({ message: "Request cancelled successfully" });
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// /* ---------------- Delete Aid Request (Creator) ---------------- */
+// router.delete("/aid-requests/:requestId", async (req, res) => {
+//   try {
+//     const request = await AidRequestModel.findById(req.params.requestId);
+//     if (!request) return res.status(404).json({ message: "Request not found" });
+//     if (request.createdByVolunteerEmail !== req.body.requesterEmail) {
+//       return res.status(403).json({ message: "Only the volunteer who created this request can delete it" });
+//     }
+//     await AidRequestModel.findByIdAndDelete(req.params.requestId);
+//     res.status(200).json({ message: "Request deleted successfully" });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// /* ---------------- Admin: Get All Aid Requests ---------------- */
+// router.get("/api/admin/aid-requests", async (req, res) => {
+//   try {
+//     const requests = await AidRequestModel.find().sort({ createdAt: -1 });
+//     res.status(200).json(requests);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// /* ---------------- Admin: Delete Any Aid Request ---------------- */
+// router.delete("/api/admin/aid-requests/:id", async (req, res) => {
+//   try {
+//     const deleted = await AidRequestModel.findByIdAndDelete(req.params.id);
+//     if (!deleted) return res.status(404).json({ message: "Request not found" });
+//     res.status(200).json({ message: "Request deleted successfully" });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// module.exports = router;
+
 const express = require("express");
-const blockIfBanned = require("../middleware/blockIfBanned");
 const router = express.Router();
 const AidRequestModel = require("../model/AidRequest");
 const VolunteerModel = require("../model/Volunteer");
 const haversineDistanceKm = require("../utils/haversine");
 
-/* ---------------- Create Aid Request ---------------- */
-router.post("/aid-requests", blockIfBanned, async (req, res) => {
+/* ---------------- Create Aid Request (with expiry timer) ---------------- */
+router.post("/aid-requests", async (req, res) => {
   try {
     const {
-      createdByVolunteerId, createdByVolunteerName, createdByVolunteerEmail,
-      requestType, severity, description, latitude, longitude, address,
+      createdByVolunteerId,
+      createdByVolunteerName,
+      createdByVolunteerEmail,
+      requestType,
+      severity,
+      description,
+      latitude,
+      longitude,
+      address,
+      expiryMinutes, // optional: caller can override default 30 min
     } = req.body;
 
+    // Expiry: default 30 min, but Emergency requests get 60 min
+    const minutes = expiryMinutes ?? (severity === "emergency" ? 60 : 30);
+
+    const expiresAt = new Date(Date.now() + minutes * 60 * 1000);
+
     const newRequest = new AidRequestModel({
-      createdByVolunteerId, createdByVolunteerName, createdByVolunteerEmail,
-      requestType, severity, description, latitude, longitude, address,
+      createdByVolunteerId,
+      createdByVolunteerName,
+      createdByVolunteerEmail,
+      requestType,
+      severity,
+      description,
+      latitude,
+      longitude,
+      address,
       status: "need",
+      expiresAt,
     });
+
     await newRequest.save();
-    res.status(201).json({ message: "Aid request created successfully", request: newRequest });
+    res.status(201).json({
+      message: "Aid request created successfully",
+      request: newRequest,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -39,8 +228,14 @@ router.get("/aid-requests", async (req, res) => {
 router.get("/aid-requests/nearby/:email", async (req, res) => {
   try {
     const volunteer = await VolunteerModel.findOne({ email: req.params.email });
-    if (!volunteer || volunteer.currentLatitude === null || volunteer.currentLongitude === null) {
-      return res.status(400).json({ message: "Volunteer location not shared yet" });
+    if (
+      !volunteer ||
+      volunteer.currentLatitude === null ||
+      volunteer.currentLongitude === null
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Volunteer location not shared yet" });
     }
 
     const requests = await AidRequestModel.find({
@@ -51,8 +246,10 @@ router.get("/aid-requests/nearby/:email", async (req, res) => {
       .map((r) => ({
         ...r.toObject(),
         distanceKm: haversineDistanceKm(
-          volunteer.currentLatitude, volunteer.currentLongitude,
-          r.latitude, r.longitude,
+          volunteer.currentLatitude,
+          volunteer.currentLongitude,
+          r.latitude,
+          r.longitude,
         ),
       }))
       .sort((a, b) => a.distanceKm - b.distanceKm);
@@ -66,7 +263,8 @@ router.get("/aid-requests/nearby/:email", async (req, res) => {
 /* ---------------- Accept Aid Request ---------------- */
 router.put("/aid-requests/:requestId/accept", async (req, res) => {
   try {
-    const { helperVolunteerId, helperVolunteerName, helperVolunteerEmail } = req.body;
+    const { helperVolunteerId, helperVolunteerName, helperVolunteerEmail } =
+      req.body;
     const request = await AidRequestModel.findById(req.params.requestId);
     if (!request) return res.status(404).json({ message: "Request not found" });
 
@@ -74,12 +272,55 @@ router.put("/aid-requests/:requestId/accept", async (req, res) => {
       req.params.requestId,
       {
         status: "helping",
-        helperVolunteerId, helperVolunteerName, helperVolunteerEmail,
+        helperVolunteerId,
+        helperVolunteerName,
+        helperVolunteerEmail,
         helperMessage: `Coming for help... Volunteer ${helperVolunteerName} is on the way.`,
+        requesterConfirmed: false, // reset handshake whenever a new helper accepts
       },
       { returnDocument: "after" },
     );
-    res.status(200).json({ message: "Request accepted successfully", request: updated });
+    res
+      .status(200)
+      .json({ message: "Request accepted successfully", request: updated });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ----------------------------------------------------------------
+   Handshake: Requester confirms they received / are receiving help.
+   Only the original requester can call this.
+   Once both helper marks helped AND requester confirms → status = helped.
+   ---------------------------------------------------------------- */
+router.put("/aid-requests/:requestId/confirm-help", async (req, res) => {
+  try {
+    const { requesterEmail } = req.body;
+    const request = await AidRequestModel.findById(req.params.requestId);
+
+    if (!request) return res.status(404).json({ message: "Request not found" });
+
+    if (request.createdByVolunteerEmail !== requesterEmail) {
+      return res
+        .status(403)
+        .json({ message: "Only the requester can confirm help" });
+    }
+
+    if (request.status !== "helping") {
+      return res
+        .status(400)
+        .json({ message: "No helper is assigned to this request yet" });
+    }
+
+    // Mark requester's side of the handshake
+    request.requesterConfirmed = true;
+    await request.save();
+
+    res.status(200).json({
+      message:
+        "You confirmed the helper is coming. Waiting for helper to mark as helped.",
+      request,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -92,14 +333,30 @@ router.put("/aid-requests/:requestId/helped", async (req, res) => {
     const request = await AidRequestModel.findById(req.params.requestId);
     if (!request) return res.status(404).json({ message: "Request not found" });
     if (request.helperVolunteerEmail !== helperVolunteerEmail) {
-      return res.status(403).json({ message: "Only the assigned helper can mark this helped" });
+      return res
+        .status(403)
+        .json({ message: "Only the assigned helper can mark this helped" });
     }
+
+    // Handshake check: requester must have confirmed before helper can close it
+    if (!request.requesterConfirmed) {
+      return res.status(400).json({
+        message:
+          "The requester has not confirmed yet. Please wait for them to confirm help is coming.",
+      });
+    }
+
     const updated = await AidRequestModel.findByIdAndUpdate(
       req.params.requestId,
-      { status: "helped", helperMessage: "This request has already received help." },
+      {
+        status: "helped",
+        helperMessage: "This request has already received help.",
+      },
       { returnDocument: "after" },
     );
-    res.status(200).json({ message: "Request marked as helped", request: updated });
+    res
+      .status(200)
+      .json({ message: "Request marked as helped", request: updated });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -118,6 +375,7 @@ router.put("/aid-requests/:id/cancel", async (req, res) => {
     request.helperVolunteerName = null;
     request.helperVolunteerEmail = null;
     request.helperMessage = null;
+    request.requesterConfirmed = false; // reset handshake on cancel
     await request.save();
     res.json({ message: "Request cancelled successfully" });
   } catch (err) {
@@ -131,7 +389,9 @@ router.delete("/aid-requests/:requestId", async (req, res) => {
     const request = await AidRequestModel.findById(req.params.requestId);
     if (!request) return res.status(404).json({ message: "Request not found" });
     if (request.createdByVolunteerEmail !== req.body.requesterEmail) {
-      return res.status(403).json({ message: "Only the volunteer who created this request can delete it" });
+      return res.status(403).json({
+        message: "Only the volunteer who created this request can delete it",
+      });
     }
     await AidRequestModel.findByIdAndDelete(req.params.requestId);
     res.status(200).json({ message: "Request deleted successfully" });

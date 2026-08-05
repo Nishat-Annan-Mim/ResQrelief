@@ -161,7 +161,7 @@
   background: rgba(255, 255, 255, 0.6);
   color: var(--ad-primary);
   font-weight: 700;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 /* ─── MAIN CONTENT ────────────────────────────── */
@@ -179,7 +179,7 @@
   background: #fff;
   border-radius: 16px;
   border: 1px solid var(--ad-border);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
@@ -189,7 +189,7 @@
   justify-content: space-between;
   padding: 18px 24px;
   border-bottom: 1px solid var(--ad-border);
-  background: rgba(249,246,243,0.5);
+  background: rgba(249, 246, 243, 0.5);
 }
 
 .ah-section-title-group {
@@ -248,7 +248,7 @@
 }
 
 .ah-table thead tr {
-  background: rgba(249,246,243,0.4);
+  background: rgba(249, 246, 243, 0.4);
 }
 
 .ah-table th {
@@ -273,6 +273,13 @@
   padding: 14px 20px;
   font-size: 14px;
   color: var(--ad-text-body);
+}
+
+/* Any action button inside a table cell (e.g. the Requests "Remove"
+   button) must stay on one line instead of wrapping mid-word. */
+.ah-table td button,
+.ah-table td a {
+  white-space: nowrap;
 }
 
 .ah-tr-clickable {
@@ -314,6 +321,7 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Map existing getStatusClass() returns to new pill colours */
@@ -338,12 +346,21 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 /* Reuse getPriorityClass() colour names */
-.ah-priority-label.priority-high  { color: var(--ad-primary); }
-.ah-priority-label.priority-medium { color: var(--ad-warning); }
-.ah-priority-label.priority-low   { color: var(--ad-success); }
+.ah-priority-label.priority-high {
+  color: var(--ad-primary);
+}
+
+.ah-priority-label.priority-medium {
+  color: var(--ad-warning);
+}
+
+.ah-priority-label.priority-low {
+  color: var(--ad-success);
+}
 
 /* ─── REQUEST STATUS PILL ─────────────────────── */
 .ah-req-status {
@@ -354,6 +371,7 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .ah-status-dot {
@@ -410,9 +428,17 @@
   font-size: 14px;
 }
 
-.priority-high  { color: var(--ad-primary); }
-.priority-medium { color: var(--ad-warning); }
-.priority-low   { color: var(--ad-success); }
+.priority-high {
+  color: var(--ad-primary);
+}
+
+.priority-medium {
+  color: var(--ad-warning);
+}
+
+.priority-low {
+  color: var(--ad-success);
+}
 
 /* Detail Page */
 .detail-page {
@@ -437,7 +463,9 @@
   align-items: flex-start;
 }
 
-.detail-left  { flex: 1.2; }
+.detail-left {
+  flex: 1.2;
+}
 
 .detail-right {
   flex: 0.8;
@@ -448,7 +476,7 @@
 .detail-card {
   background: #fff;
   border: 1px solid var(--ad-border);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
   padding: 20px 24px;
 }
@@ -490,7 +518,9 @@
   transition: background 0.2s;
 }
 
-.btn-verify:hover { background: var(--ad-success-text); }
+.btn-verify:hover {
+  background: var(--ad-success-text);
+}
 
 .btn-fraud {
   flex: 1;
@@ -505,7 +535,9 @@
   transition: background 0.2s;
 }
 
-.btn-fraud:hover { background: var(--ad-primary-hover); }
+.btn-fraud:hover {
+  background: var(--ad-primary-hover);
+}
 
 /* Request Portal Tabs */
 .ar-tabs {
@@ -541,31 +573,97 @@
   border-color: var(--ad-primary);
   color: #fff;
 }
-.ar-tab svg { flex-shrink: 0; }
+
+.ar-tab svg {
+  flex-shrink: 0;
+}
 
 /* ── Responsive (phones + tablets) ─────────────────────── */
 @media (max-width: 1024px) {
-  .ah-main { padding: var(--ad-page-pad); gap: 20px; }
+  .ah-main {
+    padding: var(--ad-page-pad);
+    gap: 20px;
+  }
 }
 
 @media (max-width: 768px) {
-  .ah-main { padding: var(--ad-page-pad); gap: 16px; }
-  .ah-section-header { flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 16px; }
-  .ah-section-title { font-size: 15px; }
-  .ah-show-all-btn { width: 100%; justify-content: center; min-height: 40px; }
-  .ah-table th, .ah-table td { padding: 10px 12px; }
-  .ah-loading-text { padding: 20px 16px; }
+  .ah-main {
+    padding: var(--ad-page-pad);
+    gap: 16px;
+  }
+
+  .ah-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .ah-section-title {
+    font-size: 15px;
+  }
+
+  .ah-show-all-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+  }
+
+  .ah-table th,
+  .ah-table td {
+    padding: 10px 12px;
+  }
+
+  .ah-loading-text {
+    padding: 20px 16px;
+  }
 
   /* Request detail page */
-  .detail-page { padding: var(--ad-page-pad); }
-  .detail-title { font-size: 22px; margin-bottom: 18px; }
-  .detail-layout { flex-direction: column; gap: 16px; }
-  .detail-left, .detail-right { width: 100%; flex: none; }
-  .detail-card { padding: 16px; }
-  .detail-table td { font-size: 14px; padding: 9px 6px; }
-  .btn-verify, .btn-fraud { padding: 14px; font-size: 15px; min-height: 48px; }
+  .detail-page {
+    padding: var(--ad-page-pad);
+  }
+
+  .detail-title {
+    font-size: 22px;
+    margin-bottom: 18px;
+  }
+
+  .detail-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .detail-left,
+  .detail-right {
+    width: 100%;
+    flex: none;
+  }
+
+  .detail-card {
+    padding: 16px;
+  }
+
+  .detail-table td {
+    font-size: 14px;
+    padding: 9px 6px;
+  }
+
+  .btn-verify,
+  .btn-fraud {
+    padding: 14px;
+    font-size: 15px;
+    min-height: 48px;
+  }
 
   /* Request portal tabs scroll instead of wrapping into a tall block */
-  .ar-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
-  .ar-tab { white-space: nowrap; min-height: 40px; }
+  .ar-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .ar-tab {
+    white-space: nowrap;
+    min-height: 40px;
+  }
 }

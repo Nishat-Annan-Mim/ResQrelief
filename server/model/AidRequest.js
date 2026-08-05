@@ -1,3 +1,92 @@
+// const mongoose = require("mongoose");
+
+// const AidRequestSchema = new mongoose.Schema(
+//   {
+//     createdByVolunteerId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "volunteer",
+//       required: true,
+//     },
+
+//     createdByVolunteerName: {
+//       type: String,
+//       required: true,
+//     },
+
+//     createdByVolunteerEmail: {
+//       type: String,
+//       required: true,
+//     },
+
+//     requestType: {
+//       type: String,
+//       enum: ["Medical", "Food", "Shelter", "Water", "Rescue", "Clothes"],
+//       required: true,
+//     },
+
+//     severity: {
+//       type: String,
+//       enum: ["emergency", "medium", "low"],
+//       default: "medium",
+//       required: true,
+//     },
+
+//     description: {
+//       type: String,
+//       required: true,
+//     },
+
+//     latitude: {
+//       type: Number,
+//       required: true,
+//     },
+
+//     longitude: {
+//       type: Number,
+//       required: true,
+//     },
+
+//     address: {
+//       type: String,
+//       default: "",
+//     },
+
+//     status: {
+//       type: String,
+//       enum: ["need", "helping", "helped"],
+//       default: "need",
+//     },
+
+//     helperVolunteerId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "volunteer",
+//       default: null,
+//     },
+
+//     helperVolunteerName: {
+//       type: String,
+//       default: "",
+//     },
+
+//     helperVolunteerEmail: {
+//       type: String,
+//       default: "",
+//     },
+
+//     helperMessage: {
+//       type: String,
+//       default: "",
+//     },
+//     latitude: { type: Number, default: null },
+//     longitude: { type: Number, default: null },
+//   },
+//   { timestamps: true },
+// );
+
+// const AidRequestModel = mongoose.model("aidrequest", AidRequestSchema);
+
+// module.exports = AidRequestModel;
+
 const mongoose = require("mongoose");
 
 const AidRequestSchema = new mongoose.Schema(
@@ -77,8 +166,18 @@ const AidRequestSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    latitude:  { type: Number, default: null },
-    longitude: { type: Number, default: null },
+
+    // ── Expiry: request auto-expires 30 min after creation ──
+    expiresAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 30 * 60 * 1000), // 30 minutes from now
+    },
+
+    // ── Handshake: requester confirms they received help ──
+    requesterConfirmed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

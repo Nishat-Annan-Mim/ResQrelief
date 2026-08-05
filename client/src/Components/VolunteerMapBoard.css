@@ -1,4 +1,5 @@
 @import "./admin-theme.css";
+
 .map-board-page {
     min-height: 100vh;
     background: var(--ad-bg);
@@ -456,14 +457,25 @@
         width: 100%;
     }
 }
+
 /* ── Responsive: collapse fixed grids (auto-added) ────── */
 @media (max-width: 768px) {
-  .map-layout { grid-template-columns: 1fr; }
-  .request-card-grid { grid-template-columns: 1fr; }
-  .request-type-grid { grid-template-columns: 1fr; }
+    .map-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .request-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .request-type-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ── Responsive: page-specific (phones) ───────────────── */
 @media (max-width: 768px) {
-  .vmb-table-wrap { overflow-x: visible; }
+    .vmb-table-wrap {
+        overflow-x: visible;
+    }
 }

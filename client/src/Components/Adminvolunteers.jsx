@@ -351,7 +351,9 @@ const Adminvolunteers = () => {
               {aidRequests.map((request, index) => (
                 <tr key={request._id}>
                   <td data-label="#">{index + 1}</td>
-                  <td data-label="Posted By">{request.createdByVolunteerName || "Unknown"}</td>
+                  <td data-label="Posted By">
+                    {request.createdByVolunteerName || "Unknown"}
+                  </td>
                   <td data-label="Type">{request.requestType}</td>
                   <td data-label="Severity">
                     <span
@@ -399,7 +401,6 @@ const Adminvolunteers = () => {
                       onClick={() => deleteAidRequest(request._id)}
                     >
                       <Trash2 size={14} strokeWidth={2} />
-                      Delete
                     </button>
                   </td>
                 </tr>

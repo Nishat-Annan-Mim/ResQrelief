@@ -262,355 +262,364 @@ const AdminTaskManagement = () => {
 
   return (
     <AdminLayout>
-    <div className="atm-page">
-      <h1 className="atm-page-title">
-        <CheckSquare size={22} strokeWidth={1.75} />
-        Task Management
-      </h1>
+      <div className="atm-page">
+        <h1 className="atm-page-title">
+          <CheckSquare size={22} strokeWidth={1.75} />
+          Task Management
+        </h1>
 
-      {/* Stats Bar */}
-      <div className="atm-stats-row">
-        <div className="atm-stat-card">
-          <span className="atm-stat-num">{stats.total}</span>
-          <span className="atm-stat-label">Total Tasks</span>
-        </div>
-        <div className="atm-stat-card pending">
-          <span className="atm-stat-num">{stats.pending}</span>
-          <span className="atm-stat-label">Pending</span>
-        </div>
-        <div className="atm-stat-card inprogress">
-          <span className="atm-stat-num">{stats.inProgress}</span>
-          <span className="atm-stat-label">In Progress</span>
-        </div>
-        <div className="atm-stat-card completed">
-          <span className="atm-stat-num">{stats.completed}</span>
-          <span className="atm-stat-label">Completed</span>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="atm-controls">
-        <input
-          className="atm-search"
-          placeholder="Search tasks or volunteer..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="atm-select"
-        >
-          <option value="all">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="in-progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="atm-select"
-        >
-          <option value="all">All Types</option>
-          {TASK_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-        <button
-          className="atm-btn-create"
-          onClick={() => {
-            setEditingTask(null);
-            setForm(emptyForm);
-            setModalMsg({ text: "", type: "" });
-            setShowModal(true);
-          }}
-        >
-          <Plus size={15} strokeWidth={2.5} />
-          Assign New Task
-        </button>
-      </div>
-
-      {/* Task Table */}
-      {loading ? (
-        <p className="atm-loading">Loading tasks...</p>
-      ) : filtered.length === 0 ? (
-        <div className="atm-empty">
-          No tasks found. Assign a new task above.
-        </div>
-      ) : (
-        <div className="atm-table-wrapper">
-          <table className="atm-table ad-stack">
-            <thead>
-              <tr>
-                <th>Task</th>
-                <th>Type</th>
-                <th>Assigned To</th>
-                <th>Zone</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Due Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((task) => (
-                <tr key={task._id}>
-                  <td className="atm-task-title" data-label="Task">{task.title}</td>
-                  <td data-label="Type">
-                    <span className="atm-type-badge">
-                      <TaskTypeIcon type={task.taskType} />
-                      {task.taskType}
-                    </span>
-                  </td>
-                  <td data-label="Assigned To">
-                    {task.assignedTo?.volunteerName || (
-                      <span className="atm-unassigned">Unassigned</span>
-                    )}
-                  </td>
-                  <td data-label="Zone">{task.zone || "—"}</td>
-                  <td data-label="Priority">
-                    <span
-                      className={`atm-priority-dot ${
-                        PRIORITY_PILL[task.priority] || "ad-pill-neutral"
-                      }`}
-                    >
-                      <span className="ad-dot" />
-                      {task.priority.toUpperCase()}
-                    </span>
-                  </td>
-                  <td data-label="Status">
-                    <select
-                      className="atm-status-select"
-                      value={task.status}
-                      style={{ color: STATUS_COLORS[task.status] }}
-                      onChange={(e) =>
-                        handleStatusChange(task._id, e.target.value)
-                      }
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                  <td data-label="Due Date">
-                    {task.dueDate
-                      ? new Date(task.dueDate).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td className="atm-actions" data-label="Actions">
-                    <button
-                      className="atm-btn-edit"
-                      onClick={() => handleEdit(task)}
-                    >
-                      <Pencil size={13} strokeWidth={2} />
-                      Edit
-                    </button>
-                    <button
-                      className="atm-btn-delete"
-                      onClick={() => handleDelete(task._id)}
-                    >
-                      <Trash2 size={13} strokeWidth={2} />
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Modal */}
-      {showModal && (
-        <div className="atm-modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="atm-modal" onClick={(e) => e.stopPropagation()}>
-            <h2>
-              {editingTask ? (
-                <Pencil size={18} strokeWidth={1.75} />
-              ) : (
-                <Plus size={18} strokeWidth={1.75} />
-              )}
-              {editingTask ? "Edit Task" : "Assign New Task"}
-            </h2>
-
-            {modalMsg.text && (
-              <div className={`atm-modal-msg atm-modal-msg-${modalMsg.type}`}>
-                {modalMsg.type === "error" ? (
-                  <TriangleAlert size={15} strokeWidth={2} />
-                ) : (
-                  <CircleCheck size={15} strokeWidth={2} />
-                )}
-                {modalMsg.text}
-              </div>
-            )}
-
-            <div className="atm-modal-grid">
-              <div className="atm-field">
-                <label>Task Title *</label>
-                <input
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  placeholder="e.g. Distribute food packs in Feni North"
-                />
-              </div>
-
-              <div className="atm-field">
-                <label>Task Type *</label>
-                <select
-                  value={form.taskType}
-                  onChange={(e) =>
-                    setForm({ ...form, taskType: e.target.value })
-                  }
-                >
-                  <option value="">Select task type</option>
-                  {TASK_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="atm-field atm-full">
-                <label>Description *</label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  placeholder="Describe the task in detail..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="atm-field">
-                <label>Assign Volunteer</label>
-                <select
-                  value={form.assignedTo.volunteerEmail}
-                  onChange={handleVolunteerSelect}
-                >
-                  <option value="">— Unassigned —</option>
-                  {volunteers.map((v) => (
-                    <option key={v._id} value={v.email}>
-                      {v.fullName} · {v.volunteerRole} · {v.preferredZone}
-                      {v.status === "confirmed" ? " (confirmed)" : ""}
-                    </option>
-                  ))}
-                </select>
-                {volunteers.length === 0 && (
-                  <span
-                    style={{
-                      fontSize: "0.78rem",
-                      color: "#e67e22",
-                      marginTop: 4,
-                    }}
-                  >
-                    No volunteers with completed profiles found.
-                  </span>
-                )}
-                {form.assignedTo.volunteerEmail &&
-                  (() => {
-                    const sel = volunteers.find(
-                      (v) => v.email === form.assignedTo.volunteerEmail,
-                    );
-                    return sel ? (
-                      <div className="atm-volunteer-preview">
-                        <span>
-                          <User size={12} strokeWidth={2} />
-                          {sel.fullName}
-                        </span>
-                        <span>
-                          <Target size={12} strokeWidth={2} />
-                          {sel.volunteerRole}
-                        </span>
-                        <span>
-                          <MapPin size={12} strokeWidth={2} />
-                          {sel.preferredZone}
-                        </span>
-                        <span>
-                          <Clock size={12} strokeWidth={2} />
-                          {sel.preferredTime || "Any time"}
-                        </span>
-                        <span className={`atm-vol-status ${sel.status}`}>
-                          {sel.status === "confirmed" ? (
-                            <CircleCheck size={12} strokeWidth={2} />
-                          ) : (
-                            <Hourglass size={12} strokeWidth={2} />
-                          )}
-                          {sel.status === "confirmed" ? "Confirmed" : "Pending"}
-                        </span>
-                      </div>
-                    ) : null;
-                  })()}
-              </div>
-
-              <div className="atm-field">
-                <label>Zone / Location</label>
-                <input
-                  value={form.zone}
-                  onChange={(e) => setForm({ ...form, zone: e.target.value })}
-                  placeholder="e.g. Dhaka, Sylhet North"
-                />
-              </div>
-
-              <div className="atm-field">
-                <label>
-                  Priority{" "}
-                  <span
-                    style={{
-                      fontWeight: 400,
-                      textTransform: "none",
-                      color: "#aaa",
-                    }}
-                  >
-                    (manual)
-                  </span>
-                </label>
-                <select
-                  value={form.priority}
-                  onChange={(e) =>
-                    setForm({ ...form, priority: e.target.value })
-                  }
-                >
-                  <option value="high">High — Urgent, life-critical</option>
-                  <option value="medium">
-                    Medium — Important but not immediate
-                  </option>
-                  <option value="low">Low — Can be scheduled</option>
-                </select>
-              </div>
-
-              <div className="atm-field">
-                <label>Due Date</label>
-                <input
-                  type="date"
-                  value={form.dueDate}
-                  onChange={(e) =>
-                    setForm({ ...form, dueDate: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="atm-modal-actions">
-              <button
-                className="atm-btn-cancel"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-              <button className="atm-btn-save" onClick={handleSubmit}>
-                {editingTask ? "Update Task" : "Assign Task"}
-              </button>
-            </div>
+        {/* Stats Bar */}
+        <div className="atm-stats-row">
+          <div className="atm-stat-card">
+            <span className="atm-stat-num">{stats.total}</span>
+            <span className="atm-stat-label">Total Tasks</span>
+          </div>
+          <div className="atm-stat-card pending">
+            <span className="atm-stat-num">{stats.pending}</span>
+            <span className="atm-stat-label">Pending</span>
+          </div>
+          <div className="atm-stat-card inprogress">
+            <span className="atm-stat-num">{stats.inProgress}</span>
+            <span className="atm-stat-label">In Progress</span>
+          </div>
+          <div className="atm-stat-card completed">
+            <span className="atm-stat-num">{stats.completed}</span>
+            <span className="atm-stat-label">Completed</span>
           </div>
         </div>
-      )}
-    </div>
+
+        {/* Controls */}
+        <div className="atm-controls">
+          <input
+            className="atm-search"
+            placeholder="Search tasks or volunteer..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="atm-select"
+          >
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="atm-select"
+          >
+            <option value="all">All Types</option>
+            {TASK_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+          <button
+            className="atm-btn-create"
+            onClick={() => {
+              setEditingTask(null);
+              setForm(emptyForm);
+              setModalMsg({ text: "", type: "" });
+              setShowModal(true);
+            }}
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            Assign New Task
+          </button>
+        </div>
+
+        {/* Task Table */}
+        {loading ? (
+          <p className="atm-loading">Loading tasks...</p>
+        ) : filtered.length === 0 ? (
+          <div className="atm-empty">
+            No tasks found. Assign a new task above.
+          </div>
+        ) : (
+          <div className="atm-table-wrapper">
+            <table className="atm-table ad-stack">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Type</th>
+                  <th>Assigned To</th>
+                  <th>Zone</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Due Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((task) => (
+                  <tr key={task._id}>
+                    <td className="atm-task-title" data-label="Task">
+                      {task.title}
+                    </td>
+                    <td data-label="Type">
+                      <span className="atm-type-badge">
+                        <TaskTypeIcon type={task.taskType} />
+                        {task.taskType}
+                      </span>
+                    </td>
+                    <td data-label="Assigned To">
+                      {task.assignedTo?.volunteerName || (
+                        <span className="atm-unassigned">Unassigned</span>
+                      )}
+                    </td>
+                    <td data-label="Zone">{task.zone || "—"}</td>
+                    <td data-label="Priority">
+                      <span
+                        className={`atm-priority-dot ${
+                          PRIORITY_PILL[task.priority] || "ad-pill-neutral"
+                        }`}
+                      >
+                        <span className="ad-dot" />
+                        {task.priority.toUpperCase()}
+                      </span>
+                    </td>
+                    <td data-label="Status">
+                      <select
+                        className="atm-status-select"
+                        value={task.status}
+                        style={{ color: STATUS_COLORS[task.status] }}
+                        onChange={(e) =>
+                          handleStatusChange(task._id, e.target.value)
+                        }
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </td>
+                    <td data-label="Due Date">
+                      {task.dueDate
+                        ? new Date(task.dueDate).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td className="atm-actions" data-label="Actions">
+                      <button
+                        className="atm-btn-edit"
+                        onClick={() => handleEdit(task)}
+                        aria-label="Edit task"
+                      >
+                        <Pencil size={13} strokeWidth={2} />
+                      </button>
+                      <button
+                        className="atm-btn-delete"
+                        onClick={() => handleDelete(task._id)}
+                        aria-label="Delete task"
+                      >
+                        <Trash2 size={13} strokeWidth={2} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Modal */}
+        {showModal && (
+          <div
+            className="atm-modal-overlay"
+            onClick={() => setShowModal(false)}
+          >
+            <div className="atm-modal" onClick={(e) => e.stopPropagation()}>
+              <h2>
+                {editingTask ? (
+                  <Pencil size={18} strokeWidth={1.75} />
+                ) : (
+                  <Plus size={18} strokeWidth={1.75} />
+                )}
+                {editingTask ? "Edit Task" : "Assign New Task"}
+              </h2>
+
+              {modalMsg.text && (
+                <div className={`atm-modal-msg atm-modal-msg-${modalMsg.type}`}>
+                  {modalMsg.type === "error" ? (
+                    <TriangleAlert size={15} strokeWidth={2} />
+                  ) : (
+                    <CircleCheck size={15} strokeWidth={2} />
+                  )}
+                  {modalMsg.text}
+                </div>
+              )}
+
+              <div className="atm-modal-grid">
+                <div className="atm-field">
+                  <label>Task Title *</label>
+                  <input
+                    value={form.title}
+                    onChange={(e) =>
+                      setForm({ ...form, title: e.target.value })
+                    }
+                    placeholder="e.g. Distribute food packs in Feni North"
+                  />
+                </div>
+
+                <div className="atm-field">
+                  <label>Task Type *</label>
+                  <select
+                    value={form.taskType}
+                    onChange={(e) =>
+                      setForm({ ...form, taskType: e.target.value })
+                    }
+                  >
+                    <option value="">Select task type</option>
+                    {TASK_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="atm-field atm-full">
+                  <label>Description *</label>
+                  <textarea
+                    value={form.description}
+                    onChange={(e) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
+                    placeholder="Describe the task in detail..."
+                    rows={3}
+                  />
+                </div>
+
+                <div className="atm-field">
+                  <label>Assign Volunteer</label>
+                  <select
+                    value={form.assignedTo.volunteerEmail}
+                    onChange={handleVolunteerSelect}
+                  >
+                    <option value="">— Unassigned —</option>
+                    {volunteers.map((v) => (
+                      <option key={v._id} value={v.email}>
+                        {v.fullName} · {v.volunteerRole} · {v.preferredZone}
+                        {v.status === "confirmed" ? " (confirmed)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                  {volunteers.length === 0 && (
+                    <span
+                      style={{
+                        fontSize: "0.78rem",
+                        color: "#e67e22",
+                        marginTop: 4,
+                      }}
+                    >
+                      No volunteers with completed profiles found.
+                    </span>
+                  )}
+                  {form.assignedTo.volunteerEmail &&
+                    (() => {
+                      const sel = volunteers.find(
+                        (v) => v.email === form.assignedTo.volunteerEmail,
+                      );
+                      return sel ? (
+                        <div className="atm-volunteer-preview">
+                          <span>
+                            <User size={12} strokeWidth={2} />
+                            {sel.fullName}
+                          </span>
+                          <span>
+                            <Target size={12} strokeWidth={2} />
+                            {sel.volunteerRole}
+                          </span>
+                          <span>
+                            <MapPin size={12} strokeWidth={2} />
+                            {sel.preferredZone}
+                          </span>
+                          <span>
+                            <Clock size={12} strokeWidth={2} />
+                            {sel.preferredTime || "Any time"}
+                          </span>
+                          <span className={`atm-vol-status ${sel.status}`}>
+                            {sel.status === "confirmed" ? (
+                              <CircleCheck size={12} strokeWidth={2} />
+                            ) : (
+                              <Hourglass size={12} strokeWidth={2} />
+                            )}
+                            {sel.status === "confirmed"
+                              ? "Confirmed"
+                              : "Pending"}
+                          </span>
+                        </div>
+                      ) : null;
+                    })()}
+                </div>
+
+                <div className="atm-field">
+                  <label>Zone / Location</label>
+                  <input
+                    value={form.zone}
+                    onChange={(e) => setForm({ ...form, zone: e.target.value })}
+                    placeholder="e.g. Dhaka, Sylhet North"
+                  />
+                </div>
+
+                <div className="atm-field">
+                  <label>
+                    Priority{" "}
+                    <span
+                      style={{
+                        fontWeight: 400,
+                        textTransform: "none",
+                        color: "#aaa",
+                      }}
+                    >
+                      (manual)
+                    </span>
+                  </label>
+                  <select
+                    value={form.priority}
+                    onChange={(e) =>
+                      setForm({ ...form, priority: e.target.value })
+                    }
+                  >
+                    <option value="high">High — Urgent, life-critical</option>
+                    <option value="medium">
+                      Medium — Important but not immediate
+                    </option>
+                    <option value="low">Low — Can be scheduled</option>
+                  </select>
+                </div>
+
+                <div className="atm-field">
+                  <label>Due Date</label>
+                  <input
+                    type="date"
+                    value={form.dueDate}
+                    onChange={(e) =>
+                      setForm({ ...form, dueDate: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="atm-modal-actions">
+                <button
+                  className="atm-btn-cancel"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+                <button className="atm-btn-save" onClick={handleSubmit}>
+                  {editingTask ? "Update Task" : "Assign Task"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </AdminLayout>
   );
 };

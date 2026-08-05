@@ -136,6 +136,7 @@
 /* ── Table ── */
 .op-table {
     width: 100%;
+    min-width: 760px;
     border-collapse: collapse;
 }
 
@@ -163,8 +164,13 @@
     border-bottom: none;
 }
 
-.op-table tbody tr { transition: background 0.15s; }
-.op-table tbody tr:hover { background: var(--ad-surface-alt); }
+.op-table tbody tr {
+    transition: background 0.15s;
+}
+
+.op-table tbody tr:hover {
+    background: var(--ad-surface-alt);
+}
 
 /* ── Status Badge ── */
 .op-status-badge {
@@ -173,6 +179,7 @@
     gap: 5px;
     font-weight: 600;
     font-size: 12px;
+    white-space: nowrap;
     background: var(--ad-neutral-bg);
     padding: 3px 10px;
     border-radius: var(--ad-radius-pill);
@@ -352,44 +359,51 @@
         grid-template-columns: 1fr;
     }
 }
+
 /* ── Icon alignment for lucide glyphs ───────────── */
 .op-selected-supplies,
 .op-location-name,
 .op-table-location-name,
 .op-volunteer-checkbox,
 .op-remove-location-btn,
-.op-form-row > label,
+.op-form-row>label,
 .op-suggestion-item,
 .op-table-volunteer-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.op-form-row > label { display: flex; }
+.op-form-row>label {
+    display: flex;
+}
 
 .op-volunteer-checkbox {
-  color: var(--ad-text-faint);
+    color: var(--ad-text-faint);
 }
 
 .op-volunteer-row.selected .op-volunteer-checkbox {
-  color: var(--ad-primary);
+    color: var(--ad-primary);
 }
 
-.op-selected-supplies { color: var(--ad-success); }
+.op-selected-supplies {
+    color: var(--ad-success);
+}
 
 .btn-admin,
 .confirm-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-family: var(--ad-font);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--ad-font);
 }
 
 .op-form svg,
 .op-table svg,
-.op-locations-list svg { flex-shrink: 0; }
+.op-locations-list svg {
+    flex-shrink: 0;
+}
 
 /* =============================================
    Page header + classes replacing the inline
@@ -543,6 +557,7 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    white-space: nowrap;
     background: var(--ad-primary);
     color: #fff;
     border: 1px solid transparent;
@@ -575,7 +590,9 @@
     transition: background 0.18s;
 }
 
-.btn-admin:hover { background: var(--ad-primary-hover); }
+.btn-admin:hover {
+    background: var(--ad-primary-hover);
+}
 
 .confirm-btn {
     width: 100%;
@@ -592,26 +609,66 @@
     transition: background 0.18s;
 }
 
-.confirm-btn:hover { background: var(--ad-primary-hover); }
+.confirm-btn:hover {
+    background: var(--ad-primary-hover);
+}
 
 /* Page shell inherited from Inventory.css */
-.op-main-padding { padding: var(--ad-page-pad); }
+.op-main-padding {
+    padding: var(--ad-page-pad);
+}
 
 /* ── Responsive: collapse fixed grids (auto-added) ────── */
 @media (max-width: 768px) {
-  .op-form-grid { grid-template-columns: 1fr; }
+    .op-form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ── Responsive: page-specific (phones) ───────────────── */
 @media (max-width: 768px) {
-  .op-page-header { flex-direction: column; align-items: stretch; }
-  .op-page-header .btn-admin { width: 100%; min-height: 44px; justify-content: center; }
-  .op-page-title { font-size: 20px; }
-  .op-form-container { padding: 16px; }
-  .op-form-group input, .op-form-group select,
-  .op-form-group textarea, .op-form-row input { font-size: 16px; min-height: 42px; }
-  .op-custom-supply-row { flex-direction: column; }
-  .op-custom-supply-row input, .op-custom-supply-row .btn-admin { width: 100%; }
-  .confirm-btn { min-height: 48px; }
-  .op-location-card-header { flex-wrap: wrap; gap: 8px; }
+    .op-page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .op-page-header .btn-admin {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    .op-page-title {
+        font-size: 20px;
+    }
+
+    .op-form-container {
+        padding: 16px;
+    }
+
+    .op-form-group input,
+    .op-form-group select,
+    .op-form-group textarea,
+    .op-form-row input {
+        font-size: 16px;
+        min-height: 42px;
+    }
+
+    .op-custom-supply-row {
+        flex-direction: column;
+    }
+
+    .op-custom-supply-row input,
+    .op-custom-supply-row .btn-admin {
+        width: 100%;
+    }
+
+    .confirm-btn {
+        min-height: 48px;
+    }
+
+    .op-location-card-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
 }
