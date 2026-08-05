@@ -17,6 +17,7 @@ const miscRoutes             = require("./routes/miscRoutes");    // tasks, ops,
 
 // ── Already-extracted route files (unchanged) ─────────────────
 const inventoryRoutes        = require("./routes/inventoryRoutes");
+const transferRoutes         = require("./routes/transferRoutes");   // inter-warehouse transfers
 const alertRoutes            = require("./routes/alertRoutes");
 const donationRoutes         = require("./routes/donationRoutes");
 const supplyDonationRoutes   = require("./routes/supplyDonationRoutes");
@@ -57,6 +58,7 @@ app.use("/", miscRoutes);
 
 // Already-extracted routes
 app.use("/api", inventoryRoutes);
+app.use("/api", transferRoutes);
 app.use("/api", alertRoutes);
 app.use("/", donationRoutes);
 app.use("/", supplyDonationRoutes);

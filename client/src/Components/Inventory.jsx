@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Plus, Pencil, TriangleAlert, Search, Inbox } from "lucide-react";
+import { Plus, Pencil, TriangleAlert, Search, Inbox, ArrowLeftRight, Boxes } from "lucide-react";
 import "./Inventory.css";
 import AdminLayout from "./AdminLayout";
+import TransferPanel from "./TransferPanel";
+import { BASE_URL as API_ROOT } from "../api";
 
 const CATEGORY_OPTIONS = [
   "Food",
@@ -23,7 +25,9 @@ const WAREHOUSE_OPTIONS = [
   "Warehouse D",
 ];
 
-const BASE_URL = "https://resqrelief-fj7z.onrender.com/api";
+// Uses the shared api.js root so a local VITE_API_URL override applies here too.
+// Without this, the stock tab would hit production while the transfers tab hit localhost.
+const BASE_URL = `${API_ROOT}/api`;
 
 const getStatus = (qty, expiry) => {
   const today = new Date();
@@ -400,6 +404,7 @@ const Inventory = () => {
   const [editItem, setEditItem] = useState(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
+  const [tab, setTab] = useState("stock"); // "stock" | "transfers"
 
   useEffect(() => { fetchInventory(); }, []);
 
@@ -438,12 +443,33 @@ const Inventory = () => {
       <div className="inv-page">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <h1 className="inv-title" style={{ margin: 0 }}>Inventory Management</h1>
+          {tab === "stock" && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              style={{ background: "#2b7cff", color: "#fff", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+            >
+              <Plus size={15} strokeWidth={2.5} />
+              Add Item
+            </button>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <div className="inv-tabs">
           <button
-            onClick={() => setShowAddModal(true)}
-            style={{ background: "#2b7cff", color: "#fff", border: "none", borderRadius: "8px", padding: "12px 22px", fontWeight: 700, fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+            className={tab === "stock" ? "inv-tab active" : "inv-tab"}
+            onClick={() => setTab("stock")}
           >
-            <Plus size={15} strokeWidth={2.5} />
-            Add Item
+            <Boxes size={15} strokeWidth={2.25} />
+            Stock
+          </button>
+          <button
+            className={tab === "transfers" ? "inv-tab active" : "inv-tab"}
+            onClick={() => setTab("transfers")}
+          >
+            <ArrowLeftRight size={15} strokeWidth={2.25} />
+            Warehouse Transfers
+            {lowStock > 0 && <span className="inv-tab-badge">{lowStock}</span>}
           </button>
         </div>
 
@@ -455,6 +481,9 @@ const Inventory = () => {
           <div><span style={{ fontSize: "24px", fontWeight: 800, display: "block", color: "#1a1a2e" }}>{warehouses}</span>Warehouses</div>
         </div>
 
+        {tab === "transfers" ? (
+          <TransferPanel items={items} onStockChange={fetchInventory} />
+        ) : (
         <div className="inv-card">
           {/* Search & Filter Bar */}
           <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center" }}>
@@ -539,6 +568,7 @@ const Inventory = () => {
             </table>
           )}
         </div>
+        )}
 
         {/* Add Item Modal */}
         {showAddModal && (
