@@ -6,6 +6,7 @@ const donationSchema = new mongoose.Schema(
     donorEmail: { type: String, required: true },
     donorPhone: { type: String, required: true },
     donorAddress: { type: String, default: "" },
+    donorPrivacy: { type: String, enum: ["public", "private"], default: "public" }, // ADD
     donationType: { type: String, enum: ["money", "supplies"], required: true },
     amount: { type: Number, default: 0 },
     currency: { type: String, default: "BDT" },

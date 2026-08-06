@@ -13,7 +13,6 @@ import { RestrictedNotice } from "./AccountFlag";
 export default function Donate() {
   const { isBanned } = useAccount();
   const [view, setView] = useState("home");
-  // Flagged accounts keep read access but cannot create anything.
   if (isBanned) return <RestrictedNotice feature="donations" />;
 
   return (
@@ -56,7 +55,8 @@ function DonateHome({ setView }) {
 
 function DonateMoney({ setView }) {
   const [form, setForm] = useState({
-    donorName: "", donorEmail: "", donorPhone: "", donorAddress: "", amount: "",
+    donorName: "", donorEmail: "", donorPhone: "", donorAddress: "",
+    amount: "", donorPrivacy: "public",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -128,6 +128,32 @@ function DonateMoney({ setView }) {
         </div>
         <input name="amount" type="number" value={form.amount} onChange={handleChange} placeholder="Or enter custom amount" min="10" />
       </div>
+
+      <div className="form-group">
+        <label>Show my name as</label>
+        <div className="privacy-toggle">
+          <button
+            type="button"
+            className={`privacy-btn ${form.donorPrivacy === "public" ? "active" : ""}`}
+            onClick={() => setForm({ ...form, donorPrivacy: "public" })}
+          >
+            Public
+          </button>
+          <button
+            type="button"
+            className={`privacy-btn ${form.donorPrivacy === "private" ? "active" : ""}`}
+            onClick={() => setForm({ ...form, donorPrivacy: "private" })}
+          >
+            Private
+          </button>
+        </div>
+        <p className="privacy-hint">
+          {form.donorPrivacy === "public"
+            ? "Your name may appear in the public transparency/donor list."
+            : "Your name will be hidden and shown as \u201cAnonymous Donor\u201d publicly. You'll still see it in My Donations."}
+        </p>
+      </div>
+
       {error && (
         <div className="error-msg">
           <TriangleAlert size={15} strokeWidth={2} />
@@ -276,4 +302,3 @@ function DonateSupplies({ setView }) {
     </div>
   );
 }
-

@@ -109,6 +109,18 @@ export default function PaymentSuccess() {
                 {info.transactionId}
               </span>
             </p>
+            {info.donorPrivacy === "public" && (
+              <p
+                style={{
+                  margin: "0.6rem 0 0 0",
+                  fontSize: "0.78rem",
+                  color: "#16a34a",
+                  fontWeight: 600,
+                }}
+              >
+                🌐 Your name may appear publicly in our transparency page.
+              </p>
+            )}
           </div>
         )}
 

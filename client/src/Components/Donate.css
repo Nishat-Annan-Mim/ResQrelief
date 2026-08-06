@@ -169,6 +169,44 @@
   color: #fff;
 }
 
+/* ── Donor Privacy Toggle ── */
+.privacy-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.privacy-btn {
+  flex: 1;
+  padding: 0.45rem 0.9rem;
+  border: 1.5px solid var(--ad-border-input);
+  border-radius: var(--ad-radius-sm);
+  background: #fff;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--ad-text-body);
+}
+
+.privacy-btn:hover {
+  border-color: var(--ad-primary);
+  color: var(--ad-primary);
+}
+
+.privacy-btn.active {
+  background: var(--ad-primary);
+  border-color: var(--ad-primary);
+  color: #fff;
+}
+
+.privacy-hint {
+  color: var(--ad-text-faint);
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0;
+}
+
 /* ── Buttons ── */
 .btn-primary {
   background: var(--ad-primary);
@@ -320,4 +358,5 @@
   .donate-card { padding: 18px 16px; }
   .donate-card input, .donate-card select, .donate-card textarea { font-size: 16px; min-height: 44px; }
   .donate-card button { min-height: 46px; }
+  .privacy-toggle { flex-direction: column; }
 }

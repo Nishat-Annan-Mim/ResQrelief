@@ -3,6 +3,8 @@ const router = express.Router();
 const DonationModel = require("../model/Donation");
 const { v4: uuidv4 } = require("uuid");
 
+const CERTIFICATE_MIN_AMOUNT = 1000; // ADD: minimum money donation (BDT) to qualify for a certificate
+
 // ✅ PUT THIS FIRST — before any /admin routes
 // GET donations by donor email (for donor view)
 router.get("/my-donations/:email", async (req, res) => {
@@ -69,6 +71,13 @@ router.post("/admin/donor-impact/:id/certificate", async (req, res) => {
   try {
     const donation = await DonationModel.findById(req.params.id);
     if (!donation) return res.status(404).json({ message: "Not found" });
+
+    // ADD: enforce minimum-amount rule for money donations, server-side
+    if (donation.donationType === "money" && donation.amount < CERTIFICATE_MIN_AMOUNT) {
+      return res.status(400).json({
+        message: `Certificates are only issued for money donations of ৳${CERTIFICATE_MIN_AMOUNT} or more.`,
+      });
+    }
 
     const certificateId = "CERT-" + uuidv4().replace(/-/g, "").toUpperCase().slice(0, 12);
 

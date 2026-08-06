@@ -15,7 +15,7 @@ const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
 router.post("/donate/money", blockIfBanned, async (req, res) => {
   console.log("🔥 Request received:", req.body);
   try {
-    const { donorName, donorEmail, donorPhone, donorAddress, amount } = req.body;
+    const { donorName, donorEmail, donorPhone, donorAddress, amount, donorPrivacy } = req.body;
     if (!amount || amount < 10) {
       return res.status(400).json({ message: "Minimum donation amount is 10 BDT" });
     }
@@ -23,6 +23,7 @@ router.post("/donate/money", blockIfBanned, async (req, res) => {
     const donation = new DonationModel({
       donorName, donorEmail, donorPhone, donorAddress,
       donationType: "money", amount, transactionId, paymentStatus: "pending",
+      donorPrivacy: donorPrivacy === "private" ? "private" : "public",
     });
     await donation.save();
     const payload = new URLSearchParams({
@@ -114,7 +115,13 @@ router.get("/donation/status/:transactionId", async (req, res) => {
   try {
     const donation = await DonationModel.findOne({ transactionId: req.params.transactionId });
     if (!donation) return res.status(404).json({ message: "Not found" });
-    res.json({ status: donation.paymentStatus, amount: donation.amount, donorName: donation.donorName, transactionId: donation.transactionId });
+    res.json({
+      status: donation.paymentStatus,
+      amount: donation.amount,
+      donorName: donation.donorPrivacy === "private" ? "Anonymous Donor" : donation.donorName,
+      donorPrivacy: donation.donorPrivacy, // ADD
+      transactionId: donation.transactionId,
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -170,12 +177,18 @@ router.get("/admin/transparency", async (req, res) => {
       { $sort: { fundsUsed: -1 } },
     ]);
 
-    const recentTransactions = await DonationModel.find({
+    const recentTransactionsRaw = await DonationModel.find({
       $or: [{ paymentStatus: "success" }, { donationType: "supplies" }],
     })
       .sort({ createdAt: -1 })
       .limit(10)
-      .select("donorName donationType amount supplies createdAt transactionId paymentStatus dropOffStatus");
+      .select("donorName donationType amount supplies createdAt transactionId paymentStatus dropOffStatus donorPrivacy");
+
+    // Mask private donors before they ever leave the server
+    const recentTransactions = recentTransactionsRaw.map((tx) => ({
+      ...tx.toObject(),
+      donorName: tx.donorPrivacy === "private" ? "Anonymous Donor" : tx.donorName,
+    }));
 
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);

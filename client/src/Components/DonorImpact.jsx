@@ -7,9 +7,12 @@ import {
   Pencil,
   FileBadge,
   Image as ImageIcon,
+  Lock,
 } from "lucide-react";
 import "./DonorImpact.css";
 import AdminLayout from "./AdminLayout";
+
+const CERTIFICATE_MIN_AMOUNT = 1000; // ADD: keep in sync with backend threshold
 
 export default function DonorImpact() {
   const [donations, setDonations] = useState([]);
@@ -35,6 +38,12 @@ export default function DonorImpact() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  // ADD: eligibility check — money donations need to meet the threshold; supplies are unaffected
+  const isCertEligible = (donation) =>
+    donation.donationType === "money"
+      ? (donation.amount || 0) >= CERTIFICATE_MIN_AMOUNT
+      : true;
 
   const openEdit = (donation) => {
     setSelected(donation);
@@ -286,6 +295,13 @@ export default function DonorImpact() {
   };
 
   const generateCertificate = async (donation) => {
+    // ADD: client-side guard so we never even fire the request when ineligible
+    if (!isCertEligible(donation)) {
+      setMessage(
+        `Certificates are only issued for money donations of ৳${CERTIFICATE_MIN_AMOUNT} or more.`,
+      );
+      return;
+    }
     try {
       const res = await fetch(
         `https://resqrelief-fj7z.onrender.com/admin/donor-impact/${donation._id}/certificate`,
@@ -307,6 +323,9 @@ export default function DonorImpact() {
             d._id === donation._id ? { ...d, certificateGenerated: true } : d,
           ),
         );
+      } else {
+        // ADD: surface backend rejection (e.g. threshold not met) instead of silently failing
+        setMessage(data.message || "Error generating certificate");
       }
     } catch {
       alert("Error generating certificate");
@@ -330,6 +349,7 @@ export default function DonorImpact() {
           </h1>
           <p className="di-subtitle">
             Track how donations were used and generate certificates for donors.
+            Certificates require a money donation of ৳{CERTIFICATE_MIN_AMOUNT} or more.
           </p>
 
           {message && (
@@ -471,88 +491,106 @@ export default function DonorImpact() {
                     </tr>
                   </thead>
                   <tbody>
-                    {donations.map((d) => (
-                      <tr key={d._id}>
-                        <td data-label="Donor">
-                          <p className="di-donor-name">{d.donorName}</p>
-                          <p className="di-donor-email">{d.donorEmail}</p>
-                        </td>
-                        <td data-label="Type">
-                          <span
-                            className={`ad-pill ${
-                              d.donationType === "money"
-                                ? "ad-pill-success"
-                                : "ad-pill-info"
-                            }`}
-                          >
-                            {d.donationType}
-                          </span>
-                        </td>
-                        <td data-label="Amount / Items">
-                          {d.donationType === "money"
-                            ? `৳${d.amount?.toLocaleString()}`
-                            : d.supplies
-                                ?.map((s) => `${s.item} x${s.quantity}`)
-                                .join(", ")}
-                        </td>
-                        <td data-label="Area">
-                          {d.servedArea || <span className="di-muted">—</span>}
-                        </td>
-                        <td data-label="Impact">
-                          {d.impactSummary ? (
-                            <span className="di-state-done">
-                              <CircleCheck size={13} strokeWidth={2} />
-                              Added
-                            </span>
-                          ) : (
-                            <span className="di-state-pending">
-                              <Hourglass size={13} strokeWidth={2} />
-                              Pending
-                            </span>
-                          )}
-                        </td>
-                        <td data-label="Images">
-                          {d.impactImages && d.impactImages.length > 0 ? (
-                            <span className="di-state-done">
-                              <ImageIcon size={13} strokeWidth={2} />
-                              {d.impactImages.length}
-                            </span>
-                          ) : (
-                            <span className="di-muted">—</span>
-                          )}
-                        </td>
-                        <td data-label="Certificate">
-                          {d.certificateGenerated ? (
-                            <span className="di-state-done">
-                              <CircleCheck size={13} strokeWidth={2} />
-                              Issued
-                            </span>
-                          ) : (
-                            <span className="di-muted">Not issued</span>
-                          )}
-                        </td>
-                        <td data-label="Actions">
-                          <div className="di-actions">
-                            <button
-                              className="di-btn di-btn-ghost"
-                              onClick={() => openEdit(d)}
+                    {donations.map((d) => {
+                      const eligible = isCertEligible(d); // ADD
+                      return (
+                        <tr key={d._id}>
+                          <td data-label="Donor">
+                            <p className="di-donor-name">{d.donorName}</p>
+                            <p className="di-donor-email">{d.donorEmail}</p>
+                          </td>
+                          <td data-label="Type">
+                            <span
+                              className={`ad-pill ${
+                                d.donationType === "money"
+                                  ? "ad-pill-success"
+                                  : "ad-pill-info"
+                              }`}
                             >
-                              <Pencil size={13} strokeWidth={2} />
-                              Edit Impact
-                            </button>
-                            <button
-                              className="di-btn di-btn-cert"
-                              onClick={() => generateCertificate(d)}
-                            >
-                              <FileBadge size={13} strokeWidth={2} />
-                              {d.certificateGenerated
-                                ? "Re-issue"
-                                : "Generate Cert"}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                              {d.donationType}
+                            </span>
+                          </td>
+                          <td data-label="Amount / Items">
+                            {d.donationType === "money"
+                              ? `৳${d.amount?.toLocaleString()}`
+                              : d.supplies
+                                  ?.map((s) => `${s.item} x${s.quantity}`)
+                                  .join(", ")}
+                          </td>
+                          <td data-label="Area">
+                            {d.servedArea || <span className="di-muted">—</span>}
+                          </td>
+                          <td data-label="Impact">
+                            {d.impactSummary ? (
+                              <span className="di-state-done">
+                                <CircleCheck size={13} strokeWidth={2} />
+                                Added
+                              </span>
+                            ) : (
+                              <span className="di-state-pending">
+                                <Hourglass size={13} strokeWidth={2} />
+                                Pending
+                              </span>
+                            )}
+                          </td>
+                          <td data-label="Images">
+                            {d.impactImages && d.impactImages.length > 0 ? (
+                              <span className="di-state-done">
+                                <ImageIcon size={13} strokeWidth={2} />
+                                {d.impactImages.length}
+                              </span>
+                            ) : (
+                              <span className="di-muted">—</span>
+                            )}
+                          </td>
+                          <td data-label="Certificate">
+                            {d.certificateGenerated ? (
+                              <span className="di-state-done">
+                                <CircleCheck size={13} strokeWidth={2} />
+                                Issued
+                              </span>
+                            ) : eligible ? (
+                              <span className="di-muted">Not issued</span>
+                            ) : (
+                              // ADD: explain why it's locked, reusing existing di-muted style
+                              <span className="di-muted">
+                                Needs ৳{CERTIFICATE_MIN_AMOUNT}+
+                              </span>
+                            )}
+                          </td>
+                          <td data-label="Actions">
+                            <div className="di-actions">
+                              <button
+                                className="di-btn di-btn-ghost"
+                                onClick={() => openEdit(d)}
+                              >
+                                <Pencil size={13} strokeWidth={2} />
+                                Edit Impact
+                              </button>
+                              <button
+                                className="di-btn di-btn-cert"
+                                onClick={() => generateCertificate(d)}
+                                disabled={!eligible} // ADD: locks the button below threshold
+                                title={
+                                  eligible
+                                    ? undefined
+                                    : `Requires a money donation of ৳${CERTIFICATE_MIN_AMOUNT} or more`
+                                }
+                              >
+                                {eligible ? (
+                                  <FileBadge size={13} strokeWidth={2} />
+                                ) : (
+                                  <Lock size={13} strokeWidth={2} />
+                                )}
+                                {d.certificateGenerated
+                                  ? "Re-issue"
+                                  : "Generate Cert"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
