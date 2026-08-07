@@ -37,9 +37,14 @@ io.on("connection", (socket) => {
 });
 
 // ── Middleware ────────────────────────────────────────────────
-app.use(express.json());
+// Donor-impact photos are sent as base64 data URLs inside the JSON body, and
+// express.json() defaults to a 100kb limit — any real phone photo blows past
+// that and the request dies with a 413 before it ever reaches the route.
+// Worse, the 413 body is HTML, so the client's res.json() throws and the
+// actual cause is invisible.
+app.use(express.json({ limit: "15mb" }));
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cors({ origin: (origin, callback) => callback(null, true), credentials: true }));
 
 // ── Database ──────────────────────────────────────────────────

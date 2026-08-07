@@ -11,8 +11,29 @@ import {
 } from "lucide-react";
 import "./DonorImpact.css";
 import AdminLayout from "./AdminLayout";
+import { api, BASE_URL } from "../api";
 
 const CERTIFICATE_MIN_AMOUNT = 1000; // ADD: keep in sync with backend threshold
+
+/**
+ * Turns a failed response into something a human can act on.
+ * Express returns HTML (not JSON) for 413/404, so blindly calling res.json()
+ * throws and hides the real status behind a generic "Error saving" message.
+ */
+async function describeError(res) {
+  if (res.status === 413)
+    return "Images are too large. Try fewer or smaller photos.";
+  try {
+    const text = await res.text();
+    try {
+      return JSON.parse(text).message || text.slice(0, 120);
+    } catch {
+      return `${res.status} ${res.statusText}`;
+    }
+  } catch {
+    return `${res.status} ${res.statusText}`;
+  }
+}
 
 export default function DonorImpact() {
   const [donations, setDonations] = useState([]);
@@ -30,7 +51,7 @@ export default function DonorImpact() {
   const [imagePreview, setImagePreview] = useState([]);
 
   useEffect(() => {
-    fetch("https://resqrelief-fj7z.onrender.com/admin/donor-impact")
+    fetch(api("/admin/donor-impact"))
       .then((r) => r.json())
       .then((d) => {
         setDonations(d);
@@ -85,25 +106,33 @@ export default function DonorImpact() {
     setSaving(true);
     try {
       const res = await fetch(
-        `https://resqrelief-fj7z.onrender.com/admin/donor-impact/${selected._id}`,
+        api(`/admin/donor-impact/${selected._id}`),
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editForm),
         },
       );
-      const data = await res.json();
-      if (res.ok) {
-        setDonations((prev) =>
-          prev.map((d) => (d._id === selected._id ? { ...d, ...editForm } : d)),
-        );
-        setMessage("Impact saved successfully.");
-        setSelected(null);
-      } else {
-        setMessage(data.message);
+      // FIX: a 413 (payload too large) or a 404 returns HTML, not JSON, so
+      // res.json() threw and the real status was lost inside the catch.
+      // Read the status first, and only parse JSON when the body actually is.
+      if (!res.ok) {
+        setMessage(`Save failed: ${await describeError(res)}`);
+        return;
       }
-    } catch {
-      setMessage("Error saving impact.");
+
+      await res.json();
+      setDonations((prev) =>
+        prev.map((d) => (d._id === selected._id ? { ...d, ...editForm } : d)),
+      );
+      setMessage("Impact saved successfully.");
+      setSelected(null);
+    } catch (err) {
+      // A genuine network failure (server not running, wrong port, CORS).
+      console.error("Save impact failed:", err);
+      setMessage(
+        `Could not reach the server (${BASE_URL}). Is the backend running? — ${err.message}`,
+      );
     } finally {
       setSaving(false);
     }
@@ -168,13 +197,17 @@ export default function DonorImpact() {
     });
 
     // Donor name
+    // FIX: anonymous/legacy donations can have no donorName, and both
+    // doc.text() and doc.getTextWidth() throw on undefined.
+    const donorName = donation.donorName || "Anonymous Donor";
+
     doc.setTextColor(26, 26, 26);
     doc.setFontSize(26);
     doc.setFont("helvetica", "bold");
-    doc.text(donation.donorName, pageWidth / 2, 78, { align: "center" });
+    doc.text(donorName, pageWidth / 2, 78, { align: "center" });
 
     // Underline donor name
-    const nameWidth = doc.getTextWidth(donation.donorName);
+    const nameWidth = doc.getTextWidth(donorName);
     doc.setDrawColor(200, 169, 110);
     doc.setLineWidth(0.5);
     doc.line(
@@ -193,10 +226,18 @@ export default function DonorImpact() {
     });
 
     // Donation amount
+    // FIX: both branches could yield undefined — a supply donation with no
+    // `supplies` array, or a money donation with no `amount`. jsPDF throws on
+    // doc.text(undefined, ...), which the caller's bare catch turned into a
+    // useless "Error generating certificate" alert. Always end up with a string.
     const donationValue =
       donation.donationType === "money"
-        ? `BDT ${donation.amount?.toLocaleString()}`
-        : donation.supplies?.map((s) => `${s.item} x${s.quantity}`).join(", ");
+        ? `BDT ${(donation.amount || 0).toLocaleString()}`
+        : donation.supplies?.length
+          ? donation.supplies
+              .map((s) => `${s.item} x${s.quantity}`)
+              .join(", ")
+          : "Donated supplies";
 
     doc.setTextColor(26, 26, 26);
     doc.setFontSize(18);
@@ -290,7 +331,7 @@ export default function DonorImpact() {
     }
 
     doc.save(
-      `RESQRELIEF-Certificate-${donation.donorName}-${new Date().toISOString().split("T")[0]}.pdf`,
+      `RESQRELIEF-Certificate-${donorName}-${new Date().toISOString().split("T")[0]}.pdf`,
     );
   };
 
@@ -304,7 +345,7 @@ export default function DonorImpact() {
     }
     try {
       const res = await fetch(
-        `https://resqrelief-fj7z.onrender.com/admin/donor-impact/${donation._id}/certificate`,
+        api(`/admin/donor-impact/${donation._id}/certificate`),
         { method: "POST" },
       );
       const data = await res.json();
@@ -327,8 +368,12 @@ export default function DonorImpact() {
         // ADD: surface backend rejection (e.g. threshold not met) instead of silently failing
         setMessage(data.message || "Error generating certificate");
       }
-    } catch {
-      alert("Error generating certificate");
+    } catch (err) {
+      // FIX: the old bare `catch {}` threw away the real reason and always
+      // showed the same alert, so a PDF-generation crash looked identical to
+      // a network failure. Log the actual error and show what went wrong.
+      console.error("Certificate generation failed:", err);
+      setMessage(`Certificate failed: ${err.message}`);
     }
   };
 
